@@ -1,0 +1,507 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00F784D4FAB47DF4332C6425 /* District.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9F1D69A6CC1347B73AA4E3 /* District.swift */; };
+		02C74DB491B18E00DD4417CA /* HazardAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C0D625F56008185F35F9155 /* HazardAnalysisView.swift */; };
+		114253E7D8291D44CC8E69B1 /* WebSocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BC2CFD9D24B335F36F7D3D /* WebSocketService.swift */; };
+		1E49705DC15BC2EC8D83EABA /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17C024783735BBB11B639303 /* LocationService.swift */; };
+		200DB4B542BA3E13A03CE27C /* Incident.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00CC6801B4D2EACB05BA7BC5 /* Incident.swift */; };
+		2DB3EA524F368FEA2D3EDF08 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85FA63A04EE5EE7B5057C07 /* AppDelegate.swift */; };
+		30F416229C949ECDB6A12101 /* StatCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B55AAC18C7B344F3514AEB3 /* StatCard.swift */; };
+		4AE320FEE51B285E199CAAAC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18201F221565A6BFA4DE3149 /* Assets.xcassets */; };
+		4AF5463DB163DB6D020E2565 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB1F10CA634F93A0EF047761 /* ErrorView.swift */; };
+		4D49D53F173B9ADD55A5DE43 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D429481634A9311DA3993B8F /* NotificationService.swift */; };
+		65FF9C2651BD5C75C4A6DA7C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1AF85BD430C01FA991B56D /* ContentView.swift */; };
+		73D084B38C4A606F208F3C7F /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23D73FD5B7C7F5DB0499F468 /* AppState.swift */; };
+		81E95CADB3E10D0ACF625550 /* MenuBarPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606928D25D0B200D7FCAE0D8 /* MenuBarPopoverView.swift */; };
+		8AE3184570E90A326679C78A /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9362CCF37CC8DB1994F1D0E /* LoadingView.swift */; };
+		928EEFE17FBA3D01F284BE32 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26C1CC96097B4112BA567A20 /* APIClient.swift */; };
+		9F822FBB3DFC1CC0C9EB5D0A /* SurgePredictionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B17E06A8D9974764F471AC /* SurgePredictionView.swift */; };
+		A25532A266736EE4B0CA2B78 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6297E7472DE6F533FB37F08 /* MapView.swift */; };
+		B8F6BFB2CF4D9FD339B452D2 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E402D24CD12A272D00A3A810 /* DashboardView.swift */; };
+		CAE81A222A5A5218EF341F3A /* Agency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B96EB3BC89B660A8FC89A85 /* Agency.swift */; };
+		DB984963BA40FF8E98E2C4A8 /* HazardScore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BB99137264552AABEDAE1D /* HazardScore.swift */; };
+		E35FD9F0E04FF02EABE734BA /* MeshApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0E8AAA1DB929015EBDBBB0 /* MeshApp.swift */; };
+		FB5DBF085045836BC01BABEB /* SurgeAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE809E4F224245F1A45B40C /* SurgeAlert.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		00CC6801B4D2EACB05BA7BC5 /* Incident.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Incident.swift; sourceTree = "<group>"; };
+		0A1AF85BD430C01FA991B56D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		0B55AAC18C7B344F3514AEB3 /* StatCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatCard.swift; sourceTree = "<group>"; };
+		17C024783735BBB11B639303 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		18201F221565A6BFA4DE3149 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1E9F1D69A6CC1347B73AA4E3 /* District.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = District.swift; sourceTree = "<group>"; };
+		23D73FD5B7C7F5DB0499F468 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		26C1CC96097B4112BA567A20 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		34B17E06A8D9974764F471AC /* SurgePredictionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurgePredictionView.swift; sourceTree = "<group>"; };
+		37BC2CFD9D24B335F36F7D3D /* WebSocketService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketService.swift; sourceTree = "<group>"; };
+		5B96EB3BC89B660A8FC89A85 /* Agency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Agency.swift; sourceTree = "<group>"; };
+		606928D25D0B200D7FCAE0D8 /* MenuBarPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPopoverView.swift; sourceTree = "<group>"; };
+		612A91321FEC5B5FBA71ADDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		7A0E8AAA1DB929015EBDBBB0 /* MeshApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshApp.swift; sourceTree = "<group>"; };
+		9471E63709F31F61974AC64C /* Mesh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mesh.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A130C0C8FD644E2B371ABC3 /* Mesh.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Mesh.entitlements; sourceTree = "<group>"; };
+		9C0D625F56008185F35F9155 /* HazardAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazardAnalysisView.swift; sourceTree = "<group>"; };
+		9FE809E4F224245F1A45B40C /* SurgeAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurgeAlert.swift; sourceTree = "<group>"; };
+		B6297E7472DE6F533FB37F08 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		C6BB99137264552AABEDAE1D /* HazardScore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazardScore.swift; sourceTree = "<group>"; };
+		D429481634A9311DA3993B8F /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		D85FA63A04EE5EE7B5057C07 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		E402D24CD12A272D00A3A810 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		E9362CCF37CC8DB1994F1D0E /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		EB1F10CA634F93A0EF047761 /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		19CA3F32124FE997D286A301 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				47A6849A0E3F787B495E027D /* Components */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		33C8C549366C1A48A346E34E /* Mesh */ = {
+			isa = PBXGroup;
+			children = (
+				612A91321FEC5B5FBA71ADDF /* Info.plist */,
+				9A130C0C8FD644E2B371ABC3 /* Mesh.entitlements */,
+				D88C7A509BE67A6E1961261F /* App */,
+				F9FDE23F996488D5B6707F67 /* Core */,
+				BAF879D435466D542E85F936 /* Features */,
+				471401043784EEE9E7355D6C /* Resources */,
+				19CA3F32124FE997D286A301 /* Shared */,
+			);
+			path = Mesh;
+			sourceTree = "<group>";
+		};
+		42402A07044339F8727C0123 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5B96EB3BC89B660A8FC89A85 /* Agency.swift */,
+				1E9F1D69A6CC1347B73AA4E3 /* District.swift */,
+				C6BB99137264552AABEDAE1D /* HazardScore.swift */,
+				00CC6801B4D2EACB05BA7BC5 /* Incident.swift */,
+				9FE809E4F224245F1A45B40C /* SurgeAlert.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		471401043784EEE9E7355D6C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				18201F221565A6BFA4DE3149 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		47A6849A0E3F787B495E027D /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				EB1F10CA634F93A0EF047761 /* ErrorView.swift */,
+				E9362CCF37CC8DB1994F1D0E /* LoadingView.swift */,
+				0B55AAC18C7B344F3514AEB3 /* StatCard.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		516F9C7CE3585667113094B6 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				26C1CC96097B4112BA567A20 /* APIClient.swift */,
+				37BC2CFD9D24B335F36F7D3D /* WebSocketService.swift */,
+			);
+			path = Networking;
+			sourceTree = "<group>";
+		};
+		5BBB015771AB2B24DFD1667B /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				B6297E7472DE6F533FB37F08 /* MapView.swift */,
+			);
+			path = Map;
+			sourceTree = "<group>";
+		};
+		601CA68DEB295E8B49BB1FA9 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				E402D24CD12A272D00A3A810 /* DashboardView.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		64F9FFCA93846FDF285DEB11 /* SurgePrediction */ = {
+			isa = PBXGroup;
+			children = (
+				34B17E06A8D9974764F471AC /* SurgePredictionView.swift */,
+			);
+			path = SurgePrediction;
+			sourceTree = "<group>";
+		};
+		8B628407C52EAC9C14383E3E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9471E63709F31F61974AC64C /* Mesh.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9EF071A088756E2AD9F614B9 /* HazardAnalysis */ = {
+			isa = PBXGroup;
+			children = (
+				9C0D625F56008185F35F9155 /* HazardAnalysisView.swift */,
+			);
+			path = HazardAnalysis;
+			sourceTree = "<group>";
+		};
+		A1BCDC4CA8C2F7E32A17B3DE /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				17C024783735BBB11B639303 /* LocationService.swift */,
+				D429481634A9311DA3993B8F /* NotificationService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B01714FDD3FBB1EE2E9F60AB /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				606928D25D0B200D7FCAE0D8 /* MenuBarPopoverView.swift */,
+			);
+			path = MenuBar;
+			sourceTree = "<group>";
+		};
+		BAF879D435466D542E85F936 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				601CA68DEB295E8B49BB1FA9 /* Dashboard */,
+				9EF071A088756E2AD9F614B9 /* HazardAnalysis */,
+				5BBB015771AB2B24DFD1667B /* Map */,
+				B01714FDD3FBB1EE2E9F60AB /* MenuBar */,
+				64F9FFCA93846FDF285DEB11 /* SurgePrediction */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		D88C7A509BE67A6E1961261F /* App */ = {
+			isa = PBXGroup;
+			children = (
+				D85FA63A04EE5EE7B5057C07 /* AppDelegate.swift */,
+				23D73FD5B7C7F5DB0499F468 /* AppState.swift */,
+				0A1AF85BD430C01FA991B56D /* ContentView.swift */,
+				7A0E8AAA1DB929015EBDBBB0 /* MeshApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		ED686B075E08EEF838E83557 = {
+			isa = PBXGroup;
+			children = (
+				33C8C549366C1A48A346E34E /* Mesh */,
+				8B628407C52EAC9C14383E3E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F9FDE23F996488D5B6707F67 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				42402A07044339F8727C0123 /* Models */,
+				516F9C7CE3585667113094B6 /* Networking */,
+				A1BCDC4CA8C2F7E32A17B3DE /* Services */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2607BAF3CAE3973FA5F0947A /* Mesh */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1AE3F4C8469FDDE808ADE422 /* Build configuration list for PBXNativeTarget "Mesh" */;
+			buildPhases = (
+				488AB397F7C8CDFA7C025FFD /* Sources */,
+				0F52A20AC105E46EE3A53AD4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Mesh;
+			packageProductDependencies = (
+			);
+			productName = Mesh;
+			productReference = 9471E63709F31F61974AC64C /* Mesh.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8CBAFBEA29B26ABDFE91E07C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					2607BAF3CAE3973FA5F0947A = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 0970FC6862FED27A8B449456 /* Build configuration list for PBXProject "Mesh" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = ED686B075E08EEF838E83557;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2607BAF3CAE3973FA5F0947A /* Mesh */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0F52A20AC105E46EE3A53AD4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4AE320FEE51B285E199CAAAC /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		488AB397F7C8CDFA7C025FFD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				928EEFE17FBA3D01F284BE32 /* APIClient.swift in Sources */,
+				CAE81A222A5A5218EF341F3A /* Agency.swift in Sources */,
+				2DB3EA524F368FEA2D3EDF08 /* AppDelegate.swift in Sources */,
+				73D084B38C4A606F208F3C7F /* AppState.swift in Sources */,
+				65FF9C2651BD5C75C4A6DA7C /* ContentView.swift in Sources */,
+				B8F6BFB2CF4D9FD339B452D2 /* DashboardView.swift in Sources */,
+				00F784D4FAB47DF4332C6425 /* District.swift in Sources */,
+				4AF5463DB163DB6D020E2565 /* ErrorView.swift in Sources */,
+				02C74DB491B18E00DD4417CA /* HazardAnalysisView.swift in Sources */,
+				DB984963BA40FF8E98E2C4A8 /* HazardScore.swift in Sources */,
+				200DB4B542BA3E13A03CE27C /* Incident.swift in Sources */,
+				8AE3184570E90A326679C78A /* LoadingView.swift in Sources */,
+				1E49705DC15BC2EC8D83EABA /* LocationService.swift in Sources */,
+				A25532A266736EE4B0CA2B78 /* MapView.swift in Sources */,
+				81E95CADB3E10D0ACF625550 /* MenuBarPopoverView.swift in Sources */,
+				E35FD9F0E04FF02EABE734BA /* MeshApp.swift in Sources */,
+				4D49D53F173B9ADD55A5DE43 /* NotificationService.swift in Sources */,
+				30F416229C949ECDB6A12101 /* StatCard.swift in Sources */,
+				FB5DBF085045836BC01BABEB /* SurgeAlert.swift in Sources */,
+				9F822FBB3DFC1CC0C9EB5D0A /* SurgePredictionView.swift in Sources */,
+				114253E7D8291D44CC8E69B1 /* WebSocketService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4042C450D2E417D905969386 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Mesh/Mesh.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Mesh/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mesh.Mesh;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		5A8E9CE0E9292CAC9C3C86DC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = Mesh/Mesh.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Mesh/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = Mesh;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		92EAE632B4796D76B0FFBD4A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Mesh/Mesh.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Mesh/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mesh.Mesh;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		CD34FCF1CDE6628C429205E3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = Mesh/Mesh.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Mesh/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = Mesh;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0970FC6862FED27A8B449456 /* Build configuration list for PBXProject "Mesh" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A8E9CE0E9292CAC9C3C86DC /* Debug */,
+				CD34FCF1CDE6628C429205E3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		1AE3F4C8469FDDE808ADE422 /* Build configuration list for PBXNativeTarget "Mesh" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92EAE632B4796D76B0FFBD4A /* Debug */,
+				4042C450D2E417D905969386 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8CBAFBEA29B26ABDFE91E07C /* Project object */;
+}
