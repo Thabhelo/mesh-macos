@@ -353,40 +353,49 @@ struct AnimatedOrbBackground: View {
 struct LightThemeBackground: View {
     var body: some View {
         ZStack {
-            // Base white
+            // Pure white base
             Color.white
             
-            // Subtle warm gradient
+            // Very subtle warm tint
             LinearGradient(
                 colors: [
                     Color.white,
-                    Color(red: 1.0, green: 0.98, blue: 0.96),
-                    Color(red: 0.99, green: 0.97, blue: 0.95)
+                    Color(red: 0.995, green: 0.985, blue: 0.975)
                 ],
                 startPoint: .top,
                 endPoint: .bottom
             )
             
-            // Accent glow at top
+            // Subtle accent glow at top-right
             RadialGradient(
                 colors: [
-                    MeshTheme.Colors.primary.opacity(0.08),
+                    MeshTheme.Colors.primary.opacity(0.04),
                     Color.clear
                 ],
                 center: .topTrailing,
                 startRadius: 100,
-                endRadius: 500
+                endRadius: 600
             )
+        }
+        .ignoresSafeArea()
+    }
+}
+
+// MARK: - App Background (for main app views)
+
+struct AppBackground: View {
+    var body: some View {
+        ZStack {
+            Color(red: 0.97, green: 0.97, blue: 0.98)
             
-            // Secondary glow at bottom
-            RadialGradient(
+            // Subtle mesh pattern overlay (optional)
+            LinearGradient(
                 colors: [
-                    MeshTheme.Colors.secondary.opacity(0.05),
+                    Color.white.opacity(0.5),
                     Color.clear
                 ],
-                center: .bottomLeading,
-                startRadius: 50,
-                endRadius: 400
+                startPoint: .top,
+                endPoint: .center
             )
         }
         .ignoresSafeArea()
