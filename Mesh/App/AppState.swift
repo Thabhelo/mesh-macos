@@ -51,6 +51,7 @@ class AppState: ObservableObject {
     @Published var selectedIncidentId: String?
     @Published var isConnected: Bool = false
     @Published var systemStatus: SystemStatus = .normal
+    @Published var showWelcome: Bool = true
     
     // Data
     @Published var incidents: [Incident] = []
@@ -100,20 +101,25 @@ class AppState: ObservableObject {
     func loadInitialData() async {
         do {
             // Load agencies
-            agencies = try await APIClient.shared.fetchAgencies()
+            let loadedAgencies = try await APIClient.shared.fetchAgencies()
+            agencies = loadedAgencies
             
             // Load districts
-            districts = try await APIClient.shared.fetchDistricts()
-            selectedDistricts = Set(districts.map { $0.id })
+            let loadedDistricts = try await APIClient.shared.fetchDistricts()
+            districts = loadedDistricts
+            selectedDistricts = Set(loadedDistricts.map { $0.id })
             
             // Load initial incidents
-            incidents = try await APIClient.shared.fetchIncidents()
+            let loadedIncidents = try await APIClient.shared.fetchIncidents()
+            incidents = loadedIncidents
             
             // Load surge alerts
-            surgeAlerts = try await APIClient.shared.fetchSurgeAlerts()
+            let loadedSurgeAlerts = try await APIClient.shared.fetchSurgeAlerts()
+            surgeAlerts = loadedSurgeAlerts
             
             // Load hazard score
-            hazardScore = try await APIClient.shared.fetchHazardScore()
+            let loadedHazardScore = try await APIClient.shared.fetchHazardScore()
+            hazardScore = loadedHazardScore
             
             // Update system status
             updateSystemStatus()
@@ -135,28 +141,38 @@ class AppState: ObservableObject {
         selectedIncidentId = nil
     }
     
+    func dismissWelcome() {
+        showWelcome = false
+    }
+    
     // MARK: - Private Methods
     
     private func setupSubscriptions() {
-        // Listen for WebSocket updates
+        // Listen for WebSocket updates - use Task to avoid publishing during view updates
         WebSocketService.shared.incidentUpdates
             .receive(on: DispatchQueue.main)
             .sink { [weak self] update in
-                self?.handleIncidentUpdate(update)
+                Task { @MainActor in
+                    self?.handleIncidentUpdate(update)
+                }
             }
             .store(in: &cancellables)
         
         WebSocketService.shared.surgeUpdates
             .receive(on: DispatchQueue.main)
             .sink { [weak self] alert in
-                self?.handleSurgeUpdate(alert)
+                Task { @MainActor in
+                    self?.handleSurgeUpdate(alert)
+                }
             }
             .store(in: &cancellables)
         
         WebSocketService.shared.connectionStatus
             .receive(on: DispatchQueue.main)
             .sink { [weak self] connected in
-                self?.isConnected = connected
+                Task { @MainActor in
+                    self?.isConnected = connected
+                }
             }
             .store(in: &cancellables)
     }
@@ -212,4 +228,3 @@ class AppState: ObservableObject {
         }
     }
 }
-
