@@ -4,7 +4,17 @@ struct DashboardView: View {
     @EnvironmentObject var appState: AppState
     @State private var selectedIncident: Incident?
     @State private var isLoading = false
-    
+    @State private var incidentPriorities: [String: Double] = [:]
+    @State private var animationTimer: Timer?
+
+    private var sortedIncidents: [Incident] {
+        appState.filteredIncidents.sorted { incident1, incident2 in
+            let priority1 = incidentPriorities[incident1.id] ?? Double(incident1.severity.rawValue)
+            let priority2 = incidentPriorities[incident2.id] ?? Double(incident2.severity.rawValue)
+            return priority1 > priority2
+        }
+    }
+
     var body: some View {
         HSplitView {
             // Incident List
@@ -27,7 +37,7 @@ struct DashboardView: View {
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 12) {
-                            ForEach(appState.filteredIncidents) { incident in
+                            ForEach(sortedIncidents) { incident in
                                 IncidentCard(incident: incident, isSelected: selectedIncident?.id == incident.id)
                                     .onTapGesture {
                                         withAnimation(.easeInOut(duration: 0.2)) {
@@ -35,13 +45,18 @@ struct DashboardView: View {
                                             appState.selectIncident(incident)
                                         }
                                     }
+                                    .transition(.asymmetric(
+                                        insertion: .scale.combined(with: .opacity),
+                                        removal: .scale.combined(with: .opacity)
+                                    ))
                             }
                         }
+                        .animation(.spring(response: 0.6, dampingFraction: 0.7), value: sortedIncidents.map { $0.id })
                         .padding()
                     }
                 }
             }
-            .frame(minWidth: 400, idealWidth: 500)
+            .frame(minWidth: 650, idealWidth: 750)
             
             // Detail Panel
             if let incident = selectedIncident {
@@ -60,6 +75,26 @@ struct DashboardView: View {
             if let firstIncident = appState.filteredIncidents.first {
                 selectedIncident = firstIncident
             }
+            startPriorityAnimation()
+        }
+        .onDisappear {
+            animationTimer?.invalidate()
+        }
+    }
+
+    private func startPriorityAnimation() {
+        for incident in appState.filteredIncidents {
+            incidentPriorities[incident.id] = Double(incident.severity.rawValue)
+        }
+
+        animationTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { _ in
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                for incident in appState.filteredIncidents {
+                    let basePriority = Double(incident.severity.rawValue)
+                    let randomOffset = Double.random(in: -0.8...0.8)
+                    incidentPriorities[incident.id] = basePriority + randomOffset
+                }
+            }
         }
     }
 }
@@ -71,13 +106,13 @@ struct DashboardHeaderView: View {
         VStack(spacing: 12) {
             HStack {
                 Text("Real-Time Incidents")
-                    .font(.title2)
-                    .fontWeight(.semibold)
+                    .font(.title)
+                    .fontWeight(.bold)
                 
                 Spacer()
                 
                 Text("\(appState.filteredIncidents.count) incidents")
-                    .font(.subheadline)
+                    .font(.title3)
                     .foregroundColor(.secondary)
             }
             
@@ -148,74 +183,72 @@ struct IncidentCard: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            // Agency type indicator
             VStack {
                 Image(systemName: incident.agencyType.icon)
-                    .font(.title2)
+                    .font(.title)
                     .foregroundColor(incident.agencyType.color)
-                
+
                 Circle()
                     .fill(incident.status.color)
-                    .frame(width: 8, height: 8)
+                    .frame(width: 10, height: 10)
             }
-            .frame(width: 40)
+            .frame(width: 50)
             
-            // Main content
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(incident.type)
-                        .font(.headline)
-                    
+                        .font(.title3)
+                        .fontWeight(.semibold)
+
                     Spacer()
-                    
+
                     SeverityBadge(severity: incident.severity)
                 }
-                
+
                 Text(incident.address)
-                    .font(.subheadline)
+                    .font(.title3)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
-                
+
                 HStack {
                     Text(incident.districtName)
-                        .font(.caption)
+                        .font(.body)
                         .foregroundColor(.secondary)
-                    
+
                     Spacer()
-                    
+
                     HStack(spacing: 4) {
                         Image(systemName: "clock")
-                            .font(.caption2)
+                            .font(.callout)
                         Text(incident.timeAgo)
-                            .font(.caption)
+                            .font(.body)
                     }
                     .foregroundColor(.secondary)
                 }
                 
-                // Responding units
                 if !incident.respondingUnits.isEmpty {
                     HStack(spacing: 4) {
                         Image(systemName: "person.2.fill")
-                            .font(.caption2)
+                            .font(.callout)
                             .foregroundColor(.secondary)
-                        
+
                         Text("\(incident.respondingUnits.count) units")
-                            .font(.caption)
+                            .font(.body)
                             .foregroundColor(.secondary)
-                        
+
                         ForEach(incident.respondingUnits.prefix(3)) { unit in
                             Text(unit.unitName)
-                                .font(.caption2)
-                                .padding(.horizontal, 4)
-                                .padding(.vertical, 2)
+                                .font(.callout)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 3)
                                 .background(unit.agencyType.color.opacity(0.2))
                                 .foregroundColor(unit.agencyType.color)
                                 .cornerRadius(4)
                         }
-                        
+
                         if incident.respondingUnits.count > 3 {
                             Text("+\(incident.respondingUnits.count - 3)")
-                                .font(.caption2)
+                                .font(.callout)
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -234,16 +267,16 @@ struct IncidentCard: View {
 
 struct SeverityBadge: View {
     let severity: IncidentSeverity
-    
+
     var body: some View {
         Text(severity.label)
-            .font(.caption2)
-            .fontWeight(.semibold)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
+            .font(.callout)
+            .fontWeight(.bold)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             .background(severity.color.opacity(0.2))
             .foregroundColor(severity.color)
-            .cornerRadius(4)
+            .cornerRadius(6)
     }
 }
 

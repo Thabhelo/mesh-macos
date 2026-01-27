@@ -62,18 +62,19 @@ struct OverallHazardCard: View {
                 }
                 
                 Text(hazard.statusLabel)
-                    .font(.headline)
+                    .font(.title2)
+                    .fontWeight(.bold)
                     .foregroundColor(hazard.statusColor)
             }
             .padding(.trailing)
             
             VStack(alignment: .leading, spacing: 12) {
                 Text("Regional Hazard Score")
-                    .font(.title2)
+                    .font(.largeTitle)
                     .fontWeight(.bold)
-                
+
                 Text("Last updated \(hazard.lastUpdated.formatted(date: .omitted, time: .shortened))")
-                    .font(.caption)
+                    .font(.title3)
                     .foregroundColor(.secondary)
                 
                 Divider()
@@ -112,14 +113,15 @@ struct HazardChangeIndicator: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
-                .font(.caption)
+                .font(.body)
                 .foregroundColor(.secondary)
-            
+
             HStack(spacing: 4) {
                 Image(systemName: change > 0 ? "arrow.up" : change < 0 ? "arrow.down" : "minus")
-                    .font(.caption)
+                    .font(.title3)
                 Text("\(abs(change))")
-                    .fontWeight(.semibold)
+                    .font(.title2)
+                    .fontWeight(.bold)
             }
             .foregroundColor(change > 5 ? .red : change < -5 ? .green : .secondary)
         }
@@ -133,8 +135,8 @@ struct ComponentBreakdownSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Contributing Factors")
-                .font(.title3)
-                .fontWeight(.semibold)
+                .font(.title)
+                .fontWeight(.bold)
             
             HStack(spacing: 12) {
                 ForEach(hazard.components.allComponents, id: \.name) { component in
@@ -191,11 +193,11 @@ struct ComponentCard: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(name)
-                    .font(.caption)
+                    .font(.body)
                     .foregroundColor(.secondary)
-                
+
                 Text("\(score.score)")
-                    .font(.title2)
+                    .font(.largeTitle)
                     .fontWeight(.bold)
                     .foregroundColor(score.color)
             }
@@ -216,7 +218,7 @@ struct ComponentCard: View {
             .cornerRadius(2)
             
             Text("\(Int(score.weight * 100))% weight")
-                .font(.caption2)
+                .font(.callout)
                 .foregroundColor(.secondary)
         }
         .padding()
@@ -237,26 +239,27 @@ struct ComponentDetailPanel: View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(name)
-                    .font(.headline)
-                
+                    .font(.title2)
+                    .fontWeight(.bold)
+
                 Text(score.details)
-                    .font(.body)
+                    .font(.title3)
                     .foregroundColor(.secondary)
             }
-            
+
             Spacer()
-            
+
             VStack(alignment: .trailing, spacing: 4) {
                 HStack {
                     Text("Trend:")
                     Image(systemName: score.trend.icon)
                     Text(score.trend.rawValue)
                 }
-                .font(.subheadline)
+                .font(.title3)
                 .foregroundColor(score.trend.color)
-                
+
                 Text("Weighted contribution: \(String(format: "%.1f", score.weightedScore))")
-                    .font(.caption)
+                    .font(.body)
                     .foregroundColor(.secondary)
             }
         }
@@ -294,8 +297,8 @@ struct HistoricalComparisonSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("7-Day Trend")
-                .font(.title3)
-                .fontWeight(.semibold)
+                .font(.title)
+                .fontWeight(.bold)
             
             Chart(historicalData, id: \.date) { item in
                 LineMark(
@@ -350,8 +353,8 @@ struct DistrictHazardSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("District Risk Levels")
-                .font(.title3)
-                .fontWeight(.semibold)
+                .font(.title)
+                .fontWeight(.bold)
             
             LazyVGrid(columns: [
                 GridItem(.flexible()),
@@ -374,19 +377,19 @@ struct DistrictHazardCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(district.districtName)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                
-                Spacer()
-                
-                Text("\(district.score)")
                     .font(.title3)
+                    .fontWeight(.semibold)
+
+                Spacer()
+
+                Text("\(district.score)")
+                    .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(district.color)
             }
-            
+
             Text("Primary: \(district.primaryRisk)")
-                .font(.caption)
+                .font(.body)
                 .foregroundColor(.secondary)
             
             // Score bar

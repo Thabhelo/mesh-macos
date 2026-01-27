@@ -94,11 +94,11 @@ struct SurgeHeaderView: View {
         HStack {
             VStack(alignment: .leading) {
                 Text("Surge Prediction")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                
+                    .font(.title)
+                    .fontWeight(.bold)
+
                 Text("Real-time call volume analysis and predictions")
-                    .font(.subheadline)
+                    .font(.title3)
                     .foregroundColor(.secondary)
             }
             
@@ -182,18 +182,19 @@ struct SurgeOverviewCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: icon)
+                    .font(.title3)
                     .foregroundColor(color)
                 Text(title)
-                    .font(.caption)
+                    .font(.body)
                     .foregroundColor(.secondary)
             }
-            
+
             Text(value)
-                .font(.title)
+                .font(.largeTitle)
                 .fontWeight(.bold)
-            
+
             Text(subtitle)
-                .font(.caption2)
+                .font(.callout)
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -210,7 +211,8 @@ struct SurgeTrendChart: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Call Volume Trend")
-                .font(.headline)
+                .font(.title2)
+                .fontWeight(.bold)
             
             if data.isEmpty {
                 ProgressView("Loading trend data...")
@@ -291,7 +293,7 @@ struct LegendItem: View {
                     .frame(width: 20, height: 3)
             }
             Text(label)
-                .font(.caption)
+                .font(.body)
                 .foregroundColor(.secondary)
         }
     }
@@ -305,7 +307,8 @@ struct DistrictSurgeGrid: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("District Status")
-                .font(.headline)
+                .font(.title2)
+                .fontWeight(.bold)
             
             LazyVGrid(columns: [
                 GridItem(.flexible()),
@@ -338,18 +341,20 @@ struct DistrictSurgeCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(district.shortName)
-                    .font(.headline)
-                
+                    .font(.title2)
+                    .fontWeight(.bold)
+
                 Spacer()
-                
+
                 if let alert = alert {
                     Image(systemName: alert.severity.icon)
+                        .font(.title3)
                         .foregroundColor(alert.severity.color)
                 }
             }
-            
+
             Text(district.name)
-                .font(.caption)
+                .font(.body)
                 .foregroundColor(.secondary)
                 .lineLimit(1)
             
@@ -358,23 +363,23 @@ struct DistrictSurgeCard: View {
             HStack {
                 VStack(alignment: .leading) {
                     Text("Active")
-                        .font(.caption2)
+                        .font(.callout)
                         .foregroundColor(.secondary)
                     Text("\(district.activeIncidents)")
-                        .font(.title3)
-                        .fontWeight(.semibold)
+                        .font(.title)
+                        .fontWeight(.bold)
                 }
-                
+
                 Spacer()
-                
+
                 if let alert = alert {
                     VStack(alignment: .trailing) {
                         Text("Surge")
-                            .font(.caption2)
+                            .font(.callout)
                             .foregroundColor(.secondary)
                         Text("+\(Int(alert.percentageIncrease))%")
-                            .font(.title3)
-                            .fontWeight(.semibold)
+                            .font(.title)
+                            .fontWeight(.bold)
                             .foregroundColor(alert.severity.color)
                     }
                 }
@@ -404,20 +409,20 @@ struct DistrictDetailView: View {
                 // Header
                 VStack(alignment: .leading, spacing: 4) {
                     Text(district.name)
-                        .font(.title2)
+                        .font(.title)
                         .fontWeight(.bold)
-                    
+
                     if let alert = alert {
                         HStack {
                             Image(systemName: alert.severity.icon)
                             Text(alert.severity.label)
                             Text("• \(alert.timeAgo)")
                         }
-                        .font(.subheadline)
+                        .font(.title3)
                         .foregroundColor(alert.severity.color)
                     } else {
                         Text("Normal operations")
-                            .font(.subheadline)
+                            .font(.title3)
                             .foregroundColor(.green)
                     }
                 }
@@ -446,16 +451,16 @@ struct DistrictDetailView: View {
                             Text("\(alert.currentCallVolume) calls")
                                 .fontWeight(.semibold)
                         }
-                        .font(.subheadline)
-                        
+                        .font(.title3)
+
                         HStack {
                             Text("Expected Volume")
                             Spacer()
                             Text("\(alert.expectedCallVolume) calls")
                         }
-                        .font(.subheadline)
+                        .font(.title3)
                         .foregroundColor(.secondary)
-                        
+
                         HStack {
                             Text("Trend")
                             Spacer()
@@ -465,16 +470,16 @@ struct DistrictDetailView: View {
                             }
                             .foregroundColor(alert.trend.color)
                         }
-                        .font(.subheadline)
-                        
+                        .font(.title3)
+
                         HStack {
                             Text("Confidence")
                             Spacer()
                             Text(alert.formattedConfidence)
                                 .fontWeight(.semibold)
                         }
-                        .font(.subheadline)
-                        
+                        .font(.title3)
+
                         if let peakTime = alert.predictedPeakTime {
                             HStack {
                                 Text("Predicted Peak")
@@ -482,7 +487,7 @@ struct DistrictDetailView: View {
                                 Text(peakTime.formatted(date: .omitted, time: .shortened))
                                     .fontWeight(.semibold)
                             }
-                            .font(.subheadline)
+                            .font(.title3)
                         }
                     }
                     .padding()
@@ -520,11 +525,11 @@ struct StatBox: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.caption)
+                .font(.body)
                 .foregroundColor(.secondary)
             Text(value)
-                .font(.title3)
-                .fontWeight(.semibold)
+                .font(.title2)
+                .fontWeight(.bold)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()

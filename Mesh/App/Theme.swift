@@ -66,16 +66,16 @@ struct MeshTheme {
     // MARK: - Typography (using SF Pro Rounded like Nunito)
     
     struct Typography {
-        static let displayFont = Font.system(size: 52, weight: .bold, design: .rounded)
-        static let titleFont = Font.system(size: 36, weight: .bold, design: .rounded)
-        static let title2Font = Font.system(size: 28, weight: .semibold, design: .rounded)
-        static let title3Font = Font.system(size: 22, weight: .semibold, design: .rounded)
-        static let headlineFont = Font.system(size: 18, weight: .semibold, design: .rounded)
-        static let bodyFont = Font.system(size: 16, weight: .regular, design: .rounded)
-        static let bodyLarge = Font.system(size: 18, weight: .regular, design: .rounded)
-        static let calloutFont = Font.system(size: 15, weight: .medium, design: .rounded)
-        static let captionFont = Font.system(size: 13, weight: .medium, design: .rounded)
-        static let caption2Font = Font.system(size: 12, weight: .regular, design: .rounded)
+        static let displayFont = Font.system(size: 58, weight: .bold, design: .rounded)
+        static let titleFont = Font.system(size: 42, weight: .bold, design: .rounded)
+        static let title2Font = Font.system(size: 34, weight: .semibold, design: .rounded)
+        static let title3Font = Font.system(size: 26, weight: .semibold, design: .rounded)
+        static let headlineFont = Font.system(size: 22, weight: .semibold, design: .rounded)
+        static let bodyFont = Font.system(size: 19, weight: .regular, design: .rounded)
+        static let bodyLarge = Font.system(size: 21, weight: .regular, design: .rounded)
+        static let calloutFont = Font.system(size: 18, weight: .medium, design: .rounded)
+        static let captionFont = Font.system(size: 16, weight: .medium, design: .rounded)
+        static let caption2Font = Font.system(size: 14, weight: .regular, design: .rounded)
     }
     
     // MARK: - Spacing

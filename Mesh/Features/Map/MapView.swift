@@ -149,16 +149,15 @@ struct MapControlPanel: View {
                     // District overlay toggle
                     Toggle(isOn: $showDistrictOverlay) {
                         Label("District Overlay", systemImage: "square.dashed")
-                            .font(.caption)
+                            .font(.body)
                     }
                     .toggleStyle(.switch)
                     .controlSize(.small)
-                    
+
                     Divider()
-                    
-                    // Map style
+
                     Text("Map Style")
-                        .font(.caption)
+                        .font(.body)
                         .foregroundColor(.secondary)
                     
                     Picker("Style", selection: $mapStyleOption) {
@@ -171,12 +170,11 @@ struct MapControlPanel: View {
                     
                     Divider()
                     
-                    // Center button
                     Button {
                         onCenterBirmingham()
                     } label: {
                         Label("Center on Birmingham", systemImage: "location.fill")
-                            .font(.caption)
+                            .font(.body)
                     }
                     .buttonStyle(.plain)
                 }
@@ -194,17 +192,17 @@ struct MapLegend: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Legend")
-                .font(.caption)
+                .font(.body)
                 .fontWeight(.semibold)
                 .foregroundColor(.secondary)
-            
+
             ForEach(AgencyType.allCases) { type in
                 HStack(spacing: 6) {
                     Circle()
                         .fill(type.color)
-                        .frame(width: 10, height: 10)
+                        .frame(width: 12, height: 12)
                     Text(type.rawValue)
-                        .font(.caption2)
+                        .font(.callout)
                 }
             }
         }
@@ -224,12 +222,13 @@ struct MapSidebar: View {
             // Header
             HStack {
                 Text("Incidents")
-                    .font(.headline)
-                
+                    .font(.title2)
+                    .fontWeight(.bold)
+
                 Spacer()
-                
+
                 Text("\(appState.filteredIncidents.count)")
-                    .font(.subheadline)
+                    .font(.title3)
                     .foregroundColor(.secondary)
             }
             .padding()
@@ -286,20 +285,20 @@ struct MapIncidentRow: View {
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(incident.type)
-                    .font(.caption)
+                    .font(.body)
                     .fontWeight(.medium)
                     .lineLimit(1)
-                
+
                 Text(incident.address)
-                    .font(.caption2)
+                    .font(.callout)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
             }
-            
+
             Spacer()
-            
+
             Text(incident.timeAgo)
-                .font(.caption2)
+                .font(.callout)
                 .foregroundColor(.secondary)
         }
         .padding(8)
@@ -315,33 +314,34 @@ struct MapIncidentDetail: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: incident.agencyType.icon)
+                    .font(.title3)
                     .foregroundColor(incident.agencyType.color)
-                
+
                 Text(incident.type)
-                    .font(.subheadline)
+                    .font(.title3)
                     .fontWeight(.semibold)
-                
+
                 Spacer()
-                
+
                 SeverityBadge(severity: incident.severity)
             }
-            
+
             Text(incident.address)
-                .font(.caption)
+                .font(.body)
                 .foregroundColor(.secondary)
-            
+
             Text(incident.description)
-                .font(.caption)
+                .font(.body)
                 .foregroundColor(.secondary)
                 .lineLimit(2)
-            
+
             HStack {
                 StatusIndicator(status: incident.status)
-                
+
                 Spacer()
-                
+
                 Text("\(incident.respondingUnits.count) units responding")
-                    .font(.caption)
+                    .font(.body)
                     .foregroundColor(.secondary)
             }
         }

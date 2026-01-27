@@ -153,14 +153,18 @@ struct QuickStatItem: View {
 
 struct MenuBarRecentIncidents: View {
     @EnvironmentObject var appState: AppState
-    
+    @State private var incidentPriorities: [String: Double] = [:]
+    @State private var animationTimer: Timer?
+
     private var recentIncidents: [Incident] {
-        Array(appState.incidents
-            .filter { $0.status == .active }
-            .sorted { $0.reportedAt > $1.reportedAt }
-            .prefix(3))
+        let activeIncidents = appState.incidents.filter { $0.status == .active }
+        return Array(activeIncidents.sorted { incident1, incident2 in
+            let priority1 = incidentPriorities[incident1.id] ?? Double(incident1.severity.rawValue)
+            let priority2 = incidentPriorities[incident2.id] ?? Double(incident2.severity.rawValue)
+            return priority1 > priority2
+        }.prefix(3))
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: MeshTheme.Spacing.sm) {
             HStack {
@@ -192,11 +196,39 @@ struct MenuBarRecentIncidents: View {
             } else {
                 ForEach(recentIncidents) { incident in
                     MenuBarIncidentRow(incident: incident)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .leading).combined(with: .opacity),
+                            removal: .move(edge: .trailing).combined(with: .opacity)
+                        ))
                 }
+                .animation(.spring(response: 0.6, dampingFraction: 0.7), value: recentIncidents.map { $0.id })
             }
         }
         .padding(MeshTheme.Spacing.md)
         .background(Color.white)
+        .onAppear {
+            startPriorityAnimation()
+        }
+        .onDisappear {
+            animationTimer?.invalidate()
+        }
+    }
+
+    private func startPriorityAnimation() {
+        let activeIncidents = appState.incidents.filter { $0.status == .active }
+        for incident in activeIncidents {
+            incidentPriorities[incident.id] = Double(incident.severity.rawValue)
+        }
+
+        animationTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { _ in
+            withAnimation {
+                for incident in activeIncidents {
+                    let basePriority = Double(incident.severity.rawValue)
+                    let randomOffset = Double.random(in: -0.8...0.8)
+                    incidentPriorities[incident.id] = basePriority + randomOffset
+                }
+            }
+        }
     }
 }
 
@@ -213,12 +245,12 @@ struct MenuBarIncidentRow: View {
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(incident.type)
-                    .font(MeshTheme.Typography.captionFont)
+                    .font(MeshTheme.Typography.bodyFont)
                     .foregroundColor(MeshTheme.Colors.foreground)
                     .lineLimit(1)
-                
+
                 Text(incident.address)
-                    .font(MeshTheme.Typography.caption2Font)
+                    .font(MeshTheme.Typography.captionFont)
                     .foregroundColor(MeshTheme.Colors.mutedForeground)
                     .lineLimit(1)
             }
@@ -228,10 +260,10 @@ struct MenuBarIncidentRow: View {
             VStack(alignment: .trailing, spacing: 3) {
                 Circle()
                     .fill(incident.severity.color)
-                    .frame(width: 8, height: 8)
-                
+                    .frame(width: 10, height: 10)
+
                 Text(incident.timeAgo)
-                    .font(MeshTheme.Typography.caption2Font)
+                    .font(MeshTheme.Typography.captionFont)
                     .foregroundColor(MeshTheme.Colors.mutedForeground)
             }
         }
