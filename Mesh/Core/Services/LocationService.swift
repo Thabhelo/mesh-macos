@@ -59,13 +59,15 @@ class LocationService: NSObject, ObservableObject {
         return formatter.string(fromDistance: distance)
     }
     
-    // MARK: - Birmingham Region
+    // MARK: - San Francisco Region
     
-    static let birminghamCenter = CLLocationCoordinate2D(latitude: 33.5186, longitude: -86.8104)
-    static let birminghamRegion = CLCircularRegion(
-        center: birminghamCenter,
-        radius: 25000, // 25km radius
-        identifier: "birmingham"
+    static let activeRegionName = "San Francisco"
+    static let activeRegionShortName = "SF"
+    static let activeRegionCenter = CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
+    static let activeRegion = CLCircularRegion(
+        center: activeRegionCenter,
+        radius: 18000, // Covers the San Francisco peninsula for production monitoring
+        identifier: "san-francisco"
     )
 }
 

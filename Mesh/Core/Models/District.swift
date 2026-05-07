@@ -60,112 +60,112 @@ extension District {
     static let samples: [District] = [
         District(
             id: "D-01",
-            name: "District 1 - Airport/Norwood",
-            shortName: "Airport",
-            population: 45000,
-            areaSquareMiles: 12.5,
-            center: Coordinate(latitude: 33.5651, longitude: -86.7528),
+            name: "Northern District",
+            shortName: "Northern",
+            population: 98800,
+            areaSquareMiles: 6.1,
+            center: Coordinate(latitude: 37.7929, longitude: -122.4286),
             boundaries: [
-                Coordinate(latitude: 33.58, longitude: -86.78),
-                Coordinate(latitude: 33.58, longitude: -86.72),
-                Coordinate(latitude: 33.55, longitude: -86.72),
-                Coordinate(latitude: 33.55, longitude: -86.78)
+                Coordinate(latitude: 37.812, longitude: -122.452),
+                Coordinate(latitude: 37.812, longitude: -122.405),
+                Coordinate(latitude: 37.773, longitude: -122.405),
+                Coordinate(latitude: 37.773, longitude: -122.452)
             ],
             activeIncidents: 3,
             averageResponseTime: 6.2
         ),
         District(
             id: "D-02",
-            name: "District 2 - Woodlawn",
-            shortName: "Woodlawn",
-            population: 38000,
-            areaSquareMiles: 8.3,
-            center: Coordinate(latitude: 33.5461, longitude: -86.7458),
+            name: "Central District",
+            shortName: "Central",
+            population: 76000,
+            areaSquareMiles: 4.4,
+            center: Coordinate(latitude: 37.7941, longitude: -122.4078),
             boundaries: [
-                Coordinate(latitude: 33.56, longitude: -86.77),
-                Coordinate(latitude: 33.56, longitude: -86.72),
-                Coordinate(latitude: 33.53, longitude: -86.72),
-                Coordinate(latitude: 33.53, longitude: -86.77)
+                Coordinate(latitude: 37.812, longitude: -122.421),
+                Coordinate(latitude: 37.812, longitude: -122.390),
+                Coordinate(latitude: 37.778, longitude: -122.390),
+                Coordinate(latitude: 37.778, longitude: -122.421)
             ],
             activeIncidents: 5,
             averageResponseTime: 5.8
         ),
         District(
             id: "D-03",
-            name: "District 3 - Downtown",
-            shortName: "Downtown",
-            population: 25000,
-            areaSquareMiles: 4.2,
-            center: Coordinate(latitude: 33.5207, longitude: -86.8025),
+            name: "Southern District",
+            shortName: "Southern",
+            population: 97000,
+            areaSquareMiles: 6.9,
+            center: Coordinate(latitude: 37.7763, longitude: -122.3988),
             boundaries: [
-                Coordinate(latitude: 33.53, longitude: -86.82),
-                Coordinate(latitude: 33.53, longitude: -86.78),
-                Coordinate(latitude: 33.51, longitude: -86.78),
-                Coordinate(latitude: 33.51, longitude: -86.82)
+                Coordinate(latitude: 37.790, longitude: -122.420),
+                Coordinate(latitude: 37.790, longitude: -122.385),
+                Coordinate(latitude: 37.750, longitude: -122.385),
+                Coordinate(latitude: 37.750, longitude: -122.420)
             ],
             activeIncidents: 8,
             averageResponseTime: 4.5
         ),
         District(
             id: "D-04",
-            name: "District 4 - Ensley",
-            shortName: "Ensley",
-            population: 42000,
-            areaSquareMiles: 15.6,
-            center: Coordinate(latitude: 33.4978, longitude: -86.8875),
+            name: "Mission District",
+            shortName: "Mission",
+            population: 72000,
+            areaSquareMiles: 5.2,
+            center: Coordinate(latitude: 37.7599, longitude: -122.4148),
             boundaries: [
-                Coordinate(latitude: 33.52, longitude: -86.92),
-                Coordinate(latitude: 33.52, longitude: -86.85),
-                Coordinate(latitude: 33.47, longitude: -86.85),
-                Coordinate(latitude: 33.47, longitude: -86.92)
+                Coordinate(latitude: 37.775, longitude: -122.430),
+                Coordinate(latitude: 37.775, longitude: -122.400),
+                Coordinate(latitude: 37.740, longitude: -122.400),
+                Coordinate(latitude: 37.740, longitude: -122.430)
             ],
             activeIncidents: 4,
             averageResponseTime: 7.3
         ),
         District(
             id: "D-05",
-            name: "District 5 - Southside",
-            shortName: "Southside",
-            population: 52000,
-            areaSquareMiles: 6.8,
-            center: Coordinate(latitude: 33.5186, longitude: -86.8104),
+            name: "Tenderloin District",
+            shortName: "Tenderloin",
+            population: 35000,
+            areaSquareMiles: 1.2,
+            center: Coordinate(latitude: 37.7833, longitude: -122.4167),
             boundaries: [
-                Coordinate(latitude: 33.53, longitude: -86.83),
-                Coordinate(latitude: 33.53, longitude: -86.79),
-                Coordinate(latitude: 33.50, longitude: -86.79),
-                Coordinate(latitude: 33.50, longitude: -86.83)
+                Coordinate(latitude: 37.792, longitude: -122.424),
+                Coordinate(latitude: 37.792, longitude: -122.409),
+                Coordinate(latitude: 37.776, longitude: -122.409),
+                Coordinate(latitude: 37.776, longitude: -122.424)
             ],
             activeIncidents: 6,
             averageResponseTime: 5.1
         ),
         District(
             id: "D-06",
-            name: "District 6 - West End",
-            shortName: "West End",
-            population: 35000,
-            areaSquareMiles: 9.4,
-            center: Coordinate(latitude: 33.4856, longitude: -86.8356),
+            name: "Bayview District",
+            shortName: "Bayview",
+            population: 82000,
+            areaSquareMiles: 9.7,
+            center: Coordinate(latitude: 37.7304, longitude: -122.3844),
             boundaries: [
-                Coordinate(latitude: 33.50, longitude: -86.86),
-                Coordinate(latitude: 33.50, longitude: -86.81),
-                Coordinate(latitude: 33.47, longitude: -86.81),
-                Coordinate(latitude: 33.47, longitude: -86.86)
+                Coordinate(latitude: 37.755, longitude: -122.410),
+                Coordinate(latitude: 37.755, longitude: -122.365),
+                Coordinate(latitude: 37.700, longitude: -122.365),
+                Coordinate(latitude: 37.700, longitude: -122.410)
             ],
             activeIncidents: 3,
             averageResponseTime: 6.8
         ),
         District(
             id: "D-07",
-            name: "District 7 - Eastwood",
-            shortName: "Eastwood",
-            population: 48000,
-            areaSquareMiles: 11.2,
-            center: Coordinate(latitude: 33.5089, longitude: -86.7628),
+            name: "Richmond District",
+            shortName: "Richmond",
+            population: 59000,
+            areaSquareMiles: 7.4,
+            center: Coordinate(latitude: 37.7802, longitude: -122.4830),
             boundaries: [
-                Coordinate(latitude: 33.52, longitude: -86.79),
-                Coordinate(latitude: 33.52, longitude: -86.73),
-                Coordinate(latitude: 33.49, longitude: -86.73),
-                Coordinate(latitude: 33.49, longitude: -86.79)
+                Coordinate(latitude: 37.800, longitude: -122.515),
+                Coordinate(latitude: 37.800, longitude: -122.455),
+                Coordinate(latitude: 37.760, longitude: -122.455),
+                Coordinate(latitude: 37.760, longitude: -122.515)
             ],
             activeIncidents: 4,
             averageResponseTime: 5.5

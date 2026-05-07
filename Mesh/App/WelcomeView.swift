@@ -219,7 +219,7 @@ struct HeroSection: View {
                         .scaleEffect(1.5)
                 )
             
-            Text("Now Powering Public Safety in Birmingham")
+            Text("Now Monitoring Public Safety in San Francisco")
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundColor(MeshTheme.Colors.primary)
         }
@@ -483,7 +483,7 @@ struct WelcomeFooter: View {
             Text(" • ")
                 .foregroundColor(MeshTheme.Colors.mutedForeground)
             
-            Text("Birmingham, Alabama")
+            Text("San Francisco, California")
                 .font(.system(size: 13, weight: .regular, design: .rounded))
                 .foregroundColor(MeshTheme.Colors.mutedForeground)
             

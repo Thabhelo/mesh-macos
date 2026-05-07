@@ -107,7 +107,7 @@ extension SurgeAlert {
         SurgeAlert(
             id: "SA-001",
             districtId: "D-03",
-            districtName: "District 3 - Downtown",
+            districtName: "Southern District",
             severity: .critical,
             currentCallVolume: 45,
             expectedCallVolume: 25,
@@ -116,12 +116,12 @@ extension SurgeAlert {
             triggeredAt: Date().addingTimeInterval(-1800),
             predictedPeakTime: Date().addingTimeInterval(3600),
             confidenceScore: 0.85,
-            contributingFactors: ["Major sporting event", "High foot traffic", "Rush hour"]
+            contributingFactors: ["Bay Bridge congestion", "Moscone Center event", "Evening commute"]
         ),
         SurgeAlert(
             id: "SA-002",
             districtId: "D-05",
-            districtName: "District 5 - Southside",
+            districtName: "Tenderloin District",
             severity: .elevated,
             currentCallVolume: 22,
             expectedCallVolume: 18,
@@ -130,12 +130,12 @@ extension SurgeAlert {
             triggeredAt: Date().addingTimeInterval(-3600),
             predictedPeakTime: nil,
             confidenceScore: 0.72,
-            contributingFactors: ["Weekend nightlife activity"]
+            contributingFactors: ["High call density near transit corridors"]
         ),
         SurgeAlert(
             id: "SA-003",
             districtId: "D-07",
-            districtName: "District 7 - Eastwood",
+            districtName: "Richmond District",
             severity: .high,
             currentCallVolume: 32,
             expectedCallVolume: 20,
@@ -144,7 +144,7 @@ extension SurgeAlert {
             triggeredAt: Date().addingTimeInterval(-900),
             predictedPeakTime: Date().addingTimeInterval(1800),
             confidenceScore: 0.78,
-            contributingFactors: ["Shopping center incident", "Traffic congestion"]
+            contributingFactors: ["Park event traffic", "Clustered medical calls"]
         )
     ]
 }

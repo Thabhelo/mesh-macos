@@ -18,7 +18,7 @@ enum MapStyleOption: String, CaseIterable, Hashable {
 struct MapView: View {
     @EnvironmentObject var appState: AppState
     @State private var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
-        center: LocationService.birminghamCenter,
+        center: LocationService.activeRegionCenter,
         span: MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
     ))
     @State private var selectedIncident: Incident?
@@ -64,7 +64,7 @@ struct MapView: View {
                     MapControlPanel(
                         showDistrictOverlay: $showDistrictOverlay,
                         mapStyleOption: $mapStyleOption,
-                        onCenterBirmingham: centerOnBirmingham
+                        onCenterRegion: centerOnActiveRegion
                     )
                     
                     Spacer()
@@ -82,10 +82,10 @@ struct MapView: View {
         }
     }
     
-    private func centerOnBirmingham() {
+    private func centerOnActiveRegion() {
         withAnimation {
             cameraPosition = .region(MKCoordinateRegion(
-                center: LocationService.birminghamCenter,
+                center: LocationService.activeRegionCenter,
                 span: MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
             ))
         }
@@ -125,7 +125,7 @@ struct MapControlPanel: View {
     @Binding var mapStyleOption: MapStyleOption
     @State private var isExpanded = false
     
-    let onCenterBirmingham: () -> Void
+    let onCenterRegion: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -171,9 +171,9 @@ struct MapControlPanel: View {
                     Divider()
                     
                     Button {
-                        onCenterBirmingham()
+                        onCenterRegion()
                     } label: {
-                        Label("Center on Birmingham", systemImage: "location.fill")
+                        Label("Center on \(LocationService.activeRegionName)", systemImage: "location.fill")
                             .font(.body)
                     }
                     .buttonStyle(.plain)

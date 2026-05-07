@@ -1,6 +1,6 @@
 # Mesh for macOS
 
-Native macOS application for the Mesh Public Safety Platform - providing real-time interoperability intelligence for emergency response agencies in Birmingham, Alabama.
+Native macOS application for the Mesh Public Safety Platform - providing real-time interoperability intelligence for emergency response agencies in San Francisco, California.
 
 ## Features
 
@@ -123,6 +123,19 @@ mesh-macos/
 
 ## Configuration
 
+### Production Region
+
+The production region is San Francisco, California. Incidents, agencies, districts, map defaults, surge context, and hazard context should all stay tied to San Francisco unless a new production region is explicitly added.
+
+Region defaults live in `Core/Services/LocationService.swift`:
+
+```swift
+static let activeRegionName = "San Francisco"
+static let activeRegionCenter = CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
+```
+
+Additional cities should be added as separate provider/data-access efforts once approved local emergency or CAD data is available.
+
 ### API Endpoint
 
 The API endpoint is configured in `Core/Networking/APIClient.swift`. Update the `baseURL` for your environment:
@@ -167,5 +180,5 @@ Proprietary - Mesh Platform 2025
 ## Contact
 
 - Email: thabheloduve@gmail.com
-- Location: Birmingham, Alabama
+- Location: San Francisco, California
 

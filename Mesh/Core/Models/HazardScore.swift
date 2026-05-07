@@ -131,31 +131,31 @@ extension HazardScore {
                 score: 65,
                 weight: 0.25,
                 trend: .worsening,
-                details: "Severe thunderstorm watch in effect until 10 PM"
+                details: "Coastal flood advisory and high wind gusts affecting response routes"
             ),
             traffic: ComponentScore(
                 score: 72,
                 weight: 0.20,
                 trend: .stable,
-                details: "Heavy congestion on I-65 and I-20/59 interchange"
+                details: "Heavy congestion on US-101 and Bay Bridge approaches"
             ),
             incidentActivity: ComponentScore(
                 score: 55,
                 weight: 0.30,
                 trend: .stable,
-                details: "Above average call volume in Districts 3 and 5"
+                details: "Above average call volume in Southern and Tenderloin districts"
             ),
             infrastructureOutages: ComponentScore(
                 score: 25,
                 weight: 0.15,
                 trend: .improving,
-                details: "Minor power outage in Ensley area being addressed"
+                details: "Minor power outage near Mission Bay being addressed"
             ),
             specialEvents: ComponentScore(
                 score: 80,
                 weight: 0.10,
                 trend: .stable,
-                details: "UAB football game at Protective Stadium (45,000 expected)"
+                details: "Large Moscone Center event and waterfront visitor traffic"
             )
         ),
         historicalComparison: HistoricalComparison(
@@ -164,13 +164,13 @@ extension HazardScore {
             lastMonthAverage: 45
         ),
         districtScores: [
-            DistrictHazardScore(id: "DHS-01", districtId: "D-01", districtName: "Airport", score: 35, primaryRisk: "Traffic"),
-            DistrictHazardScore(id: "DHS-02", districtId: "D-02", districtName: "Woodlawn", score: 42, primaryRisk: "Incidents"),
-            DistrictHazardScore(id: "DHS-03", districtId: "D-03", districtName: "Downtown", score: 78, primaryRisk: "Special Event"),
-            DistrictHazardScore(id: "DHS-04", districtId: "D-04", districtName: "Ensley", score: 48, primaryRisk: "Infrastructure"),
-            DistrictHazardScore(id: "DHS-05", districtId: "D-05", districtName: "Southside", score: 62, primaryRisk: "Traffic"),
-            DistrictHazardScore(id: "DHS-06", districtId: "D-06", districtName: "West End", score: 38, primaryRisk: "Weather"),
-            DistrictHazardScore(id: "DHS-07", districtId: "D-07", districtName: "Eastwood", score: 55, primaryRisk: "Incidents")
+            DistrictHazardScore(id: "DHS-01", districtId: "D-01", districtName: "Northern", score: 35, primaryRisk: "Traffic"),
+            DistrictHazardScore(id: "DHS-02", districtId: "D-02", districtName: "Central", score: 42, primaryRisk: "Incidents"),
+            DistrictHazardScore(id: "DHS-03", districtId: "D-03", districtName: "Southern", score: 78, primaryRisk: "Special Event"),
+            DistrictHazardScore(id: "DHS-04", districtId: "D-04", districtName: "Mission", score: 48, primaryRisk: "Infrastructure"),
+            DistrictHazardScore(id: "DHS-05", districtId: "D-05", districtName: "Tenderloin", score: 62, primaryRisk: "Call Surge"),
+            DistrictHazardScore(id: "DHS-06", districtId: "D-06", districtName: "Bayview", score: 38, primaryRisk: "Weather"),
+            DistrictHazardScore(id: "DHS-07", districtId: "D-07", districtName: "Richmond", score: 55, primaryRisk: "Incidents")
         ]
     )
 }
