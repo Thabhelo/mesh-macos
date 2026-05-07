@@ -8,6 +8,8 @@ enum AppTab: String, CaseIterable, Identifiable {
     case hazard = "Hazard Analysis"
     
     var id: String { rawValue }
+
+    static let productionTabs: [AppTab] = [.dashboard, .map]
     
     var icon: String {
         switch self {
@@ -72,20 +74,26 @@ class AppState: ObservableObject {
     // MARK: - Computed Properties
     
     var activeIncidentCount: Int {
-        incidents.filter { $0.status == .active }.count
+        incidents.filter { $0.status.isOperationallyActive }.count
     }
     
     var filteredIncidents: [Incident] {
         incidents.filter { incident in
             let matchesAgency = selectedAgencyTypes.contains(incident.agencyType)
             let matchesDistrict = selectedDistricts.isEmpty || selectedDistricts.contains(incident.districtId)
-            let matchesStatus = !showActiveOnly || incident.status == .active
+            let matchesStatus = !showActiveOnly || incident.status.isOperationallyActive
             return matchesAgency && matchesDistrict && matchesStatus
         }
     }
     
     var topSurgeAlerts: [SurgeAlert] {
         Array(surgeAlerts.sorted { $0.severity.rawValue > $1.severity.rawValue }.prefix(3))
+    }
+
+    var availableAgencyTypes: [AgencyType] {
+        let types = Set(incidents.map { $0.agencyType })
+        let orderedTypes = AgencyType.allCases.filter { types.contains($0) }
+        return orderedTypes.isEmpty ? [.police, .transit] : orderedTypes
     }
     
     // MARK: - Private
@@ -100,30 +108,21 @@ class AppState: ObservableObject {
     
     func loadInitialData() async {
         do {
-            // Load agencies
             let loadedAgencies = try await APIClient.shared.fetchAgencies()
-            agencies = loadedAgencies
-            
-            // Load districts
             let loadedDistricts = try await APIClient.shared.fetchDistricts()
-            districts = loadedDistricts
-            selectedDistricts = Set(loadedDistricts.map { $0.id })
-            
-            // Load initial incidents
             let loadedIncidents = try await APIClient.shared.fetchIncidents()
-            incidents = loadedIncidents
-            
-            // Load surge alerts
             let loadedSurgeAlerts = try await APIClient.shared.fetchSurgeAlerts()
-            surgeAlerts = loadedSurgeAlerts
-            
-            // Load hazard score
             let loadedHazardScore = try await APIClient.shared.fetchHazardScore()
-            hazardScore = loadedHazardScore
-            
-            // Update system status
-            updateSystemStatus()
-            
+
+            await Task.yield()
+
+            applyInitialData(
+                agencies: loadedAgencies,
+                districts: loadedDistricts,
+                incidents: loadedIncidents,
+                surgeAlerts: loadedSurgeAlerts,
+                hazardScore: loadedHazardScore
+            )
         } catch {
             print("Failed to load initial data: \(error)")
         }
@@ -146,6 +145,22 @@ class AppState: ObservableObject {
     }
     
     // MARK: - Private Methods
+
+    private func applyInitialData(
+        agencies loadedAgencies: [Agency],
+        districts loadedDistricts: [District],
+        incidents loadedIncidents: [Incident],
+        surgeAlerts loadedSurgeAlerts: [SurgeAlert],
+        hazardScore loadedHazardScore: HazardScore
+    ) {
+        agencies = loadedAgencies
+        districts = loadedDistricts
+        incidents = loadedIncidents
+        selectedDistricts = Set(loadedDistricts.map { $0.id }).union(loadedIncidents.map { $0.districtId })
+        surgeAlerts = loadedSurgeAlerts
+        hazardScore = loadedHazardScore
+        updateSystemStatus()
+    }
     
     private func setupSubscriptions() {
         // Listen for WebSocket updates - use Task to avoid publishing during view updates
@@ -182,6 +197,7 @@ class AppState: ObservableObject {
         case .new:
             if let incident = update.incident {
                 incidents.insert(incident, at: 0)
+                includeLiveIncidentDistricts([incident])
                 if incident.severity == .critical && notificationsEnabled {
                     NotificationService.shared.sendIncidentNotification(incident)
                 }
@@ -190,6 +206,7 @@ class AppState: ObservableObject {
             if let incident = update.incident,
                let index = incidents.firstIndex(where: { $0.id == incident.id }) {
                 incidents[index] = incident
+                includeLiveIncidentDistricts([incident])
             }
         case .closed:
             if let incidentId = update.incidentId,
@@ -215,7 +232,7 @@ class AppState: ObservableObject {
     }
     
     private func updateSystemStatus() {
-        let criticalIncidents = incidents.filter { $0.status == .active && $0.severity == .critical }.count
+        let criticalIncidents = incidents.filter { $0.status.isOperationallyActive && $0.severity == .critical }.count
         let criticalSurges = surgeAlerts.filter { $0.severity == .critical }.count
         let hazardLevel = hazardScore?.overallScore ?? 0
         
@@ -226,5 +243,10 @@ class AppState: ObservableObject {
         } else {
             systemStatus = .normal
         }
+    }
+
+    private func includeLiveIncidentDistricts(_ incidents: [Incident]) {
+        guard !selectedDistricts.isEmpty else { return }
+        selectedDistricts.formUnion(incidents.map { $0.districtId })
     }
 }

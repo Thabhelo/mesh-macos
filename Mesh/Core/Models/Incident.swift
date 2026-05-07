@@ -51,6 +51,15 @@ enum IncidentStatus: String, Codable, CaseIterable {
         case .closed: return .gray
         }
     }
+
+    var isOperationallyActive: Bool {
+        switch self {
+        case .active, .responding, .onScene:
+            return true
+        case .resolved, .closed:
+            return false
+        }
+    }
 }
 
 enum IncidentSeverity: Int, Codable, Comparable {

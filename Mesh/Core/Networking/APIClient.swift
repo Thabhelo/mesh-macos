@@ -254,17 +254,18 @@ actor APIClient {
             ?? parseDataSFDate(call.closeDatetime)
             ?? reportedAt
 
-        let type = call.callTypeFinalDescription
+        let rawType = call.callTypeFinalDescription
             ?? call.callTypeOriginalDescription
             ?? "Dispatched Call"
-        let agencyName = call.agency ?? "San Francisco Public Safety"
+        let type = normalizeCallType(rawType)
+        let agencyName = normalizeAgencyName(call.agency)
         let districtName = call.policeDistrict ?? call.analysisNeighborhood ?? LocationService.activeRegionName
         let priority = call.priorityFinal ?? call.priorityOriginal
         let status = normalizeStatus(for: call)
 
         return Incident(
             id: "datasf:gnap-fj3t:\(sourceId)",
-            type: type.capitalized,
+            type: type,
             description: incidentDescription(for: call, fallbackType: type),
             agencyType: normalizeAgencyType(call.agency),
             agencyId: normalizedIdentifier(agencyName),
@@ -312,10 +313,54 @@ actor APIClient {
 
     private func normalizeAgencyType(_ agency: String?) -> AgencyType {
         let normalized = agency?.lowercased() ?? ""
-        if normalized.contains("mta") {
+        if normalized.contains("mta") || normalized.contains("transportation") {
             return .transit
         }
         return .police
+    }
+
+    private func normalizeAgencyName(_ agency: String?) -> String {
+        let normalized = agency?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+
+        if normalized.contains("municipal transportation") || normalized == "mta" {
+            return "San Francisco Municipal Transportation Agency"
+        }
+        if normalized.contains("sheriff") {
+            return "San Francisco Sheriff's Office"
+        }
+        if normalized.contains("police") {
+            return "San Francisco Police Department"
+        }
+
+        return agency?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty ?? "San Francisco Public Safety"
+    }
+
+    private func normalizeCallType(_ value: String) -> String {
+        let cleaned = value
+            .replacingOccurrences(of: "W/CITY", with: "WITH CITY")
+            .replacingOccurrences(of: "W/", with: "WITH ")
+            .replacingOccurrences(of: "H&R", with: "HIT AND RUN")
+            .replacingOccurrences(of: "TRAF", with: "TRAFFIC")
+            .replacingOccurrences(of: "VEH", with: "VEHICLE")
+            .replacingOccurrences(of: "SUSP", with: "SUSPICIOUS")
+            .replacingOccurrences(of: "PERS", with: "PERSON")
+            .replacingOccurrences(of: "ADW", with: "ASSAULT WITH DEADLY WEAPON")
+            .replacingOccurrences(of: "AGG", with: "AGGRAVATED")
+            .replacingOccurrences(of: "UNKN", with: "UNKNOWN")
+            .replacingOccurrences(of: "UNK", with: "UNKNOWN")
+            .replacingOccurrences(of: "  ", with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return cleaned
+            .lowercased()
+            .split(separator: " ")
+            .map { word in
+                if word.count <= 3 && word.allSatisfy({ $0.isLetter }) {
+                    return word.uppercased()
+                }
+                return word.prefix(1).uppercased() + word.dropFirst()
+            }
+            .joined(separator: " ")
     }
 
     private func normalizedIdentifier(_ value: String) -> String {
@@ -327,7 +372,7 @@ actor APIClient {
     }
 
     private func incidentDescription(for call: DataSFDispatchedCall, fallbackType: String) -> String {
-        var parts: [String] = [fallbackType.capitalized]
+        var parts: [String] = [fallbackType]
         if let priority = call.priorityFinal ?? call.priorityOriginal {
             parts.append("Priority \(priority.uppercased())")
         }
@@ -426,6 +471,12 @@ private struct DataSFPoint: Decodable {
             return nil
         }
         return (latitude: coordinates[1], longitude: coordinates[0])
+    }
+}
+
+private extension String {
+    var nilIfEmpty: String? {
+        isEmpty ? nil : self
     }
 }
 

@@ -30,10 +30,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     
     private func requestNotificationPermissions() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if granted {
-                print("Notification permissions granted")
-            } else if let error = error {
-                print("Notification permission error: \(error.localizedDescription)")
+            Task { @MainActor in
+                await Task.yield()
+                AppState.shared.notificationsEnabled = granted
+                if !granted, let error {
+                    #if DEBUG
+                    print("Notifications disabled: \(error.localizedDescription)")
+                    #endif
+                }
             }
         }
     }

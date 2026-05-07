@@ -189,6 +189,8 @@ struct MapControlPanel: View {
 }
 
 struct MapLegend: View {
+    @EnvironmentObject var appState: AppState
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Legend")
@@ -196,7 +198,7 @@ struct MapLegend: View {
                 .fontWeight(.semibold)
                 .foregroundColor(.secondary)
 
-            ForEach(AgencyType.allCases) { type in
+            ForEach(appState.availableAgencyTypes) { type in
                 HStack(spacing: 6) {
                     Circle()
                         .fill(type.color)

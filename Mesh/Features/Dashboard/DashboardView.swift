@@ -4,14 +4,13 @@ struct DashboardView: View {
     @EnvironmentObject var appState: AppState
     @State private var selectedIncident: Incident?
     @State private var isLoading = false
-    @State private var incidentPriorities: [String: Double] = [:]
-    @State private var animationTimer: Timer?
 
     private var sortedIncidents: [Incident] {
         appState.filteredIncidents.sorted { incident1, incident2 in
-            let priority1 = incidentPriorities[incident1.id] ?? Double(incident1.severity.rawValue)
-            let priority2 = incidentPriorities[incident2.id] ?? Double(incident2.severity.rawValue)
-            return priority1 > priority2
+            if incident1.severity != incident2.severity {
+                return incident1.severity > incident2.severity
+            }
+            return incident1.updatedAt > incident2.updatedAt
         }
     }
 
@@ -75,26 +74,6 @@ struct DashboardView: View {
             if let firstIncident = appState.filteredIncidents.first {
                 selectedIncident = firstIncident
             }
-            startPriorityAnimation()
-        }
-        .onDisappear {
-            animationTimer?.invalidate()
-        }
-    }
-
-    private func startPriorityAnimation() {
-        for incident in appState.filteredIncidents {
-            incidentPriorities[incident.id] = Double(incident.severity.rawValue)
-        }
-
-        animationTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { _ in
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-                for incident in appState.filteredIncidents {
-                    let basePriority = Double(incident.severity.rawValue)
-                    let randomOffset = Double.random(in: -0.8...0.8)
-                    incidentPriorities[incident.id] = basePriority + randomOffset
-                }
-            }
         }
     }
 }
@@ -118,7 +97,7 @@ struct DashboardHeaderView: View {
             
             // Quick filters
             HStack(spacing: 8) {
-                ForEach(AgencyType.allCases) { type in
+                ForEach(appState.availableAgencyTypes) { type in
                     FilterChip(
                         title: type.rawValue,
                         icon: type.icon,
@@ -343,7 +322,7 @@ struct IncidentDetailView: View {
                         
                         // Mini map preview
                         MiniMapPreview(coordinate: incident.coordinate)
-                            .frame(height: 150)
+                            .frame(height: 260)
                             .cornerRadius(8)
                     }
                 }

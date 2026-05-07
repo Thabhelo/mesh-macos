@@ -153,15 +153,14 @@ struct QuickStatItem: View {
 
 struct MenuBarRecentIncidents: View {
     @EnvironmentObject var appState: AppState
-    @State private var incidentPriorities: [String: Double] = [:]
-    @State private var animationTimer: Timer?
 
     private var recentIncidents: [Incident] {
-        let activeIncidents = appState.incidents.filter { $0.status == .active }
+        let activeIncidents = appState.incidents.filter { $0.status.isOperationallyActive }
         return Array(activeIncidents.sorted { incident1, incident2 in
-            let priority1 = incidentPriorities[incident1.id] ?? Double(incident1.severity.rawValue)
-            let priority2 = incidentPriorities[incident2.id] ?? Double(incident2.severity.rawValue)
-            return priority1 > priority2
+            if incident1.severity != incident2.severity {
+                return incident1.severity > incident2.severity
+            }
+            return incident1.updatedAt > incident2.updatedAt
         }.prefix(3))
     }
 
@@ -206,29 +205,6 @@ struct MenuBarRecentIncidents: View {
         }
         .padding(MeshTheme.Spacing.md)
         .background(Color.white)
-        .onAppear {
-            startPriorityAnimation()
-        }
-        .onDisappear {
-            animationTimer?.invalidate()
-        }
-    }
-
-    private func startPriorityAnimation() {
-        let activeIncidents = appState.incidents.filter { $0.status == .active }
-        for incident in activeIncidents {
-            incidentPriorities[incident.id] = Double(incident.severity.rawValue)
-        }
-
-        animationTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { _ in
-            withAnimation {
-                for incident in activeIncidents {
-                    let basePriority = Double(incident.severity.rawValue)
-                    let randomOffset = Double.random(in: -0.8...0.8)
-                    incidentPriorities[incident.id] = basePriority + randomOffset
-                }
-            }
-        }
     }
 }
 

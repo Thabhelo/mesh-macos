@@ -97,7 +97,7 @@ struct AppSidebar: View {
         List(selection: $appState.selectedTab) {
             // Navigation Section
             Section {
-                ForEach(AppTab.allCases) { tab in
+                ForEach(AppTab.productionTabs) { tab in
                     NavigationLink(value: tab) {
                         HStack(spacing: 12) {
                             Image(systemName: tab.icon)
@@ -136,55 +136,11 @@ struct AppSidebar: View {
                     valueColor: appState.systemStatus.color
                 )
                 
-                if let hazard = appState.hazardScore {
-                    StatRow(
-                        icon: "shield.fill",
-                        iconColor: hazard.statusColor,
-                        label: "Hazard Score",
-                        value: "\(hazard.overallScore)",
-                        valueColor: hazard.statusColor
-                    )
-                }
             } header: {
                 Text("QUICK STATS")
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundColor(MeshTheme.Colors.mutedForeground)
                     .tracking(0.5)
-            }
-            
-            // Surge Alerts Section
-            if !appState.topSurgeAlerts.isEmpty {
-                Section {
-                    ForEach(appState.topSurgeAlerts) { alert in
-                        Button {
-                            appState.selectedTab = .surge
-                        } label: {
-                            HStack(spacing: 10) {
-                                Circle()
-                                    .fill(alert.severity.color)
-                                    .frame(width: 8, height: 8)
-                                
-                                Text(alert.districtName)
-                                    .font(.system(size: 13, weight: .medium, design: .rounded))
-                                    .foregroundColor(MeshTheme.Colors.foreground)
-                                    .lineLimit(1)
-                                
-                                Spacer()
-                                
-                                Text("+\(Int(alert.percentageIncrease))%")
-                                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                                    .foregroundColor(alert.severity.color)
-                            }
-                            .padding(.vertical, 2)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                } header: {
-                    Text("SURGE ALERTS")
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
-                        .foregroundColor(MeshTheme.Colors.mutedForeground)
-                        .tracking(0.5)
-                }
             }
         }
         .listStyle(.sidebar)
@@ -320,7 +276,7 @@ struct GeneralSettingsView: View {
             }
             
             Section {
-                ForEach(AgencyType.allCases, id: \.self) { type in
+                ForEach(appState.availableAgencyTypes, id: \.self) { type in
                     Toggle(type.rawValue, isOn: Binding(
                         get: { appState.selectedAgencyTypes.contains(type) },
                         set: { isOn in
