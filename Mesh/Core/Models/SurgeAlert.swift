@@ -170,8 +170,8 @@ extension SurgeTrendDataPoint {
             default: baseExpected = 10 // Night
             }
             
-            // Add some variance to actual volume
-            let variance = Int.random(in: -5...10)
+            // Deterministic demo variance keeps previews stable.
+            let variance = ((i * 7) % 16) - 5
             let actual = max(0, baseExpected + variance)
             
             dataPoints.append(SurgeTrendDataPoint(

@@ -275,23 +275,9 @@ struct ComponentDetailPanel: View {
 
 struct HistoricalComparisonSection: View {
     let hazard: HazardScore
-    
-    // Generate mock historical data
-    private var historicalData: [(date: Date, score: Int)] {
-        var data: [(Date, Int)] = []
-        let calendar = Calendar.current
-        
-        for i in (0..<7).reversed() {
-            let date = calendar.date(byAdding: .day, value: -i, to: Date())!
-            let baseScore = hazard.historicalComparison.lastWeekAverage
-            let variance = Int.random(in: -10...10)
-            data.append((date, max(0, min(100, baseScore + variance))))
-        }
-        
-        // Add current score
-        data.append((Date(), hazard.overallScore))
-        
-        return data
+
+    private var historicalData: [HazardTrendDataPoint] {
+        OperationalIntelligenceService.deriveHazardTrendData(for: hazard)
     }
     
     var body: some View {
@@ -300,7 +286,7 @@ struct HistoricalComparisonSection: View {
                 .font(.title)
                 .fontWeight(.bold)
             
-            Chart(historicalData, id: \.date) { item in
+            Chart(historicalData) { item in
                 LineMark(
                     x: .value("Date", item.date),
                     y: .value("Score", item.score)

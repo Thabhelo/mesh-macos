@@ -156,35 +156,20 @@ actor APIClient {
     // MARK: - Surge Alerts
     
     func fetchSurgeAlerts() async throws -> [SurgeAlert] {
-        // For now, return sample data
-        try await Task.sleep(nanoseconds: 300_000_000)
-        return SurgeAlert.samples
-        
-        // return try await request(endpoint: "surge-alerts")
+        // Surge alerts are derived in AppState from the live incident snapshot until the backend owns this endpoint.
+        return []
     }
     
     func fetchSurgeTrendData(districtId: String, hours: Int = 24) async throws -> [SurgeTrendDataPoint] {
-        // For now, return sample data
-        try await Task.sleep(nanoseconds: 200_000_000)
-        return SurgeTrendDataPoint.generateSampleData(hours: hours)
-        
-        /*
-        let queryItems = [
-            URLQueryItem(name: "districtId", value: districtId),
-            URLQueryItem(name: "hours", value: String(hours))
-        ]
-        return try await request(endpoint: "surge-trends", queryItems: queryItems)
-        */
+        // Surge trend charts are derived from the current live incident snapshot in the UI.
+        return []
     }
     
     // MARK: - Hazard Score
     
     func fetchHazardScore() async throws -> HazardScore {
-        // For now, return sample data
-        try await Task.sleep(nanoseconds: 300_000_000)
-        return HazardScore.sample
-        
-        // return try await request(endpoint: "hazard-score")
+        // Hazard scoring is derived in AppState from incidents and surge signals until the backend owns this endpoint.
+        return OperationalIntelligenceService.deriveHazardScore(incidents: [], districts: [], surgeAlerts: [])
     }
 
     // MARK: - DataSF Incidents

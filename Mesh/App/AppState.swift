@@ -117,7 +117,12 @@ class AppState: ObservableObject {
     }
     
     var topSurgeAlerts: [SurgeAlert] {
-        Array(surgeAlerts.sorted { $0.severity.rawValue > $1.severity.rawValue }.prefix(3))
+        Array(surgeAlerts.sorted { lhs, rhs in
+            if lhs.severity != rhs.severity {
+                return lhs.severity > rhs.severity
+            }
+            return lhs.percentageIncrease > rhs.percentageIncrease
+        }.prefix(3))
     }
 
     var availableAgencyTypes: [AgencyType] {
@@ -142,14 +147,10 @@ class AppState: ObservableObject {
         do {
             let loadedAgencies = try await APIClient.shared.fetchAgencies()
             let loadedDistricts = try await APIClient.shared.fetchDistricts()
-            let loadedSurgeAlerts = try await APIClient.shared.fetchSurgeAlerts()
-            let loadedHazardScore = try await APIClient.shared.fetchHazardScore()
 
             applyStaticData(
                 agencies: loadedAgencies,
-                districts: loadedDistricts,
-                surgeAlerts: loadedSurgeAlerts,
-                hazardScore: loadedHazardScore
+                districts: loadedDistricts
             )
             await refreshData()
         } catch {
@@ -213,15 +214,12 @@ class AppState: ObservableObject {
 
     private func applyStaticData(
         agencies loadedAgencies: [Agency],
-        districts loadedDistricts: [District],
-        surgeAlerts loadedSurgeAlerts: [SurgeAlert],
-        hazardScore loadedHazardScore: HazardScore
+        districts loadedDistricts: [District]
     ) {
         agencies = loadedAgencies
         districts = loadedDistricts
         selectedDistricts = Set(loadedDistricts.map { $0.id })
-        surgeAlerts = loadedSurgeAlerts
-        hazardScore = loadedHazardScore
+        updateDerivedIntelligence()
         updateSystemStatus()
     }
 
@@ -234,6 +232,7 @@ class AppState: ObservableObject {
         incidentRefreshError = nil
         dataConnectionState = freshnessState(for: result)
         isConnected = dataConnectionState == .live || dataConnectionState == .stale
+        updateDerivedIntelligence(referenceDate: result.refreshedAt)
 
         if shouldNotify {
             notifyForCriticalNewIncidents(in: result.updates)
@@ -264,6 +263,20 @@ class AppState: ObservableObject {
         incidentRefreshError = error.localizedDescription
         dataConnectionState = lastIncidentRefreshAt == nil ? .offline : .error
         isConnected = false
+    }
+
+    private func updateDerivedIntelligence(referenceDate: Date = Date()) {
+        surgeAlerts = OperationalIntelligenceService.deriveSurgeAlerts(
+            incidents: incidents,
+            districts: districts,
+            now: referenceDate
+        )
+        hazardScore = OperationalIntelligenceService.deriveHazardScore(
+            incidents: incidents,
+            districts: districts,
+            surgeAlerts: surgeAlerts,
+            now: referenceDate
+        )
     }
     
     private func setupSubscriptions() {
@@ -318,6 +331,7 @@ class AppState: ObservableObject {
                 incidents[index].status = .closed
             }
         }
+        updateDerivedIntelligence()
         updateSystemStatus()
     }
     

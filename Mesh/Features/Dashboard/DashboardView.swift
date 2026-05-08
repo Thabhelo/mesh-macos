@@ -159,6 +159,19 @@ struct FilterChip: View {
 struct IncidentCard: View {
     let incident: Incident
     let isSelected: Bool
+
+    private var priorityExplanation: String {
+        var factors = ["\(incident.severity.label) severity"]
+
+        if incident.status.isOperationallyActive {
+            factors.append(incident.status.rawValue.lowercased())
+        }
+        if Date().timeIntervalSince(incident.updatedAt) <= 60 * 60 {
+            factors.append("updated within 1h")
+        }
+
+        return "Priority: " + factors.joined(separator: " • ")
+    }
     
     var body: some View {
         HStack(spacing: 12) {
@@ -232,6 +245,11 @@ struct IncidentCard: View {
                         }
                     }
                 }
+
+                Text(priorityExplanation)
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
             }
         }
         .padding(12)

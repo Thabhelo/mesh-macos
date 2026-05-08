@@ -6,7 +6,6 @@ struct SurgePredictionView: View {
     @State private var selectedDistrict: District?
     @State private var trendData: [SurgeTrendDataPoint] = []
     @State private var timeRange: TimeRange = .day
-    @State private var isLoading = false
     
     enum TimeRange: String, CaseIterable {
         case hours6 = "6H"
@@ -45,6 +44,7 @@ struct SurgePredictionView: View {
                         // District grid
                         DistrictSurgeGrid(
                             districts: appState.districts,
+                            incidents: appState.incidents,
                             surgeAlerts: appState.surgeAlerts,
                             selectedDistrict: $selectedDistrict
                         )
@@ -73,17 +73,21 @@ struct SurgePredictionView: View {
         .onChange(of: timeRange) { _, _ in
             loadTrendData()
         }
+        .onChange(of: selectedDistrict?.id) { _, _ in
+            loadTrendData()
+        }
+        .onChange(of: appState.incidents) { _, _ in
+            loadTrendData()
+        }
     }
     
     private func loadTrendData() {
-        isLoading = true
-        Task {
-            trendData = try await APIClient.shared.fetchSurgeTrendData(
-                districtId: selectedDistrict?.id ?? "all",
-                hours: timeRange.hours
-            )
-            isLoading = false
-        }
+        trendData = OperationalIntelligenceService.deriveSurgeTrendData(
+            incidents: appState.incidents,
+            districts: appState.districts,
+            districtId: selectedDistrict?.id ?? "all",
+            hours: timeRange.hours
+        )
     }
 }
 
@@ -301,6 +305,7 @@ struct LegendItem: View {
 
 struct DistrictSurgeGrid: View {
     let districts: [District]
+    let incidents: [Incident]
     let surgeAlerts: [SurgeAlert]
     @Binding var selectedDistrict: District?
     
@@ -318,6 +323,7 @@ struct DistrictSurgeGrid: View {
                 ForEach(districts) { district in
                     DistrictSurgeCard(
                         district: district,
+                        activeIncidentCount: activeIncidentCount(for: district),
                         alert: surgeAlerts.first { $0.districtId == district.id },
                         isSelected: selectedDistrict?.id == district.id
                     )
@@ -330,10 +336,17 @@ struct DistrictSurgeGrid: View {
             }
         }
     }
+
+    private func activeIncidentCount(for district: District) -> Int {
+        incidents.filter {
+            $0.status.isOperationallyActive && ($0.districtId == district.id || $0.districtName == district.name)
+        }.count
+    }
 }
 
 struct DistrictSurgeCard: View {
     let district: District
+    let activeIncidentCount: Int
     let alert: SurgeAlert?
     let isSelected: Bool
     
@@ -365,7 +378,7 @@ struct DistrictSurgeCard: View {
                     Text("Active")
                         .font(.callout)
                         .foregroundColor(.secondary)
-                    Text("\(district.activeIncidents)")
+                    Text("\(activeIncidentCount)")
                         .font(.title)
                         .fontWeight(.bold)
                 }
@@ -402,6 +415,12 @@ struct DistrictDetailView: View {
     private var alert: SurgeAlert? {
         appState.surgeAlerts.first { $0.districtId == district.id }
     }
+
+    private var activeIncidentCount: Int {
+        appState.incidents.filter {
+            $0.status.isOperationallyActive && ($0.districtId == district.id || $0.districtName == district.name)
+        }.count
+    }
     
     var body: some View {
         ScrollView {
@@ -433,7 +452,7 @@ struct DistrictDetailView: View {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                     StatBox(title: "Population", value: "\(district.population.formatted())")
                     StatBox(title: "Area", value: String(format: "%.1f sq mi", district.areaSquareMiles))
-                    StatBox(title: "Active Incidents", value: "\(district.activeIncidents)")
+                    StatBox(title: "Active Incidents", value: "\(activeIncidentCount)")
                     StatBox(title: "Avg Response", value: String(format: "%.1f min", district.averageResponseTime))
                 }
                 
