@@ -13,6 +13,8 @@ struct IncidentPollingResult {
     let refreshedAt: Date
     let sourceDataAsOf: Date?
     let sourceDataLoadedAt: Date?
+    let dataSource: IncidentDataSource
+    let fallbackReason: String?
 }
 
 actor IncidentPollingService {
@@ -29,7 +31,8 @@ actor IncidentPollingService {
     }
 
     func poll(limit: Int = 500) async throws -> IncidentPollingResult {
-        let result = try await apiClient.fetchIncidentSnapshot(limit: limit)
+        let snapshot = try await apiClient.fetchIncidentSnapshotWithSource(limit: limit)
+        let result = snapshot.fetchResult
         let currentById = Dictionary(uniqueKeysWithValues: result.incidents.map { ($0.id, $0) })
         let updates = diff(previous: snapshotById, current: currentById, timestamp: result.fetchedAt)
         let mergedSnapshot = mergeClosedIncidents(previous: snapshotById, current: currentById)
@@ -41,7 +44,9 @@ actor IncidentPollingService {
             updates: updates,
             refreshedAt: result.fetchedAt,
             sourceDataAsOf: result.sourceDataAsOf,
-            sourceDataLoadedAt: result.sourceDataLoadedAt
+            sourceDataLoadedAt: result.sourceDataLoadedAt,
+            dataSource: snapshot.dataSource,
+            fallbackReason: snapshot.fallbackReason
         )
     }
 

@@ -37,6 +37,17 @@ struct DataSourceInfo: Equatable {
     let updateCadence: String
 }
 
+enum IncidentDataSource: Equatable {
+    case meshBackend
+    case dataSFDevelopmentFallback
+}
+
+struct IncidentSnapshotResult {
+    let fetchResult: DataSFIncidentFetchResult
+    let dataSource: IncidentDataSource
+    let fallbackReason: String?
+}
+
 actor APIClient {
     static let shared = APIClient()
     static let productionDataSource = DataSourceInfo(
@@ -53,17 +64,20 @@ actor APIClient {
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
     private let now: () -> Date
+    private let allowsDevelopmentDataSFFallback: Bool
     
     init(
         baseURL: URL = URL(string: "https://api.mesh-platform.com/v1")!,
         dataSFIncidentsURL: URL = URL(string: "https://data.sfgov.org/resource/gnap-fj3t.json")!,
         session: URLSession = APIClient.defaultSession(),
-        now: @escaping () -> Date = Date.init
+        now: @escaping () -> Date = Date.init,
+        allowsDevelopmentDataSFFallback: Bool = true
     ) {
         self.baseURL = baseURL
         self.dataSFIncidentsURL = dataSFIncidentsURL
         self.session = session
         self.now = now
+        self.allowsDevelopmentDataSFFallback = allowsDevelopmentDataSFFallback
 
         self.decoder = JSONDecoder()
         self.decoder.dateDecodingStrategy = .iso8601
@@ -193,6 +207,30 @@ actor APIClient {
     // MARK: - DataSF Incidents
 
     func fetchIncidentSnapshot(limit: Int = 500) async throws -> DataSFIncidentFetchResult {
+        try await fetchIncidentSnapshotWithSource(limit: limit).fetchResult
+    }
+
+    func fetchIncidentSnapshotWithSource(limit: Int = 500) async throws -> IncidentSnapshotResult {
+        do {
+            return IncidentSnapshotResult(
+                fetchResult: try await fetchBackendIncidentSnapshot(limit: limit),
+                dataSource: .meshBackend,
+                fallbackReason: nil
+            )
+        } catch {
+            guard allowsDevelopmentDataSFFallback, shouldFallbackToDataSF(for: error) else {
+                throw error
+            }
+
+            return IncidentSnapshotResult(
+                fetchResult: try await fetchDataSFIncidentSnapshot(limit: limit),
+                dataSource: .dataSFDevelopmentFallback,
+                fallbackReason: error.localizedDescription
+            )
+        }
+    }
+
+    private func fetchBackendIncidentSnapshot(limit: Int) async throws -> DataSFIncidentFetchResult {
         let envelope: MeshBackendEnvelope<[MeshBackendIncidentPayload]> = try await request(
             endpoint: "incidents",
             queryItems: [
@@ -207,6 +245,21 @@ actor APIClient {
             sourceDataLoadedAt: envelope.freshness.sourceDataLoadedAt,
             fetchedAt: envelope.freshness.fetchedAt
         )
+    }
+
+    private func shouldFallbackToDataSF(for error: Error) -> Bool {
+        guard let apiError = error as? APIError else {
+            return false
+        }
+
+        switch apiError {
+        case .networkError, .invalidResponse, .notFound:
+            return true
+        case .serverError(let statusCode, _):
+            return statusCode == 502 || statusCode == 503 || statusCode == 504
+        case .invalidURL, .decodingError, .unauthorized:
+            return false
+        }
     }
 
     func fetchDataSFIncidentSnapshot(limit: Int = 500) async throws -> DataSFIncidentFetchResult {

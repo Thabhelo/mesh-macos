@@ -193,9 +193,16 @@ struct DataModeControl: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 if appState.dataMode == .live {
-                    Text("\(appState.liveDataSource.regionName) • \(appState.liveDataSource.name)")
+                    Text("\(appState.liveDataSource.regionName) • \(appState.incidentDataSource.label)")
                         .font(.system(size: 11, weight: .medium, design: .rounded))
                         .foregroundColor(MeshTheme.Colors.foregroundSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                if let notice = appState.incidentDataSourceNotice {
+                    Text(notice)
+                        .font(.system(size: 10, weight: .regular, design: .rounded))
+                        .foregroundColor(.orange)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -274,6 +281,17 @@ struct ReplayControls: View {
                     .foregroundColor(MeshTheme.Colors.foreground)
                     .lineLimit(2)
             }
+        }
+    }
+}
+
+private extension IncidentDataSource {
+    var label: String {
+        switch self {
+        case .meshBackend:
+            return "Mesh Backend"
+        case .dataSFDevelopmentFallback:
+            return "DataSF Direct Fallback"
         }
     }
 }

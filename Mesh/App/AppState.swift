@@ -88,6 +88,8 @@ class AppState: ObservableObject {
     @Published var incidentRefreshRecoverySuggestion: String?
     @Published var sourceDataAsOf: Date?
     @Published var sourceDataLoadedAt: Date?
+    @Published var incidentDataSource: IncidentDataSource = .meshBackend
+    @Published var incidentDataSourceNotice: String?
     @Published var systemStatus: SystemStatus = .normal
     @Published var showWelcome: Bool = true
     @Published var dataMode: DataMode = .live
@@ -305,6 +307,8 @@ class AppState: ObservableObject {
         lastIncidentRefreshAt = result.refreshedAt
         sourceDataAsOf = result.sourceDataAsOf
         sourceDataLoadedAt = result.sourceDataLoadedAt
+        incidentDataSource = result.dataSource
+        incidentDataSourceNotice = dataSourceNotice(for: result)
         incidentRefreshError = nil
         incidentRefreshRecoverySuggestion = nil
         dataConnectionState = dataMode == .replay ? .replay : freshnessState(for: result)
@@ -327,6 +331,7 @@ class AppState: ObservableObject {
         dataConnectionState = .replay
         incidentRefreshError = nil
         incidentRefreshRecoverySuggestion = nil
+        incidentDataSourceNotice = nil
         isConnected = false
         selectedIncidentId = incidents.first?.id
 
@@ -610,6 +615,16 @@ private extension AppState {
             return "\(liveDataSource.name) rejected the request."
         case .notFound:
             return "The \(liveDataSource.datasetIdentifier) dataset could not be found."
+        }
+    }
+
+    private func dataSourceNotice(for result: IncidentPollingResult) -> String? {
+        switch result.dataSource {
+        case .meshBackend:
+            return nil
+        case .dataSFDevelopmentFallback:
+            let reason = result.fallbackReason.map { " Backend unavailable: \($0)" } ?? ""
+            return "Using direct DataSF development fallback until the Mesh backend is reachable.\(reason)"
         }
     }
 

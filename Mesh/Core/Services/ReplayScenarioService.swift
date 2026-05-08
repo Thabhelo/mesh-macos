@@ -57,7 +57,9 @@ struct ReplayScenarioFrame: Identifiable, Equatable {
             },
             refreshedAt: timestamp,
             sourceDataAsOf: timestamp,
-            sourceDataLoadedAt: timestamp
+            sourceDataLoadedAt: timestamp,
+            dataSource: .dataSFDevelopmentFallback,
+            fallbackReason: nil
         )
     }
 }

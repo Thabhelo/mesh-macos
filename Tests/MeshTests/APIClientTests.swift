@@ -88,6 +88,29 @@ final class APIClientTests: XCTestCase {
         XCTAssertEqual(result.sourceDataAsOf, isoDate("2024-05-15T12:03:00Z"))
     }
 
+    func testFetchIncidentSnapshotFallsBackToDataSFWhenBackendIsUnavailable() async throws {
+        MockURLProtocol.enqueue(statusCode: 503, body: #"{"error":"backend unavailable"}"#)
+        MockURLProtocol.enqueue(statusCode: 200, body: dataSFResponse([
+            dataSFCall(id: "fallback", priority: "A", agency: "Police", type: "TRAF COLLISION", policeDistrict: "SOUTHERN", closeDatetime: nil)
+        ]))
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [MockURLProtocol.self]
+        let session = URLSession(configuration: configuration)
+        let client = APIClient(
+            baseURL: URL(string: "https://api.example.test/v1")!,
+            dataSFIncidentsURL: URL(string: "https://data.example.test/resource/gnap-fj3t.json")!,
+            session: session,
+            now: { self.fetchedAt }
+        )
+
+        let snapshot = try await client.fetchIncidentSnapshotWithSource(limit: 25)
+
+        XCTAssertEqual(snapshot.dataSource, .dataSFDevelopmentFallback)
+        XCTAssertEqual(snapshot.fetchResult.incidents.map(\.id), ["datasf:gnap-fj3t:fallback"])
+        XCTAssertNotNil(snapshot.fallbackReason)
+        XCTAssertEqual(MockURLProtocol.requests.map { $0.url?.host }, ["api.example.test", "data.example.test"])
+    }
+
     func testFetchAgenciesAndDistrictsDoNotReturnSampleFallbacks() async throws {
         let client = APIClient(dataSFIncidentsURL: URL(string: "https://example.test/resource/gnap-fj3t.json")!)
 
