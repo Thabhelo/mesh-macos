@@ -39,7 +39,7 @@ Native macOS application for the Mesh Public Safety Platform - providing live pu
 ## Requirements
 
 - macOS 14.0 (Sonoma) or later
-- Xcode 15.4 or later (for development and CI parity)
+- Xcode 16 or later (for the checked-in Xcode project format)
 - Swift 5.9 or later
 
 ## Development Setup
