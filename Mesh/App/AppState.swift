@@ -46,6 +46,7 @@ enum SystemStatus: String {
 enum DataConnectionState: Equatable {
     case loading
     case live
+    case replay
     case stale
     case offline
     case error
@@ -54,6 +55,7 @@ enum DataConnectionState: Equatable {
         switch self {
         case .loading: return "Loading"
         case .live: return "Live"
+        case .replay: return "Replay"
         case .stale: return "Stale"
         case .offline: return "Offline"
         case .error: return "Error"
@@ -64,6 +66,7 @@ enum DataConnectionState: Equatable {
         switch self {
         case .loading: return .orange
         case .live: return .green
+        case .replay: return .blue
         case .stale: return .yellow
         case .offline, .error: return .red
         }
@@ -84,6 +87,10 @@ class AppState: ObservableObject {
     @Published var incidentRefreshError: String?
     @Published var systemStatus: SystemStatus = .normal
     @Published var showWelcome: Bool = true
+    @Published var dataMode: DataMode = .live
+    @Published var replayPlaybackState: ReplayPlaybackState = .stopped
+    @Published var replaySpeed: ReplaySpeed = .normal
+    @Published var replayFrameIndex: Int = 0
     
     // Data
     @Published var incidents: [Incident] = []
@@ -135,7 +142,20 @@ class AppState: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     private var incidentPollingTask: Task<Void, Never>?
+    private var replayPlaybackTask: Task<Void, Never>?
+    private var replayScenarioAnchorDate = Date()
     private var isIncidentRefreshInFlight = false
+
+    var replayFrames: [ReplayScenarioFrame] {
+        ReplayScenarioService.frames(anchorDate: replayScenarioAnchorDate)
+    }
+
+    var currentReplayFrame: ReplayScenarioFrame? {
+        guard dataMode == .replay else { return nil }
+        let frames = replayFrames
+        guard frames.indices.contains(replayFrameIndex) else { return nil }
+        return frames[replayFrameIndex]
+    }
     
     private init() {
         // Live update subscriptions will be enabled when the real DataSF polling stream lands.
@@ -160,6 +180,7 @@ class AppState: ObservableObject {
     }
     
     func refreshData() async {
+        guard dataMode == .live else { return }
         guard !isIncidentRefreshInFlight else { return }
 
         isIncidentRefreshInFlight = true
@@ -178,6 +199,7 @@ class AppState: ObservableObject {
     }
 
     func startIncidentPolling() {
+        guard dataMode == .live else { return }
         guard incidentPollingTask == nil else { return }
 
         incidentPollingTask = Task { [weak self] in
@@ -196,6 +218,62 @@ class AppState: ObservableObject {
     func stopIncidentPolling() {
         incidentPollingTask?.cancel()
         incidentPollingTask = nil
+    }
+
+    func enterReplayMode() {
+        guard dataMode != .replay else { return }
+        stopIncidentPolling()
+        replayScenarioAnchorDate = Date()
+        dataMode = .replay
+        selectedTab = .dashboard
+        replayPlaybackState = .stopped
+        applyReplayFrame(at: 0)
+    }
+
+    func enterLiveMode() {
+        stopReplayPlayback()
+        dataMode = .live
+        replayPlaybackState = .stopped
+        dataConnectionState = lastIncidentRefreshAt == nil ? .loading : .live
+        Task {
+            await refreshData()
+            startIncidentPolling()
+        }
+    }
+
+    func replayStepForward() {
+        applyReplayFrame(at: min(replayFrameIndex + 1, replayFrames.count - 1))
+    }
+
+    func replayStepBackward() {
+        applyReplayFrame(at: max(replayFrameIndex - 1, 0))
+    }
+
+    func resetReplay() {
+        stopReplayPlayback()
+        replayScenarioAnchorDate = Date()
+        replayPlaybackState = .stopped
+        applyReplayFrame(at: 0)
+    }
+
+    func toggleReplayPlayback() {
+        guard dataMode == .replay else { return }
+
+        if replayPlaybackState == .playing {
+            stopReplayPlayback()
+            replayPlaybackState = .paused
+        } else {
+            startReplayPlayback()
+        }
+    }
+
+    func cycleReplaySpeed() {
+        let speeds = ReplaySpeed.allCases
+        guard let index = speeds.firstIndex(of: replaySpeed) else {
+            replaySpeed = .normal
+            return
+        }
+        replaySpeed = speeds[(index + 1) % speeds.count]
     }
     
     func selectIncident(_ incident: Incident) {
@@ -230,14 +308,61 @@ class AppState: ObservableObject {
         includeLiveIncidentDistricts(result.incidents)
         lastIncidentRefreshAt = result.refreshedAt
         incidentRefreshError = nil
-        dataConnectionState = freshnessState(for: result)
-        isConnected = dataConnectionState == .live || dataConnectionState == .stale
+        dataConnectionState = dataMode == .replay ? .replay : freshnessState(for: result)
+        isConnected = dataMode == .live && (dataConnectionState == .live || dataConnectionState == .stale)
         updateDerivedIntelligence(referenceDate: result.refreshedAt)
 
-        if shouldNotify {
+        if shouldNotify && dataMode == .live {
             notifyForCriticalNewIncidents(in: result.updates)
         }
         updateSystemStatus()
+    }
+
+    private func applyReplayFrame(at index: Int) {
+        let frames = replayFrames
+        guard !frames.isEmpty else { return }
+
+        let clampedIndex = min(max(index, 0), frames.count - 1)
+        replayFrameIndex = clampedIndex
+        applyIncidentPollingResult(frames[clampedIndex].incidentResult)
+        dataConnectionState = .replay
+        incidentRefreshError = nil
+        isConnected = false
+        selectedIncidentId = incidents.first?.id
+
+        if clampedIndex == frames.count - 1 && replayPlaybackState == .playing {
+            stopReplayPlayback()
+            replayPlaybackState = .stopped
+        }
+    }
+
+    private func startReplayPlayback() {
+        stopReplayPlayback()
+        replayPlaybackState = .playing
+        replayPlaybackTask = Task { [weak self] in
+            while !Task.isCancelled {
+                guard let self else { return }
+                let delay = UInt64((2.0 / replaySpeed.rawValue) * 1_000_000_000)
+                do {
+                    try await Task.sleep(nanoseconds: delay)
+                } catch {
+                    return
+                }
+
+                await MainActor.run {
+                    guard self.dataMode == .replay else {
+                        self.stopReplayPlayback()
+                        return
+                    }
+                    self.replayStepForward()
+                }
+            }
+        }
+    }
+
+    private func stopReplayPlayback() {
+        replayPlaybackTask?.cancel()
+        replayPlaybackTask = nil
     }
 
     private func notifyForCriticalNewIncidents(in updates: [IncidentUpdate]) {

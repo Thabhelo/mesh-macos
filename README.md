@@ -16,6 +16,7 @@ Native macOS application for the Mesh Public Safety Platform - providing live pu
 - Filterable by agency type, district, and severity
 - Detailed incident information with responding units
 - Manual refresh plus automatic polling every 10 minutes
+- Explicit San Francisco replay/training mode for repeatable operational walkthroughs
 
 ### Interactive Map
 - MapKit visualization with incident markers
@@ -127,6 +128,8 @@ Production incidents are loaded from the San Francisco DataSF dispatched-calls d
 
 The field-level contract, source inventory, privacy assumptions, and known data gaps are documented in `docs/san-francisco-data-contract.md`.
 
+The San Francisco replay/training walkthrough script and screenshot checklist are documented in `docs/san-francisco-operational-walkthrough.md`.
+
 `Core/Services/IncidentPollingService.swift` owns the polling snapshot:
 
 - Fetches the latest DataSF incidents on launch and every 10 minutes.
@@ -146,6 +149,7 @@ The freshness states shown in the toolbar and menu bar are:
 
 - `Loading`: no successful incident poll has completed yet.
 - `Live`: the latest DataSF response was fetched successfully and source freshness is within the stale threshold.
+- `Replay`: the app is running the San Francisco training drill, not live production data.
 - `Stale`: DataSF responded, but its source freshness metadata is older than the stale threshold.
 - `Offline`: the initial incident poll failed.
 - `Error`: a later refresh failed after at least one successful poll.
@@ -195,6 +199,12 @@ private let baseURL = URL(string: "wss://api.mesh-platform.com/ws")!
 
 ## Testing
 
+Run unit tests with:
+
+```bash
+swift test
+```
+
 Build the app with:
 
 ```bash
@@ -208,6 +218,7 @@ Manual verification:
 - Use the toolbar refresh button, menu bar refresh action, or `Command-R`; incidents should refresh without duplicating existing records.
 - Toggle `Show active incidents only`; closed incidents should be hidden when enabled.
 - Leave the app running to confirm the automatic 10-minute refresh advances the last-refresh timestamp.
+- Click `Start Replay`, confirm every major surface says replay/training, step through the SF Bay Bridge Surge Drill, and return to live mode before production monitoring.
 
 Regression check for fake simulation code:
 

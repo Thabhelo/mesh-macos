@@ -75,6 +75,10 @@ struct DashboardView: View {
                 selectedIncident = firstIncident
             }
         }
+        .onChange(of: appState.selectedIncidentId) { _, selectedIncidentId in
+            guard let selectedIncidentId else { return }
+            selectedIncident = appState.incidents.first { $0.id == selectedIncidentId }
+        }
     }
 }
 
@@ -84,7 +88,7 @@ struct DashboardHeaderView: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack {
-                Text("Real-Time Incidents")
+                Text(appState.dataMode == .replay ? "Replay Training Incidents" : "Real-Time Incidents")
                     .font(.title)
                     .fontWeight(.bold)
                 
@@ -121,9 +125,74 @@ struct DashboardHeaderView: View {
                 .toggleStyle(.switch)
                 .controlSize(.small)
             }
+
+            if let frame = appState.currentReplayFrame {
+                WalkthroughDecisionCard(frame: frame)
+            }
         }
         .padding()
         .background(Color(nsColor: .windowBackgroundColor))
+    }
+}
+
+struct WalkthroughDecisionCard: View {
+    let frame: ReplayScenarioFrame
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("SF Operational Walkthrough", systemImage: "play.rectangle.fill")
+                    .font(.headline)
+                    .foregroundColor(.blue)
+
+                Spacer()
+
+                Text("Step \(frame.stepNumber)")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.blue.opacity(0.12))
+                    .foregroundColor(.blue)
+                    .cornerRadius(6)
+            }
+
+            Text(frame.title)
+                .font(.title3)
+                .fontWeight(.semibold)
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 10) {
+                WalkthroughFact(title: "What changed", value: frame.whatChanged)
+                WalkthroughFact(title: "Why it matters", value: frame.whyItMatters)
+                WalkthroughFact(title: "Recommended action", value: frame.recommendedAction)
+                WalkthroughFact(title: "Evidence", value: frame.evidence.joined(separator: " • "))
+            }
+        }
+        .padding(12)
+        .background(Color.blue.opacity(0.06))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.blue.opacity(0.25), lineWidth: 1)
+        )
+        .cornerRadius(12)
+    }
+}
+
+struct WalkthroughFact: View {
+    let title: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title.uppercased())
+                .font(.caption2)
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+            Text(value)
+                .font(.callout)
+                .foregroundColor(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 

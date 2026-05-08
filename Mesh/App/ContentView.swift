@@ -72,6 +72,20 @@ struct MainAppView: View {
             
             ToolbarItemGroup(placement: .primaryAction) {
                 ConnectionStatusView()
+
+                Button {
+                    if appState.dataMode == .live {
+                        appState.enterReplayMode()
+                    } else {
+                        appState.enterLiveMode()
+                    }
+                } label: {
+                    Text(appState.dataMode == .live ? "Start Replay" : "Return Live")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundColor(appState.dataMode == .live ? MeshTheme.Colors.primary : .blue)
+                }
+                .buttonStyle(.plain)
+                .help(appState.dataMode == .live ? "Start San Francisco replay training mode" : "Return to live DataSF mode")
                 
                 Button {
                     Task {
@@ -83,6 +97,7 @@ struct MainAppView: View {
                         .foregroundColor(MeshTheme.Colors.foregroundSecondary)
                 }
                 .help("Refresh data")
+                .disabled(appState.dataMode == .replay)
             }
         }
     }
@@ -92,12 +107,16 @@ struct MainAppView: View {
 
 struct AppSidebar: View {
     @EnvironmentObject var appState: AppState
+
+    private var visibleTabs: [AppTab] {
+        appState.dataMode == .replay ? AppTab.allCases : AppTab.productionTabs
+    }
     
     var body: some View {
         List(selection: $appState.selectedTab) {
             // Navigation Section
             Section {
-                ForEach(AppTab.productionTabs) { tab in
+                ForEach(visibleTabs) { tab in
                     NavigationLink(value: tab) {
                         HStack(spacing: 12) {
                             Image(systemName: tab.icon)
@@ -114,6 +133,15 @@ struct AppSidebar: View {
                 }
             } header: {
                 Text("NAVIGATION")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundColor(MeshTheme.Colors.mutedForeground)
+                    .tracking(0.5)
+            }
+
+            Section {
+                DataModeControl()
+            } header: {
+                Text("DATA MODE")
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundColor(MeshTheme.Colors.mutedForeground)
                     .tracking(0.5)
@@ -146,6 +174,100 @@ struct AppSidebar: View {
         .listStyle(.sidebar)
         .frame(minWidth: 260)
         .background(Color.white.opacity(0.6))
+    }
+}
+
+struct DataModeControl: View {
+    @EnvironmentObject var appState: AppState
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 4) {
+                Label(appState.dataMode.label, systemImage: appState.dataMode == .live ? "antenna.radiowaves.left.and.right" : "play.rectangle.fill")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundColor(appState.dataMode == .live ? .green : .blue)
+
+                Text(appState.dataMode.detail)
+                    .font(.system(size: 11, weight: .regular, design: .rounded))
+                    .foregroundColor(MeshTheme.Colors.mutedForeground)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Button {
+                if appState.dataMode == .live {
+                    appState.enterReplayMode()
+                } else {
+                    appState.enterLiveMode()
+                }
+            } label: {
+                Text(appState.dataMode == .live ? "Start SF Replay Drill" : "Return to Live Data")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+
+            if appState.dataMode == .replay {
+                ReplayControls()
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+struct ReplayControls: View {
+    @EnvironmentObject var appState: AppState
+
+    private var currentStepText: String {
+        "Step \(appState.replayFrameIndex + 1) of \(appState.replayFrames.count)"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(currentStepText)
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .foregroundColor(.blue)
+
+            HStack(spacing: 6) {
+                Button {
+                    appState.replayStepBackward()
+                } label: {
+                    Image(systemName: "backward.end.fill")
+                }
+                .disabled(appState.replayFrameIndex == 0)
+
+                Button {
+                    appState.toggleReplayPlayback()
+                } label: {
+                    Image(systemName: appState.replayPlaybackState == .playing ? "pause.fill" : "play.fill")
+                }
+
+                Button {
+                    appState.replayStepForward()
+                } label: {
+                    Image(systemName: "forward.end.fill")
+                }
+                .disabled(appState.replayFrameIndex >= appState.replayFrames.count - 1)
+
+                Button(appState.replaySpeed.label) {
+                    appState.cycleReplaySpeed()
+                }
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+
+                Button {
+                    appState.resetReplay()
+                } label: {
+                    Image(systemName: "arrow.counterclockwise")
+                }
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+
+            if let frame = appState.currentReplayFrame {
+                Text(frame.title)
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(MeshTheme.Colors.foreground)
+                    .lineLimit(2)
+            }
+        }
     }
 }
 
@@ -217,6 +339,10 @@ struct ConnectionStatusView: View {
     @EnvironmentObject var appState: AppState
 
     private var detailText: String? {
+        if appState.dataMode == .replay {
+            return "Training replay, not live data"
+        }
+
         if let error = appState.incidentRefreshError,
            appState.dataConnectionState == .error || appState.dataConnectionState == .offline {
             return error

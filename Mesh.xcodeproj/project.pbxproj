@@ -13,6 +13,7 @@
 		1E49705DC15BC2EC8D83EABA /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17C024783735BBB11B639303 /* LocationService.swift */; };
 		1A2B3C4D5E6F708192A3B4C5 /* IncidentPollingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1A2B3C4D5E6F708192A3B4 /* IncidentPollingService.swift */; };
 		1F2E3D4C5B6A798887766554 /* OperationalIntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E1D2C3B4A59687766554433 /* OperationalIntelligenceService.swift */; };
+		2A3B4C5D6E7F8091A2B3C4D5 /* ReplayScenarioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4B5C6D7E8F9012A3B4C5D6 /* ReplayScenarioService.swift */; };
 		200DB4B542BA3E13A03CE27C /* Incident.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00CC6801B4D2EACB05BA7BC5 /* Incident.swift */; };
 		2DB3EA524F368FEA2D3EDF08 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85FA63A04EE5EE7B5057C07 /* AppDelegate.swift */; };
 		30F416229C949ECDB6A12101 /* StatCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B55AAC18C7B344F3514AEB3 /* StatCard.swift */; };
@@ -42,6 +43,7 @@
 		0B55AAC18C7B344F3514AEB3 /* StatCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatCard.swift; sourceTree = "<group>"; };
 		0F1A2B3C4D5E6F708192A3B4 /* IncidentPollingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncidentPollingService.swift; sourceTree = "<group>"; };
 		0E1D2C3B4A59687766554433 /* OperationalIntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationalIntelligenceService.swift; sourceTree = "<group>"; };
+		3A4B5C6D7E8F9012A3B4C5D6 /* ReplayScenarioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayScenarioService.swift; sourceTree = "<group>"; };
 		17C024783735BBB11B639303 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		18201F221565A6BFA4DE3149 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1E9F1D69A6CC1347B73AA4E3 /* District.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = District.swift; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 				17C024783735BBB11B639303 /* LocationService.swift */,
 				D429481634A9311DA3993B8F /* NotificationService.swift */,
 				0E1D2C3B4A59687766554433 /* OperationalIntelligenceService.swift */,
+				3A4B5C6D7E8F9012A3B4C5D6 /* ReplayScenarioService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -321,6 +324,7 @@
 				E35FD9F0E04FF02EABE734BA /* MeshApp.swift in Sources */,
 				4D49D53F173B9ADD55A5DE43 /* NotificationService.swift in Sources */,
 				1F2E3D4C5B6A798887766554 /* OperationalIntelligenceService.swift in Sources */,
+				2A3B4C5D6E7F8091A2B3C4D5 /* ReplayScenarioService.swift in Sources */,
 				30F416229C949ECDB6A12101 /* StatCard.swift in Sources */,
 				FB5DBF085045836BC01BABEB /* SurgeAlert.swift in Sources */,
 				9F822FBB3DFC1CC0C9EB5D0A /* SurgePredictionView.swift in Sources */,
