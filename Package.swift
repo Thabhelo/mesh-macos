@@ -15,7 +15,7 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "Mesh",
-            dependencies: ["MeshBackendCore"],
+            dependencies: [],
             path: "Mesh",
             exclude: [
                 "Info.plist",

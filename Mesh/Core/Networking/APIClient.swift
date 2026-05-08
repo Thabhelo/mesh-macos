@@ -1,5 +1,4 @@
 import Foundation
-import MeshBackendCore
 
 enum APIError: Error, LocalizedError {
     case invalidURL
@@ -194,10 +193,10 @@ actor APIClient {
     // MARK: - DataSF Incidents
 
     func fetchIncidentSnapshot(limit: Int = 500) async throws -> DataSFIncidentFetchResult {
-        let envelope: APIEnvelope<[IncidentPayload]> = try await request(
+        let envelope: MeshBackendEnvelope<[MeshBackendIncidentPayload]> = try await request(
             endpoint: "incidents",
             queryItems: [
-                URLQueryItem(name: "regionId", value: MeshBackendContract.supportedRegionId),
+                URLQueryItem(name: "regionId", value: "san-francisco"),
                 URLQueryItem(name: "limit", value: String(limit))
             ]
         )
@@ -323,7 +322,7 @@ actor APIClient {
         return .active
     }
 
-    private func mapIncidentPayload(_ payload: IncidentPayload) -> Incident {
+    private func mapIncidentPayload(_ payload: MeshBackendIncidentPayload) -> Incident {
         Incident(
             id: payload.id,
             type: payload.type,
@@ -488,6 +487,57 @@ actor APIClient {
     private func newestDate(from values: [String?]) -> Date? {
         values.compactMap(parseDataSFDate).max()
     }
+}
+
+private struct MeshBackendEnvelope<Payload: Decodable>: Decodable {
+    let data: Payload
+    let freshness: MeshBackendFreshness
+}
+
+private struct MeshBackendFreshness: Decodable {
+    let fetchedAt: Date
+    let sourceDataAsOf: Date?
+    let sourceDataLoadedAt: Date?
+}
+
+private struct MeshBackendIncidentPayload: Decodable {
+    let id: String
+    let type: String
+    let description: String
+    let agencyType: String
+    let agencyId: String
+    let agencyName: String
+    let districtId: String
+    let districtName: String
+    let status: String
+    let severity: Int
+    let location: MeshBackendCoordinatePayload
+    let address: String
+    let reportedAt: Date
+    let updatedAt: Date
+    let respondingUnits: [MeshBackendRespondingUnitPayload]
+    let notes: [MeshBackendIncidentNotePayload]
+}
+
+private struct MeshBackendCoordinatePayload: Decodable {
+    let latitude: Double
+    let longitude: Double
+}
+
+private struct MeshBackendRespondingUnitPayload: Decodable {
+    let id: String
+    let unitId: String
+    let unitName: String
+    let agencyType: String
+    let status: String
+    let etaMinutes: Int?
+}
+
+private struct MeshBackendIncidentNotePayload: Decodable {
+    let id: String
+    let content: String
+    let author: String
+    let timestamp: Date
 }
 
 private struct DataSFDispatchedCall: Decodable {
