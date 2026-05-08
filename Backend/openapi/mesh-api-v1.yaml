@@ -1,0 +1,288 @@
+openapi: 3.1.0
+info:
+  title: Mesh Backend API
+  version: v1
+  summary: Stable backend contract for San Francisco public-safety data.
+servers:
+  - url: https://api.mesh-platform.com/v1
+    description: Production
+  - url: http://localhost:8080/v1
+    description: Local development
+paths:
+  /incidents:
+    get:
+      summary: List normalized incidents
+      parameters:
+        - $ref: "#/components/parameters/RegionId"
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: agencyType
+          in: query
+          schema:
+            type: string
+        - name: districtId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Incident snapshot
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/APIEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Incident"
+  /incidents/{id}:
+    get:
+      summary: Fetch one normalized incident
+      parameters:
+        - $ref: "#/components/parameters/RegionId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Incident detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/APIEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Incident"
+        "404":
+          $ref: "#/components/responses/Error"
+  /agencies:
+    get:
+      summary: List agencies
+      responses:
+        "200":
+          $ref: "#/components/responses/Envelope"
+  /districts:
+    get:
+      summary: List districts
+      responses:
+        "200":
+          $ref: "#/components/responses/Envelope"
+  /surge-alerts:
+    get:
+      summary: List current surge alerts
+      responses:
+        "200":
+          $ref: "#/components/responses/Envelope"
+  /surge-trends:
+    get:
+      summary: List surge trend points
+      parameters:
+        - name: districtId
+          in: query
+          schema:
+            type: string
+        - name: hours
+          in: query
+          schema:
+            type: integer
+            default: 24
+      responses:
+        "200":
+          $ref: "#/components/responses/Envelope"
+  /hazard-score:
+    get:
+      summary: Fetch current hazard score
+      responses:
+        "200":
+          $ref: "#/components/responses/Envelope"
+  /freshness:
+    get:
+      summary: Fetch source freshness metadata
+      responses:
+        "200":
+          $ref: "#/components/responses/Envelope"
+  /health:
+    get:
+      summary: Fetch backend and source health
+      responses:
+        "200":
+          description: Backend health
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/APIEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/BackendHealth"
+components:
+  parameters:
+    RegionId:
+      name: regionId
+      in: query
+      schema:
+        type: string
+        enum: [san-francisco]
+        default: san-francisco
+  responses:
+    Envelope:
+      description: Versioned response envelope
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/APIEnvelope"
+    Error:
+      description: Structured error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/APIError"
+  schemas:
+    APIEnvelope:
+      type: object
+      required: [apiVersion, regionId, regionName, data, source, freshness]
+      properties:
+        apiVersion:
+          type: string
+          const: v1
+        regionId:
+          type: string
+          const: san-francisco
+        regionName:
+          type: string
+          const: San Francisco
+        data: {}
+        source:
+          $ref: "#/components/schemas/SourceAttribution"
+        freshness:
+          $ref: "#/components/schemas/FreshnessMetadata"
+    SourceAttribution:
+      type: object
+      required: [name, datasetIdentifier, url]
+      properties:
+        name:
+          type: string
+        datasetIdentifier:
+          type: string
+        url:
+          type: string
+          format: uri
+    FreshnessMetadata:
+      type: object
+      required: [fetchedAt, staleAfterSeconds]
+      properties:
+        fetchedAt:
+          type: string
+          format: date-time
+        sourceDataAsOf:
+          type: [string, "null"]
+          format: date-time
+        sourceDataLoadedAt:
+          type: [string, "null"]
+          format: date-time
+        staleAfterSeconds:
+          type: number
+    Incident:
+      type: object
+      required:
+        - id
+        - type
+        - description
+        - agencyType
+        - agencyId
+        - agencyName
+        - districtId
+        - districtName
+        - status
+        - severity
+        - location
+        - address
+        - reportedAt
+        - updatedAt
+        - respondingUnits
+        - notes
+      properties:
+        id:
+          type: string
+          example: datasf:gnap-fj3t:123456
+        type:
+          type: string
+        description:
+          type: string
+        agencyType:
+          type: string
+        agencyId:
+          type: string
+        agencyName:
+          type: string
+        districtId:
+          type: string
+        districtName:
+          type: string
+        status:
+          type: string
+        severity:
+          type: integer
+          minimum: 1
+          maximum: 4
+        location:
+          $ref: "#/components/schemas/Coordinate"
+        address:
+          type: string
+        reportedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        respondingUnits:
+          type: array
+          items:
+            type: object
+        notes:
+          type: array
+          items:
+            type: object
+    Coordinate:
+      type: object
+      required: [latitude, longitude]
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+    BackendHealth:
+      type: object
+      required: [status, checkedAt, sources]
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, down]
+        checkedAt:
+          type: string
+          format: date-time
+        sources:
+          type: array
+          items:
+            type: object
+    APIError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [sourceUnavailable, rateLimited, schemaDrift, unauthorized, notFound, internalError]
+        message:
+          type: string
+        retryAfterSeconds:
+          type: [integer, "null"]

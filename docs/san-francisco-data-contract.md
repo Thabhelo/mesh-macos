@@ -92,6 +92,33 @@ Example normalized incident:
 }
 ```
 
+## Backend API Contract
+
+The production backend API contract is versioned as `v1` and documented in `Backend/openapi/mesh-api-v1.yaml`.
+
+Backend responses must include:
+
+- `apiVersion`
+- `regionId`
+- `regionName`
+- `data`
+- `source`
+- `freshness`
+
+The compile-checked Swift representation lives in `Backend/Sources/MeshBackendCore/MeshBackendContract.swift`. The backend owns these paths:
+
+- `GET /v1/incidents`
+- `GET /v1/incidents/{id}`
+- `GET /v1/agencies`
+- `GET /v1/districts`
+- `GET /v1/surge-alerts`
+- `GET /v1/surge-trends`
+- `GET /v1/hazard-score`
+- `GET /v1/freshness`
+- `GET /v1/health`
+
+API responses must preserve DataSF source attribution and freshness metadata so the macOS app can render live, stale, offline, and error states without direct DataSF coupling.
+
 ## Snapshot and Event Contract
 
 `IncidentPollingService` maintains a snapshot keyed by normalized incident ID.
@@ -146,8 +173,8 @@ Adapters should be region-scoped. A future city must provide its own source inve
 
 ## Known Gaps
 
-- Static agency and district data still back supporting UI surfaces.
-- Surge alerts, surge trends, and hazard score are not yet derived from live DataSF windows.
+- The macOS app still fetches DataSF directly while the backend service is being built.
+- The backend contract exists, but the runnable HTTP service and persistence layer are not implemented.
+- Surge alerts, surge trends, and hazard score are not yet backend-derived from live DataSF windows.
 - Weather, traffic, district-boundary, and historical-baseline sources are identified but not integrated.
 - Replay/training data is not yet loaded through the same provider path as live data.
-- Automated tests for decoding, normalization, diffing, and freshness states are tracked separately by issue #6.

@@ -7,7 +7,8 @@ let package = Package(
         .macOS(.v14)
     ],
     products: [
-        .executable(name: "Mesh", targets: ["Mesh"])
+        .executable(name: "Mesh", targets: ["Mesh"]),
+        .library(name: "MeshBackendCore", targets: ["MeshBackendCore"])
     ],
     dependencies: [],
     targets: [
@@ -23,9 +24,14 @@ let package = Package(
                 .process("Resources")
             ]
         ),
+        .target(
+            name: "MeshBackendCore",
+            dependencies: [],
+            path: "Backend/Sources/MeshBackendCore"
+        ),
         .testTarget(
             name: "MeshTests",
-            dependencies: ["Mesh"],
+            dependencies: ["Mesh", "MeshBackendCore"],
             path: "Tests/MeshTests"
         )
     ]

@@ -129,6 +129,12 @@ Production incidents are loaded from the San Francisco DataSF dispatched-calls d
 
 The field-level contract, source inventory, privacy assumptions, and known data gaps are documented in `docs/san-francisco-data-contract.md`.
 
+The backend API boundary is contract-first while the service is being built:
+
+- Compile-checked contract types live in `Backend/Sources/MeshBackendCore/MeshBackendContract.swift`.
+- The HTTP API contract lives in `Backend/openapi/mesh-api-v1.yaml`.
+- Backend development notes live in `Backend/README.md`.
+
 The San Francisco replay/training walkthrough script and screenshot checklist are documented in `docs/san-francisco-operational-walkthrough.md`.
 
 `Core/Services/IncidentPollingService.swift` owns the polling snapshot:
@@ -174,7 +180,7 @@ Additional cities should be added as separate provider/data-access efforts once 
 
 ### API Endpoint
 
-The Mesh API endpoint is configured in `Core/Networking/APIClient.swift`. It is currently retained for future backend endpoints and sample-backed supporting data:
+The Mesh API endpoint is configured in `Core/Networking/APIClient.swift`. It is retained for the backend endpoints defined in `Backend/openapi/mesh-api-v1.yaml`:
 
 ```swift
 self.baseURL = URL(string: "https://api.mesh-platform.com/v1")!
