@@ -73,8 +73,6 @@ class WebSocketService: NSObject {
     private let baseURL = URL(string: "wss://api.mesh-platform.com/ws")!
     private let decoder = JSONDecoder()
     
-    private var simulationTimer: Timer?
-    
     private override init() {
         super.init()
         decoder.dateDecodingStrategy = .iso8601
@@ -84,10 +82,7 @@ class WebSocketService: NSObject {
     
     func connect() {
         guard !isConnected else { return }
-        
-        // For development, simulate WebSocket with timer
-        startSimulation()
-        
+
         /*
         let config = URLSessionConfiguration.default
         session = URLSession(configuration: config, delegate: self, delegateQueue: .main)
@@ -100,66 +95,10 @@ class WebSocketService: NSObject {
     }
     
     func disconnect() {
-        simulationTimer?.invalidate()
-        simulationTimer = nil
-        
         webSocket?.cancel(with: .goingAway, reason: nil)
         webSocket = nil
         isConnected = false
         connectionStatus.send(false)
-    }
-    
-    // MARK: - Simulation (for development)
-    
-    private func startSimulation() {
-        isConnected = true
-        connectionStatus.send(true)
-        
-        // Simulate periodic updates
-        simulationTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { [weak self] _ in
-            self?.simulateRandomUpdate()
-        }
-    }
-    
-    private func simulateRandomUpdate() {
-        let updateType = Int.random(in: 0...2)
-        
-        switch updateType {
-        case 0:
-            // Simulate incident update
-            let incident = Incident.samples.randomElement()!
-            let update = IncidentUpdate(
-                type: [.new, .updated].randomElement()!,
-                incident: incident,
-                incidentId: incident.id,
-                timestamp: Date()
-            )
-            incidentUpdates.send(update)
-            
-        case 1:
-            // Simulate surge alert
-            if let alert = SurgeAlert.samples.randomElement() {
-                surgeUpdates.send(alert)
-            }
-            
-        case 2:
-            // Simulate hazard update
-            var hazard = HazardScore.sample
-            // Slightly modify the score
-            let newScore = max(0, min(100, hazard.overallScore + Int.random(in: -5...5)))
-            hazard = HazardScore(
-                id: hazard.id,
-                overallScore: newScore,
-                lastUpdated: Date(),
-                components: hazard.components,
-                historicalComparison: hazard.historicalComparison,
-                districtScores: hazard.districtScores
-            )
-            hazardUpdates.send(hazard)
-            
-        default:
-            break
-        }
     }
     
     // MARK: - Real WebSocket Methods

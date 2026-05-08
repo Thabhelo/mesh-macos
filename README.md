@@ -1,20 +1,21 @@
 # Mesh for macOS
 
-Native macOS application for the Mesh Public Safety Platform - providing real-time interoperability intelligence for emergency response agencies in San Francisco, California.
+Native macOS application for the Mesh Public Safety Platform - providing live public-safety incident awareness for San Francisco, California.
 
 ## Features
 
 ### Menu Bar Companion
 - System status indicator (green/yellow/red)
+- Data freshness state for DataSF incident polling
 - Quick view of active incidents and surge alerts
 - One-click access to the full dashboard
 - Critical notifications
 
 ### Real-Time Dashboard
-- Live incident feed from police, fire, EMS, and 911
+- Live DataSF incident feed from San Francisco dispatched-call records
 - Filterable by agency type, district, and severity
 - Detailed incident information with responding units
-- Real-time updates via WebSocket
+- Manual refresh plus automatic polling every 10 minutes
 
 ### Interactive Map
 - MapKit visualization with incident markers
@@ -99,27 +100,55 @@ mesh-macos/
 │   │   ├── HazardAnalysis/     # Hazard scoring
 │   │   └── MenuBar/            # Menu bar popover
 │   ├── Core/
-│   │   ├── Networking/         # API client and WebSocket
+│   │   ├── Networking/         # API client and legacy WebSocket shell
 │   │   ├── Models/             # Data models
-│   │   └── Services/           # Notification and location services
+│   │   └── Services/           # Polling, notification, and location services
 │   ├── Shared/
 │   │   └── Components/         # Reusable UI components
 │   └── Resources/
 │       └── Assets.xcassets     # App icons and colors
-├── Package.swift               # Swift Package manifest
-├── project.yml                 # XcodeGen project definition
+├── Mesh.xcodeproj              # Xcode project
 └── README.md
 ```
 
 ## Architecture
 
 - **UI Framework**: SwiftUI with macOS 14+ features
-- **State Management**: Observable with @Observable and @EnvironmentObject
+- **State Management**: `ObservableObject` app state shared through `@EnvironmentObject`
 - **Networking**: Async/await with URLSession
-- **Real-time Updates**: WebSocket via URLSessionWebSocketTask
+- **Incident Updates**: DataSF snapshot polling and diffing
 - **Maps**: MapKit with SwiftUI integration
 - **Charts**: Swift Charts for data visualization
 - **Notifications**: UserNotifications framework
+
+## Incident Data Pipeline
+
+Production incidents are loaded from the San Francisco DataSF dispatched-calls dataset `gnap-fj3t` in `Core/Networking/APIClient.swift`.
+
+`Core/Services/IncidentPollingService.swift` owns the polling snapshot:
+
+- Fetches the latest DataSF incidents on launch and every 10 minutes.
+- Keys incidents by stable DataSF ID to avoid duplicates across repeated polls.
+- Diffs each snapshot into `new`, `updated`, and `closed` `IncidentUpdate` events.
+- Preserves records that disappear from a later active snapshot as `Closed`, so the `Active only` filter can hide them without losing lifecycle history.
+- Carries DataSF freshness metadata from `data_as_of` and `data_loaded_at`.
+
+`App/AppState.swift` owns app-facing lifecycle and state:
+
+- `loadInitialData()` loads static supporting data, then performs the first incident poll.
+- `startIncidentPolling()` starts the recurring 10-minute refresh loop.
+- `refreshData()` is used by toolbar, menu bar, and command-menu manual refresh actions.
+- `dataConnectionState`, `lastIncidentRefreshAt`, and `incidentRefreshError` drive UI truthfulness.
+
+The freshness states shown in the toolbar and menu bar are:
+
+- `Loading`: no successful incident poll has completed yet.
+- `Live`: the latest DataSF response was fetched successfully and source freshness is within the stale threshold.
+- `Stale`: DataSF responded, but its source freshness metadata is older than the stale threshold.
+- `Offline`: the initial incident poll failed.
+- `Error`: a later refresh failed after at least one successful poll.
+
+The legacy `WebSocketService` remains as a disconnected shell for future backend streaming work. Production startup does not call `connect()`, `startSimulation()`, or random sample event generation.
 
 ## Configuration
 
@@ -138,19 +167,53 @@ Additional cities should be added as separate provider/data-access efforts once 
 
 ### API Endpoint
 
-The API endpoint is configured in `Core/Networking/APIClient.swift`. Update the `baseURL` for your environment:
+The Mesh API endpoint is configured in `Core/Networking/APIClient.swift`. It is currently retained for future backend endpoints and sample-backed supporting data:
 
 ```swift
 self.baseURL = URL(string: "https://api.mesh-platform.com/v1")!
 ```
 
-### WebSocket
+### DataSF Endpoint
 
-WebSocket connection is configured in `Core/Networking/WebSocketService.swift`:
+The production incident endpoint is also configured in `Core/Networking/APIClient.swift`:
+
+```swift
+self.dataSFIncidentsURL = URL(string: "https://data.sfgov.org/resource/gnap-fj3t.json")!
+```
+
+Requests order by `call_last_updated_at DESC` and default to a 500-record limit.
+
+### WebSocket Shell
+
+The legacy WebSocket endpoint is configured in `Core/Networking/WebSocketService.swift`, but it is not part of the production incident pipeline:
 
 ```swift
 private let baseURL = URL(string: "wss://api.mesh-platform.com/ws")!
 ```
+
+## Testing
+
+Build the app with:
+
+```bash
+xcodebuild -project Mesh.xcodeproj -scheme Mesh -destination 'platform=macOS' build
+```
+
+Manual verification:
+
+- Launch the app and confirm the connection badge moves from `Loading` to `Live` or `Stale`.
+- Confirm the badge shows a last-refresh timestamp after the first successful poll.
+- Use the toolbar refresh button, menu bar refresh action, or `Command-R`; incidents should refresh without duplicating existing records.
+- Toggle `Show active incidents only`; closed incidents should be hidden when enabled.
+- Leave the app running to confirm the automatic 10-minute refresh advances the last-refresh timestamp.
+
+Regression check for fake simulation code:
+
+```bash
+rg "startSimulation|simulateRandomUpdate|Incident\\.samples\\.randomElement|SurgeAlert\\.samples\\.randomElement"
+```
+
+Expected result: no matches.
 
 ## Data Models
 
