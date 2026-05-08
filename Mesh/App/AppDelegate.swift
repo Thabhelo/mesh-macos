@@ -30,8 +30,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     
     private func requestNotificationPermissions() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            Task { @MainActor in
-                await Task.yield()
+            DispatchQueue.main.async {
                 AppState.shared.notificationsEnabled = granted
                 if !granted, let error {
                     #if DEBUG
@@ -43,9 +42,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
     
     private func initializeServices() async {
-        // Connect to WebSocket for real-time updates
-        WebSocketService.shared.connect()
-        
         // Load initial data
         await AppState.shared.loadInitialData()
     }

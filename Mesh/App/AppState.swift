@@ -101,7 +101,7 @@ class AppState: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     private init() {
-        setupSubscriptions()
+        // Live update subscriptions will be enabled when the real DataSF polling stream lands.
     }
     
     // MARK: - Public Methods
@@ -114,16 +114,20 @@ class AppState: ObservableObject {
             let loadedSurgeAlerts = try await APIClient.shared.fetchSurgeAlerts()
             let loadedHazardScore = try await APIClient.shared.fetchHazardScore()
 
-            await Task.yield()
-
-            applyInitialData(
-                agencies: loadedAgencies,
-                districts: loadedDistricts,
-                incidents: loadedIncidents,
-                surgeAlerts: loadedSurgeAlerts,
-                hazardScore: loadedHazardScore
-            )
+            DispatchQueue.main.async { [weak self] in
+                self?.applyInitialData(
+                    agencies: loadedAgencies,
+                    districts: loadedDistricts,
+                    incidents: loadedIncidents,
+                    surgeAlerts: loadedSurgeAlerts,
+                    hazardScore: loadedHazardScore
+                )
+                self?.isConnected = true
+            }
         } catch {
+            DispatchQueue.main.async { [weak self] in
+                self?.isConnected = false
+            }
             print("Failed to load initial data: \(error)")
         }
     }
