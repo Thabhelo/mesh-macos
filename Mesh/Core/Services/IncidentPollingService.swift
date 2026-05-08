@@ -29,7 +29,7 @@ actor IncidentPollingService {
     }
 
     func poll(limit: Int = 500) async throws -> IncidentPollingResult {
-        let result = try await apiClient.fetchDataSFIncidentSnapshot(limit: limit)
+        let result = try await apiClient.fetchIncidentSnapshot(limit: limit)
         let currentById = Dictionary(uniqueKeysWithValues: result.incidents.map { ($0.id, $0) })
         let updates = diff(previous: snapshotById, current: currentById, timestamp: result.fetchedAt)
         let mergedSnapshot = mergeClosedIncidents(previous: snapshotById, current: currentById)

@@ -26,6 +26,11 @@ paths:
           in: query
           schema:
             type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 500
       responses:
         "200":
           description: Incident snapshot

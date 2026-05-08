@@ -125,7 +125,7 @@ mesh-macos/
 
 ## Incident Data Pipeline
 
-Production incidents are loaded from the San Francisco DataSF dispatched-calls dataset `gnap-fj3t` in `Core/Networking/APIClient.swift`.
+Production incidents are loaded from the Mesh backend `/v1/incidents` API. The backend owns ingestion from the San Francisco DataSF dispatched-calls dataset `gnap-fj3t`.
 
 The field-level contract, source inventory, privacy assumptions, and known data gaps are documented in `docs/san-francisco-data-contract.md`.
 
@@ -137,13 +137,13 @@ The backend API boundary is contract-first while the service is being built:
 
 The San Francisco replay/training walkthrough script and screenshot checklist are documented in `docs/san-francisco-operational-walkthrough.md`.
 
-`Core/Services/IncidentPollingService.swift` owns the polling snapshot:
+`Core/Services/IncidentPollingService.swift` owns the app polling snapshot:
 
-- Fetches the latest DataSF incidents on launch and every 10 minutes.
+- Fetches the latest Mesh backend incident snapshot on launch and every 10 minutes.
 - Keys incidents by stable DataSF ID to avoid duplicates across repeated polls.
 - Diffs each snapshot into `new`, `updated`, and `closed` `IncidentUpdate` events.
 - Preserves records that disappear from a later active snapshot as `Closed`, so the `Active only` filter can hide them without losing lifecycle history.
-- Carries DataSF freshness metadata from `data_as_of` and `data_loaded_at`.
+- Carries backend-provided DataSF freshness metadata from `data_as_of` and `data_loaded_at`.
 
 `App/AppState.swift` owns app-facing lifecycle and state:
 
@@ -180,21 +180,25 @@ Additional cities should be added as separate provider/data-access efforts once 
 
 ### API Endpoint
 
-The Mesh API endpoint is configured in `Core/Networking/APIClient.swift`. It is retained for the backend endpoints defined in `Backend/openapi/mesh-api-v1.yaml`:
+The Mesh API endpoint is configured in `Core/Networking/APIClient.swift` and should point at the backend endpoints defined in `Backend/openapi/mesh-api-v1.yaml`:
 
 ```swift
 self.baseURL = URL(string: "https://api.mesh-platform.com/v1")!
 ```
 
-### DataSF Endpoint
+### Local Backend
 
-The production incident endpoint is also configured in `Core/Networking/APIClient.swift`:
+Run the backend locally with:
 
-```swift
-self.dataSFIncidentsURL = URL(string: "https://data.sfgov.org/resource/gnap-fj3t.json")!
+```bash
+swift run MeshBackend
 ```
 
-Requests order by `call_last_updated_at DESC` and default to a 500-record limit.
+The backend listens on `PORT` or `8080` and persists its latest normalized snapshot to `.mesh-backend/incidents.json` unless `MESH_BACKEND_SNAPSHOT_PATH` is set.
+
+### DataSF Endpoint
+
+The backend DataSF source endpoint is retained in `Core/Networking/APIClient.swift` only for backend-ingestion tests and compatibility helpers. Production app polling goes through the Mesh backend API.
 
 ### WebSocket Shell
 

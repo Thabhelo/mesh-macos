@@ -1,4 +1,5 @@
 import Foundation
+import MeshBackendCore
 
 enum APIError: Error, LocalizedError {
     case invalidURL
@@ -140,7 +141,7 @@ actor APIClient {
         agencyType: AgencyType? = nil,
         districtId: String? = nil
     ) async throws -> [Incident] {
-        let result = try await fetchDataSFIncidentSnapshot()
+        let result = try await fetchIncidentSnapshot()
         let incidents = result.incidents
         return incidents.filter { incident in
             let matchesStatus = status == nil || incident.status == status
@@ -191,6 +192,23 @@ actor APIClient {
     }
 
     // MARK: - DataSF Incidents
+
+    func fetchIncidentSnapshot(limit: Int = 500) async throws -> DataSFIncidentFetchResult {
+        let envelope: APIEnvelope<[IncidentPayload]> = try await request(
+            endpoint: "incidents",
+            queryItems: [
+                URLQueryItem(name: "regionId", value: MeshBackendContract.supportedRegionId),
+                URLQueryItem(name: "limit", value: String(limit))
+            ]
+        )
+
+        return DataSFIncidentFetchResult(
+            incidents: envelope.data.map(mapIncidentPayload),
+            sourceDataAsOf: envelope.freshness.sourceDataAsOf,
+            sourceDataLoadedAt: envelope.freshness.sourceDataLoadedAt,
+            fetchedAt: envelope.freshness.fetchedAt
+        )
+    }
 
     func fetchDataSFIncidentSnapshot(limit: Int = 500) async throws -> DataSFIncidentFetchResult {
         var components = URLComponents(url: dataSFIncidentsURL, resolvingAgainstBaseURL: false)
@@ -303,6 +321,43 @@ actor APIClient {
             return .responding
         }
         return .active
+    }
+
+    private func mapIncidentPayload(_ payload: IncidentPayload) -> Incident {
+        Incident(
+            id: payload.id,
+            type: payload.type,
+            description: payload.description,
+            agencyType: AgencyType(rawValue: payload.agencyType) ?? .police,
+            agencyId: payload.agencyId,
+            agencyName: payload.agencyName,
+            districtId: payload.districtId,
+            districtName: payload.districtName,
+            status: IncidentStatus(rawValue: payload.status) ?? .active,
+            severity: IncidentSeverity(rawValue: payload.severity) ?? .medium,
+            location: .init(latitude: payload.location.latitude, longitude: payload.location.longitude),
+            address: payload.address,
+            reportedAt: payload.reportedAt,
+            updatedAt: payload.updatedAt,
+            respondingUnits: payload.respondingUnits.map { unit in
+                Incident.RespondingUnit(
+                    id: unit.id,
+                    unitId: unit.unitId,
+                    unitName: unit.unitName,
+                    agencyType: AgencyType(rawValue: unit.agencyType) ?? .police,
+                    status: unit.status,
+                    etaMinutes: unit.etaMinutes
+                )
+            },
+            notes: payload.notes.map { note in
+                Incident.IncidentNote(
+                    id: note.id,
+                    content: note.content,
+                    author: note.author,
+                    timestamp: note.timestamp
+                )
+            }
+        )
     }
 
     private func normalizeSeverity(_ priority: String?) -> IncidentSeverity {

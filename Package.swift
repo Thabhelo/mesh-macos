@@ -8,13 +8,14 @@ let package = Package(
     ],
     products: [
         .executable(name: "Mesh", targets: ["Mesh"]),
+        .executable(name: "MeshBackend", targets: ["MeshBackend"]),
         .library(name: "MeshBackendCore", targets: ["MeshBackendCore"])
     ],
     dependencies: [],
     targets: [
         .executableTarget(
             name: "Mesh",
-            dependencies: [],
+            dependencies: ["MeshBackendCore"],
             path: "Mesh",
             exclude: [
                 "Info.plist",
@@ -28,6 +29,11 @@ let package = Package(
             name: "MeshBackendCore",
             dependencies: [],
             path: "Backend/Sources/MeshBackendCore"
+        ),
+        .executableTarget(
+            name: "MeshBackend",
+            dependencies: ["MeshBackendCore"],
+            path: "Backend/Sources/MeshBackend"
         ),
         .testTarget(
             name: "MeshTests",

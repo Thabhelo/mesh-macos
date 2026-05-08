@@ -52,10 +52,10 @@ final class APIClientTests: XCTestCase {
     }
 
     func testFetchIncidentsAppliesStatusAgencyAndDistrictFilters() async throws {
-        let client = makeClient(statusCode: 200, body: dataSFResponse([
-            dataSFCall(id: "a", priority: "A", agency: "Police", type: "TRAF COLLISION", policeDistrict: "SOUTHERN", closeDatetime: nil),
-            dataSFCall(id: "b", priority: "C", agency: "MTA", type: "TRANSIT DELAY", policeDistrict: "CENTRAL", closeDatetime: nil),
-            dataSFCall(id: "c", priority: "B", agency: "Police", type: "ASSAULT", policeDistrict: "SOUTHERN", closeDatetime: "2024-05-15T12:20:00.000")
+        let client = makeClient(statusCode: 200, body: backendEnvelope([
+            backendIncident(id: "a", status: "Responding", agencyType: "Police", districtId: "southern"),
+            backendIncident(id: "b", type: "Transit Delay", status: "Responding", agencyType: "Transit", districtId: "central"),
+            backendIncident(id: "c", type: "Assault", status: "Closed", agencyType: "Police", districtId: "southern")
         ]))
 
         let incidents = try await client.fetchIncidents(
@@ -65,6 +65,27 @@ final class APIClientTests: XCTestCase {
         )
 
         XCTAssertEqual(incidents.map(\.id), ["datasf:gnap-fj3t:a"])
+    }
+
+    func testFetchIncidentSnapshotBuildsBackendQueryAndMapsEnvelope() async throws {
+        let client = makeClient(statusCode: 200, body: backendEnvelope([
+            backendIncident(id: "backend", status: "On Scene", agencyType: "Fire", districtId: "mission")
+        ]))
+
+        let result = try await client.fetchIncidentSnapshot(limit: 25)
+        let request = try XCTUnwrap(MockURLProtocol.requests.first)
+        let url = try XCTUnwrap(request.url)
+        let components = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false))
+        let queryItems = Dictionary(uniqueKeysWithValues: (components.queryItems ?? []).map { ($0.name, $0.value) })
+        let incident = try XCTUnwrap(result.incidents.first)
+
+        XCTAssertEqual(url.path, "/v1/incidents")
+        XCTAssertEqual(queryItems["regionId"], "san-francisco")
+        XCTAssertEqual(queryItems["limit"], "25")
+        XCTAssertEqual(incident.id, "datasf:gnap-fj3t:backend")
+        XCTAssertEqual(incident.status, .onScene)
+        XCTAssertEqual(incident.agencyType, .fire)
+        XCTAssertEqual(result.sourceDataAsOf, isoDate("2024-05-15T12:03:00Z"))
     }
 
     func testFetchAgenciesAndDistrictsDoNotReturnSampleFallbacks() async throws {
@@ -144,6 +165,57 @@ final class APIClientTests: XCTestCase {
         "[\(calls.joined(separator: ","))]"
     }
 
+    private func backendEnvelope(_ incidents: [String]) -> String {
+        """
+        {
+          "apiVersion": "v1",
+          "regionId": "san-francisco",
+          "regionName": "San Francisco",
+          "data": [\(incidents.joined(separator: ","))],
+          "source": {
+            "name": "DataSF Dispatched Calls",
+            "datasetIdentifier": "gnap-fj3t",
+            "url": "https://data.sfgov.org/resource/gnap-fj3t.json"
+          },
+          "freshness": {
+            "fetchedAt": "2024-05-15T12:05:00Z",
+            "sourceDataAsOf": "2024-05-15T12:03:00Z",
+            "sourceDataLoadedAt": "2024-05-15T12:04:00Z",
+            "staleAfterSeconds": 900
+          }
+        }
+        """
+    }
+
+    private func backendIncident(
+        id: String,
+        type: String = "Traffic Collision",
+        status: String,
+        agencyType: String,
+        districtId: String
+    ) -> String {
+        """
+        {
+          "id": "datasf:gnap-fj3t:\(id)",
+          "type": "\(type)",
+          "description": "\(type) | Priority A",
+          "agencyType": "\(agencyType)",
+          "agencyId": "agency-\(id)",
+          "agencyName": "San Francisco \(agencyType)",
+          "districtId": "\(districtId)",
+          "districtName": "\(districtId.capitalized)",
+          "status": "\(status)",
+          "severity": 4,
+          "location": {"latitude": 37.7898, "longitude": -122.3915},
+          "address": "I-80 W at 5th St",
+          "reportedAt": "2024-05-15T12:00:00Z",
+          "updatedAt": "2024-05-15T12:03:00Z",
+          "respondingUnits": [],
+          "notes": []
+        }
+        """
+    }
+
     private func dataSFCall(
         id: String,
         priority: String,
@@ -193,6 +265,10 @@ final class APIClientTests: XCTestCase {
         formatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
         return formatter.date(from: value)
+    }
+
+    private func isoDate(_ value: String) -> Date? {
+        ISO8601DateFormatter().date(from: value)
     }
 }
 

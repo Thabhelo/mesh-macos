@@ -31,6 +31,12 @@ public struct APIEndpoint: Codable, Equatable {
     public let path: String
     public let summary: String
 
+    public init(method: String, path: String, summary: String) {
+        self.method = method
+        self.path = path
+        self.summary = summary
+    }
+
     public static func get(_ path: String, summary: String) -> APIEndpoint {
         APIEndpoint(method: "GET", path: path, summary: summary)
     }
@@ -114,11 +120,52 @@ public struct IncidentPayload: Codable, Equatable, Identifiable {
     public let updatedAt: Date
     public let respondingUnits: [RespondingUnitPayload]
     public let notes: [IncidentNotePayload]
+
+    public init(
+        id: String,
+        type: String,
+        description: String,
+        agencyType: String,
+        agencyId: String,
+        agencyName: String,
+        districtId: String,
+        districtName: String,
+        status: String,
+        severity: Int,
+        location: CoordinatePayload,
+        address: String,
+        reportedAt: Date,
+        updatedAt: Date,
+        respondingUnits: [RespondingUnitPayload],
+        notes: [IncidentNotePayload]
+    ) {
+        self.id = id
+        self.type = type
+        self.description = description
+        self.agencyType = agencyType
+        self.agencyId = agencyId
+        self.agencyName = agencyName
+        self.districtId = districtId
+        self.districtName = districtName
+        self.status = status
+        self.severity = severity
+        self.location = location
+        self.address = address
+        self.reportedAt = reportedAt
+        self.updatedAt = updatedAt
+        self.respondingUnits = respondingUnits
+        self.notes = notes
+    }
 }
 
 public struct CoordinatePayload: Codable, Equatable {
     public let latitude: Double
     public let longitude: Double
+
+    public init(latitude: Double, longitude: Double) {
+        self.latitude = latitude
+        self.longitude = longitude
+    }
 }
 
 public struct RespondingUnitPayload: Codable, Equatable, Identifiable {
@@ -128,6 +175,15 @@ public struct RespondingUnitPayload: Codable, Equatable, Identifiable {
     public let agencyType: String
     public let status: String
     public let etaMinutes: Int?
+
+    public init(id: String, unitId: String, unitName: String, agencyType: String, status: String, etaMinutes: Int?) {
+        self.id = id
+        self.unitId = unitId
+        self.unitName = unitName
+        self.agencyType = agencyType
+        self.status = status
+        self.etaMinutes = etaMinutes
+    }
 }
 
 public struct IncidentNotePayload: Codable, Equatable, Identifiable {
@@ -135,12 +191,55 @@ public struct IncidentNotePayload: Codable, Equatable, Identifiable {
     public let content: String
     public let author: String
     public let timestamp: Date
+
+    public init(id: String, content: String, author: String, timestamp: Date) {
+        self.id = id
+        self.content = content
+        self.author = author
+        self.timestamp = timestamp
+    }
+}
+
+public struct AgencyPayload: Codable, Equatable, Identifiable {
+    public let id: String
+    public let name: String
+    public let type: String
+    public let activeIncidents: Int
+    public let totalIncidents: Int
+
+    public init(id: String, name: String, type: String, activeIncidents: Int, totalIncidents: Int) {
+        self.id = id
+        self.name = name
+        self.type = type
+        self.activeIncidents = activeIncidents
+        self.totalIncidents = totalIncidents
+    }
+}
+
+public struct DistrictPayload: Codable, Equatable, Identifiable {
+    public let id: String
+    public let name: String
+    public let activeIncidents: Int
+    public let totalIncidents: Int
+
+    public init(id: String, name: String, activeIncidents: Int, totalIncidents: Int) {
+        self.id = id
+        self.name = name
+        self.activeIncidents = activeIncidents
+        self.totalIncidents = totalIncidents
+    }
 }
 
 public struct BackendHealthPayload: Codable, Equatable {
     public let status: BackendHealthStatus
     public let checkedAt: Date
     public let sources: [SourceHealthPayload]
+
+    public init(status: BackendHealthStatus, checkedAt: Date, sources: [SourceHealthPayload]) {
+        self.status = status
+        self.checkedAt = checkedAt
+        self.sources = sources
+    }
 }
 
 public enum BackendHealthStatus: String, Codable, Equatable {
@@ -154,12 +253,30 @@ public struct SourceHealthPayload: Codable, Equatable {
     public let status: BackendHealthStatus
     public let lastSuccessfulIngestAt: Date?
     public let lastError: APIErrorPayload?
+
+    public init(
+        source: SourceAttribution,
+        status: BackendHealthStatus,
+        lastSuccessfulIngestAt: Date?,
+        lastError: APIErrorPayload?
+    ) {
+        self.source = source
+        self.status = status
+        self.lastSuccessfulIngestAt = lastSuccessfulIngestAt
+        self.lastError = lastError
+    }
 }
 
 public struct APIErrorPayload: Codable, Equatable {
     public let code: APIErrorCode
     public let message: String
     public let retryAfterSeconds: Int?
+
+    public init(code: APIErrorCode, message: String, retryAfterSeconds: Int?) {
+        self.code = code
+        self.message = message
+        self.retryAfterSeconds = retryAfterSeconds
+    }
 }
 
 public enum APIErrorCode: String, Codable, Equatable {

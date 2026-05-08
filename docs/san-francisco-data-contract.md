@@ -16,10 +16,10 @@ All production incidents, agencies, districts, map defaults, surge context, haza
 
 ## Source Inventory
 
-- Live incidents: DataSF `gnap-fj3t` dispatched calls. Implemented in `APIClient.fetchDataSFIncidentSnapshot()`.
-- Incident freshness: DataSF `data_as_of`, DataSF `data_loaded_at`, and app fetch time. Implemented in `DataSFIncidentFetchResult`.
-- Districts and neighborhoods: SF police districts and DataSF `police_district` / `analysis_neighborhood` fields. Partly implemented; static district model remains.
-- Agencies: DataSF `agency` plus local normalization. Partly implemented; static agency model remains.
+- Live incidents: DataSF `gnap-fj3t` dispatched calls. Backend ingestion is implemented in `Backend/Sources/MeshBackendCore/DataSFIngestion.swift`.
+- Incident freshness: DataSF `data_as_of`, DataSF `data_loaded_at`, and backend fetch time. Exposed through `FreshnessMetadata`.
+- Districts and neighborhoods: SF police districts and DataSF `police_district` / `analysis_neighborhood` fields. Derived from normalized live incidents.
+- Agencies: DataSF `agency` plus backend normalization. Derived from normalized live incidents.
 - Surge alerts and trends: future aggregation over DataSF live and replay windows. Gap tracked by issue #4.
 - Hazard score: future service combining call activity, weather, traffic, outages, and events. Gap tracked by issue #4.
 - Weather alerts: NOAA / Bay Area weather source. Not implemented.
@@ -43,7 +43,7 @@ $limit=500
 $order=call_last_updated_at DESC
 ```
 
-The app treats DataSF as a rolling source that updates roughly every 10 minutes. Polling is owned by `Mesh/Core/Services/IncidentPollingService.swift`.
+The backend treats DataSF as a rolling source that updates roughly every 10 minutes. App polling is owned by `Mesh/Core/Services/IncidentPollingService.swift` and consumes the backend `/v1/incidents` snapshot.
 
 ## Incident Mapping
 
@@ -173,8 +173,8 @@ Adapters should be region-scoped. A future city must provide its own source inve
 
 ## Known Gaps
 
-- The macOS app still fetches DataSF directly while the backend service is being built.
-- The backend contract exists, but the runnable HTTP service and persistence layer are not implemented.
+- The backend currently uses a local executable and file-backed snapshot persistence; production hosting is not yet provisioned.
+- Production hosting, TLS, authentication enforcement, and log shipping are not yet provisioned.
 - Surge alerts, surge trends, and hazard score are not yet backend-derived from live DataSF windows.
 - Weather, traffic, district-boundary, and historical-baseline sources are identified but not integrated.
 - Replay/training data is not yet loaded through the same provider path as live data.

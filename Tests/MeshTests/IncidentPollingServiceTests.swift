@@ -12,13 +12,13 @@ final class IncidentPollingServiceTests: XCTestCase {
 
     func testPollDiffsNewUpdatedAndClosedIncidentsWithFreshnessMetadata() async throws {
         let client = makeClient(responses: [
-            (firstFetchAt, dataSFResponse([
-                dataSFCall(id: "one", priority: "B", updatedAt: "2024-05-15T12:02:00.000", closeDatetime: nil),
-                dataSFCall(id: "two", priority: "C", updatedAt: "2024-05-15T12:03:00.000", closeDatetime: nil)
+            (firstFetchAt, backendEnvelope(fetchedAt: "2024-05-15T15:00:00-07:00", incidents: [
+                backendIncident(id: "one", severity: 3, updatedAt: "2024-05-15T12:02:00-07:00", status: "Responding"),
+                backendIncident(id: "two", severity: 2, updatedAt: "2024-05-15T12:03:00-07:00", status: "Responding")
             ])),
-            (secondFetchAt, dataSFResponse([
-                dataSFCall(id: "one", priority: "A", updatedAt: "2024-05-15T12:10:00.000", closeDatetime: nil),
-                dataSFCall(id: "three", priority: "B", updatedAt: "2024-05-15T12:11:00.000", closeDatetime: nil)
+            (secondFetchAt, backendEnvelope(fetchedAt: "2024-05-15T15:05:00-07:00", incidents: [
+                backendIncident(id: "one", severity: 4, updatedAt: "2024-05-15T12:10:00-07:00", status: "Responding"),
+                backendIncident(id: "three", severity: 3, updatedAt: "2024-05-15T12:11:00-07:00", status: "Responding")
             ]))
         ])
         let service = IncidentPollingService(apiClient: client)
@@ -42,11 +42,11 @@ final class IncidentPollingServiceTests: XCTestCase {
 
     func testResetClearsPollingSnapshot() async throws {
         let client = makeClient(responses: [
-            (firstFetchAt, dataSFResponse([
-                dataSFCall(id: "one", priority: "B", updatedAt: "2024-05-15T12:02:00.000", closeDatetime: nil)
+            (firstFetchAt, backendEnvelope(fetchedAt: "2024-05-15T15:00:00-07:00", incidents: [
+                backendIncident(id: "one", severity: 3, updatedAt: "2024-05-15T12:02:00-07:00", status: "Responding")
             ])),
-            (secondFetchAt, dataSFResponse([
-                dataSFCall(id: "one", priority: "B", updatedAt: "2024-05-15T12:02:00.000", closeDatetime: nil)
+            (secondFetchAt, backendEnvelope(fetchedAt: "2024-05-15T15:05:00-07:00", incidents: [
+                backendIncident(id: "one", severity: 3, updatedAt: "2024-05-15T12:02:00-07:00", status: "Responding")
             ]))
         ])
         let service = IncidentPollingService(apiClient: client)
@@ -74,40 +74,52 @@ final class IncidentPollingServiceTests: XCTestCase {
         )
     }
 
-    private func dataSFResponse(_ calls: [String]) -> String {
-        "[\(calls.joined(separator: ","))]"
+    private func backendEnvelope(fetchedAt: String, incidents: [String]) -> String {
+        """
+        {
+          "apiVersion": "v1",
+          "regionId": "san-francisco",
+          "regionName": "San Francisco",
+          "data": [\(incidents.joined(separator: ","))],
+          "source": {
+            "name": "DataSF Dispatched Calls",
+            "datasetIdentifier": "gnap-fj3t",
+            "url": "https://data.sfgov.org/resource/gnap-fj3t.json"
+          },
+          "freshness": {
+            "fetchedAt": "\(fetchedAt)",
+            "sourceDataAsOf": "2024-05-15T12:03:00-07:00",
+            "sourceDataLoadedAt": "2024-05-15T12:03:00-07:00",
+            "staleAfterSeconds": 900
+          }
+        }
+        """
     }
 
-    private func dataSFCall(
+    private func backendIncident(
         id: String,
-        priority: String,
+        severity: Int,
         updatedAt: String,
-        closeDatetime: String?
+        status: String
     ) -> String {
-        let closeValue = closeDatetime.map { #""\#($0)""# } ?? "null"
         return """
         {
-          "id": "\(id)",
-          "received_datetime": "2024-05-15T12:00:00.000",
-          "entry_datetime": "2024-05-15T12:01:00.000",
-          "dispatch_datetime": "2024-05-15T12:02:00.000",
-          "enroute_datetime": null,
-          "onscene_datetime": null,
-          "close_datetime": \(closeValue),
-          "call_type_original_desc": "ASSAULT",
-          "call_type_final_desc": "ASSAULT",
-          "priority_original": "\(priority)",
-          "priority_final": "\(priority)",
-          "agency": "Police",
-          "disposition": "REP",
-          "sensitive_call": false,
-          "intersection_name": "5th St & Mission St",
-          "intersection_point": {"type":"Point","coordinates":[-122.4010,37.7840]},
-          "analysis_neighborhood": "South of Market",
-          "police_district": "SOUTHERN",
-          "call_last_updated_at": "\(updatedAt)",
-          "data_as_of": "\(updatedAt)",
-          "data_loaded_at": "\(updatedAt)"
+          "id": "datasf:gnap-fj3t:\(id)",
+          "type": "Assault",
+          "description": "Assault | Priority B",
+          "agencyType": "Police",
+          "agencyId": "san-francisco-police-department",
+          "agencyName": "San Francisco Police Department",
+          "districtId": "southern",
+          "districtName": "Southern",
+          "status": "\(status)",
+          "severity": \(severity),
+          "location": {"latitude": 37.7840, "longitude": -122.4010},
+          "address": "5th St & Mission St",
+          "reportedAt": "2024-05-15T12:00:00-07:00",
+          "updatedAt": "\(updatedAt)",
+          "respondingUnits": [],
+          "notes": []
         }
         """
     }

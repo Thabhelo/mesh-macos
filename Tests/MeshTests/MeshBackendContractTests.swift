@@ -58,6 +58,84 @@ final class MeshBackendContractTests: XCTestCase {
         XCTAssertEqual(skeleton.endpoints.count, MeshBackendContract.endpoints.count)
     }
 
+    func testDataSFNormalizerBuildsBackendIncidentPayloadAndFreshness() throws {
+        let fetchedAt = Date(timeIntervalSince1970: 1_715_810_400)
+        let snapshot = try DataSFNormalizer.snapshot(
+            from: Data(dataSFResponse().utf8),
+            fetchedAt: fetchedAt
+        )
+        let incident = try XCTUnwrap(snapshot.incidents.first)
+
+        XCTAssertEqual(snapshot.incidents.count, 1)
+        XCTAssertEqual(incident.id, "datasf:gnap-fj3t:240000001")
+        XCTAssertEqual(incident.type, "Traffic Collision")
+        XCTAssertEqual(incident.status, "Responding")
+        XCTAssertEqual(incident.severity, 4)
+        XCTAssertEqual(incident.sourceDistrictTuple, "southern:Southern")
+        XCTAssertEqual(snapshot.sourceDataAsOf, DataSFNormalizer.parseDataSFDate("2024-05-15T12:03:00.000"))
+    }
+
+    func testBackendRouterServesIncidentEnvelopeAndHealth() async throws {
+        let fetchedAt = Date(timeIntervalSince1970: 1_715_810_400)
+        let snapshot = try DataSFNormalizer.snapshot(from: Data(dataSFResponse().utf8), fetchedAt: fetchedAt)
+        let store = MeshBackendStore(snapshot: snapshot)
+        let router = MeshBackendRouter(store: store, now: { fetchedAt })
+
+        let incidentsResponse = await router.route(method: "GET", path: "/v1/incidents")
+        let healthResponse = await router.route(method: "GET", path: "/v1/health")
+
+        XCTAssertEqual(incidentsResponse.statusCode, 200)
+        XCTAssertEqual(healthResponse.statusCode, 200)
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let incidentsEnvelope = try decoder.decode(APIEnvelope<[IncidentPayload]>.self, from: incidentsResponse.body)
+        let healthEnvelope = try decoder.decode(APIEnvelope<BackendHealthPayload>.self, from: healthResponse.body)
+
+        XCTAssertEqual(incidentsEnvelope.data.map(\.id), ["datasf:gnap-fj3t:240000001"])
+        XCTAssertEqual(healthEnvelope.data.status, .healthy)
+        XCTAssertEqual(healthEnvelope.data.sources.first?.lastSuccessfulIngestAt, fetchedAt)
+    }
+
+    func testBackendRouterServesDerivedMetadataEndpoints() async throws {
+        let fetchedAt = Date(timeIntervalSince1970: 1_715_810_400)
+        let snapshot = try DataSFNormalizer.snapshot(from: Data(dataSFResponse().utf8), fetchedAt: fetchedAt)
+        let router = MeshBackendRouter(store: MeshBackendStore(snapshot: snapshot), now: { fetchedAt })
+
+        let agenciesResponse = await router.route(method: "GET", path: "/v1/agencies")
+        let districtsResponse = await router.route(method: "GET", path: "/v1/districts")
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let agenciesEnvelope = try decoder.decode(APIEnvelope<[AgencyPayload]>.self, from: agenciesResponse.body)
+        let districtsEnvelope = try decoder.decode(APIEnvelope<[DistrictPayload]>.self, from: districtsResponse.body)
+
+        XCTAssertEqual(agenciesEnvelope.data.first?.name, "San Francisco Police Department")
+        XCTAssertEqual(agenciesEnvelope.data.first?.activeIncidents, 1)
+        XCTAssertEqual(districtsEnvelope.data.first?.id, "southern")
+        XCTAssertEqual(districtsEnvelope.data.first?.activeIncidents, 1)
+    }
+
+    func testBackendStorePersistsAndReloadsSnapshot() async throws {
+        let persistenceURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathComponent("incidents.json")
+        defer {
+            try? FileManager.default.removeItem(at: persistenceURL.deletingLastPathComponent())
+        }
+
+        let fetchedAt = Date(timeIntervalSince1970: 1_715_810_400)
+        let snapshot = try DataSFNormalizer.snapshot(from: Data(dataSFResponse().utf8), fetchedAt: fetchedAt)
+        let writingStore = MeshBackendStore(persistenceURL: persistenceURL)
+        await writingStore.ingest(snapshot)
+
+        let reloadedStore = MeshBackendStore(persistenceURL: persistenceURL)
+        let reloadedSnapshot = await reloadedStore.currentSnapshot()
+
+        XCTAssertEqual(reloadedSnapshot?.incidents.map(\.id), ["datasf:gnap-fj3t:240000001"])
+        XCTAssertEqual(reloadedSnapshot?.fetchedAt, fetchedAt)
+    }
+
     func testOpenAPIContractDocumentsRequiredEndpointsAndMetadata() throws {
         let contractURL = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
@@ -75,5 +153,39 @@ final class MeshBackendContractTests: XCTestCase {
         XCTAssertTrue(contract.contains("SourceAttribution"))
         XCTAssertTrue(contract.contains("FreshnessMetadata"))
         XCTAssertTrue(contract.contains("gnap-fj3t"))
+    }
+
+    private func dataSFResponse() -> String {
+        """
+        [
+          {
+            "id": "240000001",
+            "received_datetime": "2024-05-15T12:00:00.000",
+            "entry_datetime": "2024-05-15T12:01:00.000",
+            "dispatch_datetime": "2024-05-15T12:02:00.000",
+            "close_datetime": null,
+            "call_type_original_desc": "TRAF COLLISION",
+            "call_type_final_desc": "TRAF COLLISION",
+            "priority_original": "A",
+            "priority_final": "A",
+            "agency": "Police",
+            "disposition": "REP",
+            "sensitive_call": false,
+            "intersection_name": "I-80 W at 5th St",
+            "intersection_point": {"type":"Point","coordinates":[-122.3915,37.7898]},
+            "analysis_neighborhood": "South of Market",
+            "police_district": "SOUTHERN",
+            "call_last_updated_at": "2024-05-15T12:03:00.000",
+            "data_as_of": "2024-05-15T12:03:00.000",
+            "data_loaded_at": "2024-05-15T12:04:00.000"
+          }
+        ]
+        """
+    }
+}
+
+private extension IncidentPayload {
+    var sourceDistrictTuple: String {
+        "\(districtId):\(districtName)"
     }
 }
