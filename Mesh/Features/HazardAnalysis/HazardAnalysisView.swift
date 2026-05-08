@@ -54,27 +54,26 @@ struct OverallHazardCard: View {
                     
                     VStack(spacing: 2) {
                         Text("\(hazard.overallScore)")
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .font(MeshTheme.Typography.metricLarge)
+                            .monospacedDigit()
                         Text("/ 100")
-                            .font(.caption)
+                            .font(MeshTheme.Typography.caption)
                             .foregroundColor(.secondary)
                     }
                 }
                 
                 Text(hazard.statusLabel)
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(MeshTheme.Typography.title2)
                     .foregroundColor(hazard.statusColor)
             }
             .padding(.trailing)
             
             VStack(alignment: .leading, spacing: 12) {
                 Text("Regional Hazard Score")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+                    .font(MeshTheme.Typography.title)
 
                 Text("Last updated \(hazard.lastUpdated.formatted(date: .omitted, time: .shortened))")
-                    .font(.title3)
+                    .font(MeshTheme.Typography.title3)
                     .foregroundColor(.secondary)
                 
                 Divider()
@@ -113,15 +112,15 @@ struct HazardChangeIndicator: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
-                .font(.body)
+                .font(MeshTheme.Typography.body)
                 .foregroundColor(.secondary)
 
             HStack(spacing: 4) {
                 Image(systemName: change > 0 ? "arrow.up" : change < 0 ? "arrow.down" : "minus")
-                    .font(.title3)
+                    .font(MeshTheme.Typography.title3)
                 Text("\(abs(change))")
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(MeshTheme.Typography.title2)
+                    .monospacedDigit()
             }
             .foregroundColor(change > 5 ? .red : change < -5 ? .green : .secondary)
         }
@@ -135,8 +134,7 @@ struct ComponentBreakdownSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Contributing Factors")
-                .font(.title)
-                .fontWeight(.bold)
+                .font(MeshTheme.Typography.title)
             
             HStack(spacing: 12) {
                 ForEach(hazard.components.allComponents, id: \.name) { component in
@@ -187,18 +185,18 @@ struct ComponentCard: View {
                 Spacer()
                 
                 Image(systemName: score.trend.icon)
-                    .font(.caption)
+                    .font(MeshTheme.Typography.caption)
                     .foregroundColor(score.trend.color)
             }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(name)
-                    .font(.body)
+                    .font(MeshTheme.Typography.body)
                     .foregroundColor(.secondary)
 
                 Text("\(score.score)")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+                    .font(MeshTheme.Typography.metricLarge)
+                    .monospacedDigit()
                     .foregroundColor(score.color)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -218,7 +216,7 @@ struct ComponentCard: View {
             .cornerRadius(2)
             
             Text("\(Int(score.weight * 100))% weight")
-                .font(.callout)
+                .font(MeshTheme.Typography.callout)
                 .foregroundColor(.secondary)
         }
         .padding()
@@ -239,11 +237,10 @@ struct ComponentDetailPanel: View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(name)
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(MeshTheme.Typography.title2)
 
                 Text(score.details)
-                    .font(.title3)
+                    .font(MeshTheme.Typography.title3)
                     .foregroundColor(.secondary)
             }
 
@@ -255,11 +252,11 @@ struct ComponentDetailPanel: View {
                     Image(systemName: score.trend.icon)
                     Text(score.trend.rawValue)
                 }
-                .font(.title3)
+                .font(MeshTheme.Typography.title3)
                 .foregroundColor(score.trend.color)
 
                 Text("Weighted contribution: \(String(format: "%.1f", score.weightedScore))")
-                    .font(.body)
+                    .font(MeshTheme.Typography.body)
                     .foregroundColor(.secondary)
             }
         }
@@ -283,8 +280,7 @@ struct HistoricalComparisonSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("7-Day Trend")
-                .font(.title)
-                .fontWeight(.bold)
+                .font(MeshTheme.Typography.title)
             
             Chart(historicalData) { item in
                 LineMark(
@@ -339,8 +335,7 @@ struct DistrictHazardSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("District Risk Levels")
-                .font(.title)
-                .fontWeight(.bold)
+                .font(MeshTheme.Typography.title)
             
             LazyVGrid(columns: [
                 GridItem(.flexible()),
@@ -363,19 +358,18 @@ struct DistrictHazardCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(district.districtName)
-                    .font(.title3)
-                    .fontWeight(.semibold)
+                    .font(MeshTheme.Typography.title3)
 
                 Spacer()
 
                 Text("\(district.score)")
-                    .font(.title)
-                    .fontWeight(.bold)
+                    .font(MeshTheme.Typography.metricSmall)
+                    .monospacedDigit()
                     .foregroundColor(district.color)
             }
 
             Text("Primary: \(district.primaryRisk)")
-                .font(.body)
+                .font(MeshTheme.Typography.body)
                 .foregroundColor(.secondary)
             
             // Score bar

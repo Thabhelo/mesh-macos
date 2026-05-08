@@ -105,17 +105,16 @@ struct IncidentRefreshErrorState: View {
                 .foregroundColor(.red)
 
             Text("Live Incident Refresh Failed")
-                .font(.title3)
-                .fontWeight(.semibold)
+                .font(MeshTheme.Typography.title3)
 
             Text(message)
-                .font(.body)
+                .font(MeshTheme.Typography.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
 
             if let recoverySuggestion {
                 Text(recoverySuggestion)
-                    .font(.callout)
+                    .font(MeshTheme.Typography.callout)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -135,13 +134,12 @@ struct DashboardHeaderView: View {
         VStack(spacing: 12) {
             HStack {
                 Text(appState.dataMode == .replay ? "Training Drill Incidents" : "Real-Time Incidents")
-                    .font(.title)
-                    .fontWeight(.bold)
+                    .font(MeshTheme.Typography.title)
                 
                 Spacer()
                 
                 Text("\(appState.filteredIncidents.count) incidents")
-                    .font(.title3)
+                    .font(MeshTheme.Typography.title3)
                     .foregroundColor(.secondary)
             }
             
@@ -166,7 +164,7 @@ struct DashboardHeaderView: View {
                 
                 Toggle(isOn: $appState.showActiveOnly) {
                     Text("Active only")
-                        .font(.caption)
+                        .font(MeshTheme.Typography.caption)
                 }
                 .toggleStyle(.switch)
                 .controlSize(.small)
@@ -188,14 +186,13 @@ struct WalkthroughDecisionCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Label("San Francisco Response Drill", systemImage: "play.rectangle.fill")
-                    .font(.headline)
+                    .font(MeshTheme.Typography.headline)
                     .foregroundColor(.blue)
 
                 Spacer()
 
                 Text("Step \(frame.stepNumber)")
-                    .font(.caption)
-                    .fontWeight(.semibold)
+                    .font(MeshTheme.Typography.caption)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(Color.blue.opacity(0.12))
@@ -204,8 +201,7 @@ struct WalkthroughDecisionCard: View {
             }
 
             Text(frame.title)
-                .font(.title3)
-                .fontWeight(.semibold)
+                .font(MeshTheme.Typography.title3)
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 10) {
                 WalkthroughFact(title: "What changed", value: frame.whatChanged)
@@ -231,11 +227,10 @@ struct WalkthroughFact: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(title.uppercased())
-                .font(.caption2)
-                .fontWeight(.semibold)
+                .font(MeshTheme.Typography.micro)
                 .foregroundColor(.secondary)
             Text(value)
-                .font(.callout)
+                .font(MeshTheme.Typography.callout)
                 .foregroundColor(.primary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -253,9 +248,9 @@ struct FilterChip: View {
         Button(action: action) {
             HStack(spacing: 4) {
                 Image(systemName: icon)
-                    .font(.caption)
+                    .font(MeshTheme.Typography.caption)
                 Text(title)
-                    .font(.caption)
+                    .font(MeshTheme.Typography.caption)
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
@@ -292,7 +287,7 @@ struct IncidentCard: View {
         HStack(spacing: 12) {
             VStack {
                 Image(systemName: incident.agencyType.icon)
-                    .font(.title)
+                    .font(MeshTheme.Typography.title2)
                     .foregroundColor(incident.agencyType.color)
 
                 Circle()
@@ -304,8 +299,7 @@ struct IncidentCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(incident.type)
-                        .font(.title3)
-                        .fontWeight(.semibold)
+                        .font(MeshTheme.Typography.title3)
 
                     Spacer()
 
@@ -313,22 +307,22 @@ struct IncidentCard: View {
                 }
 
                 Text(incident.address)
-                    .font(.title3)
+                    .font(MeshTheme.Typography.title3)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
 
                 HStack {
                     Text(incident.districtName)
-                        .font(.body)
+                        .font(MeshTheme.Typography.body)
                         .foregroundColor(.secondary)
 
                     Spacer()
 
                     HStack(spacing: 4) {
                         Image(systemName: "clock")
-                            .font(.callout)
+                            .font(MeshTheme.Typography.callout)
                         Text(incident.timeAgo)
-                            .font(.body)
+                            .font(MeshTheme.Typography.body)
                     }
                     .foregroundColor(.secondary)
                 }
@@ -336,16 +330,16 @@ struct IncidentCard: View {
                 if !incident.respondingUnits.isEmpty {
                     HStack(spacing: 4) {
                         Image(systemName: "person.2.fill")
-                            .font(.callout)
+                            .font(MeshTheme.Typography.callout)
                             .foregroundColor(.secondary)
 
                         Text("\(incident.respondingUnits.count) units")
-                            .font(.body)
+                            .font(MeshTheme.Typography.body)
                             .foregroundColor(.secondary)
 
                         ForEach(incident.respondingUnits.prefix(3)) { unit in
                             Text(unit.unitName)
-                                .font(.callout)
+                                .font(MeshTheme.Typography.callout)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 3)
                                 .background(unit.agencyType.color.opacity(0.2))
@@ -355,14 +349,14 @@ struct IncidentCard: View {
 
                         if incident.respondingUnits.count > 3 {
                             Text("+\(incident.respondingUnits.count - 3)")
-                                .font(.callout)
+                                .font(MeshTheme.Typography.callout)
                                 .foregroundColor(.secondary)
                         }
                     }
                 }
 
                 Text(priorityExplanation)
-                    .font(.callout)
+                    .font(MeshTheme.Typography.callout)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
             }
@@ -382,8 +376,7 @@ struct SeverityBadge: View {
 
     var body: some View {
         Text(severity.label)
-            .font(.callout)
-            .fontWeight(.bold)
+            .font(MeshTheme.Typography.callout)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(severity.color.opacity(0.2))
@@ -402,16 +395,15 @@ struct IncidentDetailView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Image(systemName: incident.agencyType.icon)
-                            .font(.title)
+                            .font(MeshTheme.Typography.title2)
                             .foregroundColor(incident.agencyType.color)
                         
                         VStack(alignment: .leading) {
                             Text(incident.type)
-                                .font(.title2)
-                                .fontWeight(.bold)
+                                .font(MeshTheme.Typography.title2)
                             
                             Text(incident.agencyName)
-                                .font(.subheadline)
+                                .font(MeshTheme.Typography.body)
                                 .foregroundColor(.secondary)
                         }
                         
@@ -421,7 +413,7 @@ struct IncidentDetailView: View {
                     }
                     
                     Text(incident.description)
-                        .font(.body)
+                        .font(MeshTheme.Typography.body)
                         .foregroundColor(.secondary)
                 }
                 
@@ -434,10 +426,10 @@ struct IncidentDetailView: View {
                         Spacer()
                         VStack(alignment: .trailing) {
                             Text("Reported \(incident.timeAgo)")
-                                .font(.caption)
+                                .font(MeshTheme.Typography.caption)
                                 .foregroundColor(.secondary)
                             Text(incident.reportedAt.formatted(date: .abbreviated, time: .shortened))
-                                .font(.caption2)
+                                .font(MeshTheme.Typography.micro)
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -447,10 +439,10 @@ struct IncidentDetailView: View {
                 DetailSection(title: "Location") {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(incident.address)
-                            .font(.body)
+                            .font(MeshTheme.Typography.body)
                         
                         Text(incident.districtName)
-                            .font(.caption)
+                            .font(MeshTheme.Typography.caption)
                             .foregroundColor(.secondary)
                         
                         // Mini map preview
@@ -495,7 +487,7 @@ struct DetailSection<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.headline)
+                .font(MeshTheme.Typography.headline)
                 .foregroundColor(.primary)
             
             content
@@ -513,8 +505,7 @@ struct StatusIndicator: View {
                 .frame(width: 10, height: 10)
             
             Text(status.rawValue)
-                .font(.subheadline)
-                .fontWeight(.medium)
+                .font(MeshTheme.Typography.bodySemibold)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
@@ -534,11 +525,10 @@ struct RespondingUnitRow: View {
             
             VStack(alignment: .leading) {
                 Text(unit.unitName)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    .font(MeshTheme.Typography.bodySemibold)
                 
                 Text(unit.unitId)
-                    .font(.caption)
+                    .font(MeshTheme.Typography.caption)
                     .foregroundColor(.secondary)
             }
             
@@ -546,12 +536,12 @@ struct RespondingUnitRow: View {
             
             VStack(alignment: .trailing) {
                 Text(unit.status)
-                    .font(.caption)
+                    .font(MeshTheme.Typography.caption)
                     .foregroundColor(.secondary)
                 
                 if let eta = unit.etaMinutes {
                     Text("ETA: \(eta) min")
-                        .font(.caption)
+                        .font(MeshTheme.Typography.caption)
                         .foregroundColor(.orange)
                 }
             }
@@ -569,18 +559,17 @@ struct NoteRow: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(note.author)
-                    .font(.caption)
-                    .fontWeight(.medium)
+                    .font(MeshTheme.Typography.caption)
                 
                 Spacer()
                 
                 Text(note.timestamp.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption2)
+                    .font(MeshTheme.Typography.micro)
                     .foregroundColor(.secondary)
             }
             
             Text(note.content)
-                .font(.body)
+                .font(MeshTheme.Typography.body)
         }
         .padding(8)
         .background(Color.secondary.opacity(0.05))
@@ -600,11 +589,10 @@ struct EmptyStateView: View {
                 .foregroundColor(.secondary)
             
             Text(title)
-                .font(.title3)
-                .fontWeight(.semibold)
+                .font(MeshTheme.Typography.title3)
             
             Text(message)
-                .font(.body)
+                .font(MeshTheme.Typography.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
         }

@@ -623,8 +623,8 @@ private extension AppState {
         case .meshBackend:
             return nil
         case .dataSFDevelopmentFallback:
-            let reason = result.fallbackReason.map { " Backend unavailable: \($0)" } ?? ""
-            return "Using direct DataSF development fallback until the Mesh backend is reachable.\(reason)"
+            let reason = result.fallbackReason.map { " \($0)" } ?? ""
+            return "Using DataSF direct mode.\(reason)"
         }
     }
 

@@ -4,6 +4,10 @@ import SwiftUI
 struct MeshApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var appState = AppState.shared
+
+    init() {
+        MeshTheme.Typography.registerBundledFonts()
+    }
     
     var body: some Scene {
         // Main Window

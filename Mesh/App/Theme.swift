@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreText
 
 // MARK: - Mesh Design System
 // Matching the marketing website at meshofdata.org with Glassmorphism
@@ -63,19 +64,59 @@ struct MeshTheme {
         )
     }
     
-    // MARK: - Typography (using SF Pro Rounded like Nunito)
+    // MARK: - Typography
     
     struct Typography {
-        static let displayFont = Font.system(size: 58, weight: .bold, design: .rounded)
-        static let titleFont = Font.system(size: 42, weight: .bold, design: .rounded)
-        static let title2Font = Font.system(size: 34, weight: .semibold, design: .rounded)
-        static let title3Font = Font.system(size: 26, weight: .semibold, design: .rounded)
-        static let headlineFont = Font.system(size: 22, weight: .semibold, design: .rounded)
-        static let bodyFont = Font.system(size: 19, weight: .regular, design: .rounded)
-        static let bodyLarge = Font.system(size: 21, weight: .regular, design: .rounded)
-        static let calloutFont = Font.system(size: 18, weight: .medium, design: .rounded)
-        static let captionFont = Font.system(size: 16, weight: .medium, design: .rounded)
-        static let caption2Font = Font.system(size: 14, weight: .regular, design: .rounded)
+        private enum PlexSans {
+            static let regular = "IBMPlexSans-Regular"
+            static let medium = "IBMPlexSans-Medium"
+            static let semibold = "IBMPlexSans-SemiBold"
+            static let bold = "IBMPlexSans-Bold"
+        }
+
+        static func registerBundledFonts() {
+            [
+                "IBMPlexSans-Regular",
+                "IBMPlexSans-Medium",
+                "IBMPlexSans-SemiBold",
+                "IBMPlexSans-Bold"
+            ].forEach { fileName in
+                guard let url = Bundle.module.url(forResource: fileName, withExtension: "ttf", subdirectory: "Fonts") else {
+                    return
+                }
+                CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+            }
+        }
+
+        private static func plex(_ name: String, size: CGFloat) -> Font {
+            .custom(name, size: size)
+        }
+
+        static let display = plex(PlexSans.bold, size: 54)
+        static let title = plex(PlexSans.bold, size: 34)
+        static let title2 = plex(PlexSans.semibold, size: 26)
+        static let title3 = plex(PlexSans.semibold, size: 21)
+        static let headline = plex(PlexSans.semibold, size: 17)
+        static let body = plex(PlexSans.regular, size: 14)
+        static let bodySemibold = plex(PlexSans.semibold, size: 14)
+        static let callout = plex(PlexSans.medium, size: 13)
+        static let caption = plex(PlexSans.medium, size: 12)
+        static let micro = plex(PlexSans.medium, size: 10)
+        static let sectionLabel = plex(PlexSans.semibold, size: 10)
+        static let metricLarge = plex(PlexSans.bold, size: 34)
+        static let metricSmall = plex(PlexSans.bold, size: 22)
+        static let metricTiny = plex(PlexSans.semibold, size: 14)
+
+        static let displayFont = display
+        static let titleFont = title
+        static let title2Font = title2
+        static let title3Font = title3
+        static let headlineFont = headline
+        static let bodyFont = body
+        static let bodyLarge = plex(PlexSans.regular, size: 16)
+        static let calloutFont = callout
+        static let captionFont = caption
+        static let caption2Font = micro
     }
     
     // MARK: - Spacing

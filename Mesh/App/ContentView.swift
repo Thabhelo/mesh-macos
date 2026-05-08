@@ -39,6 +39,12 @@ struct MainAppView: View {
                 DetailView()
             }
             .navigationSplitViewStyle(.balanced)
+
+            QuickStatsHUD()
+                .padding(.trailing, 20)
+                .padding(.bottom, 18)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .allowsHitTesting(false)
         }
         .toolbar {
             ToolbarItemGroup(placement: .navigation) {
@@ -52,9 +58,9 @@ struct MainAppView: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "house.fill")
-                            .font(.system(size: 12, weight: .medium))
+                            .font(MeshTheme.Typography.caption)
                         Text("Home")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(MeshTheme.Typography.caption)
                     }
                     .foregroundColor(MeshTheme.Colors.foregroundSecondary)
                     .padding(.horizontal, 10)
@@ -72,20 +78,6 @@ struct MainAppView: View {
             
             ToolbarItemGroup(placement: .primaryAction) {
                 ConnectionStatusView()
-
-                Button {
-                    if appState.dataMode == .live {
-                        appState.enterReplayMode()
-                    } else {
-                        appState.enterLiveMode()
-                    }
-                } label: {
-                    Text(appState.dataMode == .live ? "Start Drill" : "Return Live")
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundColor(appState.dataMode == .live ? MeshTheme.Colors.primary : .blue)
-                }
-                .buttonStyle(.plain)
-                .help(appState.dataMode == .live ? "Start a San Francisco training drill" : "Return to live monitoring")
                 
                 Button {
                     Task {
@@ -93,7 +85,7 @@ struct MainAppView: View {
                     }
                 } label: {
                     Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(MeshTheme.Typography.caption)
                         .foregroundColor(MeshTheme.Colors.foregroundSecondary)
                 }
                 .help("Refresh data")
@@ -108,65 +100,65 @@ struct MainAppView: View {
 struct AppSidebar: View {
     @EnvironmentObject var appState: AppState
 
-    private var visibleTabs: [AppTab] {
-        appState.dataMode == .replay ? AppTab.allCases : AppTab.productionTabs
+    private var elevatedSurgeCount: Int {
+        appState.surgeAlerts.filter { $0.severity >= .elevated }.count
+    }
+
+    private var hazardValue: String {
+        guard let hazard = appState.hazardScore else { return "--" }
+        return "\(hazard.overallScore)"
     }
     
     var body: some View {
         List(selection: $appState.selectedTab) {
-            // Navigation Section
             Section {
-                ForEach(visibleTabs) { tab in
-                    NavigationLink(value: tab) {
-                        HStack(spacing: 12) {
-                            Image(systemName: tab.icon)
-                                .font(.system(size: 15))
-                                .foregroundColor(appState.selectedTab == tab ? MeshTheme.Colors.primary : MeshTheme.Colors.foregroundSecondary)
-                                .frame(width: 22)
-                            
-                            Text(tab.rawValue)
-                                .font(.system(size: 14, weight: .medium, design: .rounded))
-                                .foregroundColor(MeshTheme.Colors.foreground)
-                        }
-                        .padding(.vertical, 4)
-                    }
-                }
+                DataModeControl()
             } header: {
-                Text("NAVIGATION")
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                Text("DRILL")
+                    .font(MeshTheme.Typography.sectionLabel)
                     .foregroundColor(MeshTheme.Colors.mutedForeground)
                     .tracking(0.5)
             }
 
             Section {
-                DataModeControl()
-            } header: {
-                Text("MONITORING MODE")
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .foregroundColor(MeshTheme.Colors.mutedForeground)
-                    .tracking(0.5)
-            }
-            
-            // Quick Stats Section
-            Section {
-                StatRow(
+                OperationalMetricCard(
+                    tab: .dashboard,
+                    title: "Incidents",
+                    value: "\(appState.activeIncidentCount)",
+                    subtitle: "active now",
                     icon: "exclamationmark.circle.fill",
-                    iconColor: .orange,
-                    label: "Active Incidents",
-                    value: "\(appState.activeIncidentCount)"
+                    tint: .orange
                 )
-                
-                StatRow(
-                    icon: appState.systemStatus.icon,
-                    iconColor: appState.systemStatus.color,
-                    label: "System Status",
-                    value: appState.systemStatus.rawValue,
-                    valueColor: appState.systemStatus.color
+
+                OperationalMetricCard(
+                    tab: .map,
+                    title: "Map",
+                    value: "\(appState.districts.count)",
+                    subtitle: "districts",
+                    icon: "map.fill",
+                    tint: .blue
                 )
-                
+
+                OperationalMetricCard(
+                    tab: .surge,
+                    title: "Surge",
+                    value: "\(elevatedSurgeCount)",
+                    subtitle: "elevated alerts",
+                    icon: "chart.line.uptrend.xyaxis",
+                    tint: .orange
+                )
+
+                OperationalMetricCard(
+                    tab: .hazard,
+                    title: "Hazard",
+                    value: hazardValue,
+                    subtitle: appState.hazardScore?.statusLabel ?? "calculating",
+                    icon: "exclamationmark.triangle.fill",
+                    tint: appState.hazardScore?.statusColor ?? MeshTheme.Colors.mutedForeground
+                )
             } header: {
-                Text("QUICK STATS")
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                Text("OPERATIONS")
+                    .font(MeshTheme.Typography.sectionLabel)
                     .foregroundColor(MeshTheme.Colors.mutedForeground)
                     .tracking(0.5)
             }
@@ -177,6 +169,130 @@ struct AppSidebar: View {
     }
 }
 
+struct OperationalMetricCard: View {
+    @EnvironmentObject var appState: AppState
+
+    let tab: AppTab
+    let title: String
+    let value: String
+    let subtitle: String
+    let icon: String
+    let tint: Color
+
+    private var isSelected: Bool {
+        appState.selectedTab == tab
+    }
+
+    var body: some View {
+        Button {
+            withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                appState.selectedTab = tab
+            }
+        } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(tint.opacity(isSelected ? 0.18 : 0.10))
+                    Image(systemName: icon)
+                        .font(MeshTheme.Typography.caption)
+                        .foregroundColor(tint)
+                }
+                .frame(width: 34, height: 34)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(MeshTheme.Typography.bodySemibold)
+                        .foregroundColor(MeshTheme.Colors.foreground)
+                    Text(subtitle)
+                        .font(MeshTheme.Typography.micro)
+                        .foregroundColor(MeshTheme.Colors.mutedForeground)
+                        .lineLimit(1)
+                }
+
+                Spacer(minLength: 8)
+
+                Text(value)
+                    .font(MeshTheme.Typography.metricSmall)
+                    .foregroundColor(isSelected ? tint : MeshTheme.Colors.foreground)
+                    .monospacedDigit()
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 9)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(isSelected ? Color.white.opacity(0.92) : Color.white.opacity(0.55))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(isSelected ? tint.opacity(0.42) : MeshTheme.Colors.border.opacity(0.65), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct QuickStatsHUD: View {
+    @EnvironmentObject var appState: AppState
+
+    private var elevatedSurges: Int {
+        appState.surgeAlerts.filter { $0.severity >= .elevated }.count
+    }
+
+    var body: some View {
+        HStack(spacing: 14) {
+            HUDMetric(
+                label: "Active",
+                value: "\(appState.activeIncidentCount)",
+                color: .orange
+            )
+
+            HUDMetric(
+                label: "System",
+                value: appState.systemStatus.rawValue,
+                color: appState.systemStatus.color
+            )
+
+            HUDMetric(
+                label: "Surge",
+                value: "\(elevatedSurges)",
+                color: elevatedSurges > 0 ? .orange : MeshTheme.Colors.mutedForeground
+            )
+
+            if let hazard = appState.hazardScore {
+                HUDMetric(
+                    label: "Hazard",
+                    value: "\(hazard.overallScore)",
+                    color: hazard.statusColor
+                )
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 9)
+        .glassmorphism(cornerRadius: 18, opacity: 0.22)
+        .opacity(0.74)
+    }
+}
+
+struct HUDMetric: View {
+    let label: String
+    let value: String
+    let color: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(label.uppercased())
+                .font(MeshTheme.Typography.micro)
+                .foregroundColor(MeshTheme.Colors.mutedForeground)
+                .tracking(0.7)
+            Text(value)
+                .font(MeshTheme.Typography.metricTiny)
+                .foregroundColor(color)
+                .monospacedDigit()
+        }
+        .frame(minWidth: 48, alignment: .leading)
+    }
+}
+
 struct DataModeControl: View {
     @EnvironmentObject var appState: AppState
 
@@ -184,24 +300,24 @@ struct DataModeControl: View {
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 4) {
                 Label(appState.dataMode.label, systemImage: appState.dataMode == .live ? "antenna.radiowaves.left.and.right" : "play.rectangle.fill")
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .font(MeshTheme.Typography.callout)
                     .foregroundColor(appState.dataMode == .live ? .green : .blue)
 
                 Text(appState.dataMode.detail)
-                    .font(.system(size: 11, weight: .regular, design: .rounded))
+                    .font(MeshTheme.Typography.caption)
                     .foregroundColor(MeshTheme.Colors.mutedForeground)
                     .fixedSize(horizontal: false, vertical: true)
 
                 if appState.dataMode == .live {
                     Text("\(appState.liveDataSource.regionName) • \(appState.incidentDataSource.label)")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(MeshTheme.Typography.caption)
                         .foregroundColor(MeshTheme.Colors.foregroundSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
                 if let notice = appState.incidentDataSourceNotice {
                     Text(notice)
-                        .font(.system(size: 10, weight: .regular, design: .rounded))
+                        .font(MeshTheme.Typography.micro)
                         .foregroundColor(.orange)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -237,7 +353,7 @@ struct ReplayControls: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(currentStepText)
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .font(MeshTheme.Typography.sectionLabel)
                 .foregroundColor(.blue)
 
             HStack(spacing: 6) {
@@ -264,7 +380,7 @@ struct ReplayControls: View {
                 Button(appState.replaySpeed.label) {
                     appState.cycleReplaySpeed()
                 }
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .font(MeshTheme.Typography.sectionLabel)
 
                 Button {
                     appState.resetReplay()
@@ -277,7 +393,7 @@ struct ReplayControls: View {
 
             if let frame = appState.currentReplayFrame {
                 Text(frame.title)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(MeshTheme.Typography.caption)
                     .foregroundColor(MeshTheme.Colors.foreground)
                     .lineLimit(2)
             }
@@ -308,19 +424,19 @@ struct StatRow: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
-                .font(.system(size: 13))
+                .font(MeshTheme.Typography.callout)
                 .foregroundColor(iconColor)
                 .frame(width: 20)
             
             Text(label)
-                .font(.system(size: 13, weight: .regular, design: .rounded))
+                .font(MeshTheme.Typography.body)
                 .foregroundColor(MeshTheme.Colors.foreground)
             
             Spacer()
             
             if let color = valueColor {
                 Text(value)
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(MeshTheme.Typography.caption)
                     .foregroundColor(color)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
@@ -328,7 +444,7 @@ struct StatRow: View {
                     .cornerRadius(6)
             } else {
                 Text(value)
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .font(MeshTheme.Typography.bodySemibold)
                     .foregroundColor(MeshTheme.Colors.foreground)
             }
         }
@@ -381,12 +497,12 @@ struct ConnectionStatusView: View {
             
             VStack(alignment: .leading, spacing: 1) {
                 Text(appState.dataConnectionState.label)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(MeshTheme.Typography.caption)
                     .foregroundColor(MeshTheme.Colors.foregroundSecondary)
 
                 if let detailText {
                     Text(detailText)
-                        .font(.system(size: 10, weight: .regular, design: .rounded))
+                        .font(MeshTheme.Typography.micro)
                         .foregroundColor(MeshTheme.Colors.mutedForeground)
                         .lineLimit(1)
                 }
@@ -466,32 +582,32 @@ struct GeneralSettingsView: View {
         Form {
             Section {
                 LabeledContent("Region", value: appState.liveDataSource.regionName)
-                    .font(.system(size: 14, design: .rounded))
+                    .font(MeshTheme.Typography.body)
 
                 LabeledContent("Source", value: appState.liveDataSource.name)
-                    .font(.system(size: 14, design: .rounded))
+                    .font(MeshTheme.Typography.body)
 
                 LabeledContent("Dataset", value: appState.liveDataSource.datasetIdentifier)
-                    .font(.system(size: 14, design: .rounded))
+                    .font(MeshTheme.Typography.body)
 
                 LabeledContent("Cadence", value: appState.liveDataSource.updateCadence)
-                    .font(.system(size: 14, design: .rounded))
+                    .font(MeshTheme.Typography.body)
 
                 if let sourceDataAsOf = appState.sourceDataAsOf {
                     LabeledContent("Source as of", value: sourceDataAsOf.formatted(date: .abbreviated, time: .shortened))
-                        .font(.system(size: 14, design: .rounded))
+                        .font(MeshTheme.Typography.body)
                 }
             } header: {
                 Text("Live Data Source")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(MeshTheme.Typography.caption)
             }
 
             Section {
                 Toggle("Show active incidents only", isOn: $appState.showActiveOnly)
-                    .font(.system(size: 14, design: .rounded))
+                    .font(MeshTheme.Typography.body)
             } header: {
                 Text("Display Options")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(MeshTheme.Typography.caption)
             }
             
             Section {
@@ -506,11 +622,11 @@ struct GeneralSettingsView: View {
                             }
                         }
                     ))
-                    .font(.system(size: 14, design: .rounded))
+                    .font(MeshTheme.Typography.body)
                 }
             } header: {
                 Text("Agency Filters")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(MeshTheme.Typography.caption)
             }
         }
         .formStyle(.grouped)
@@ -525,14 +641,14 @@ struct NotificationSettingsView: View {
         Form {
             Section {
                 Toggle("Enable notifications", isOn: $appState.notificationsEnabled)
-                    .font(.system(size: 14, design: .rounded))
+                    .font(MeshTheme.Typography.body)
                 
                 Toggle("Critical alerts only", isOn: $appState.criticalAlertsOnly)
-                    .font(.system(size: 14, design: .rounded))
+                    .font(MeshTheme.Typography.body)
                     .disabled(!appState.notificationsEnabled)
             } header: {
                 Text("Notification Preferences")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(MeshTheme.Typography.caption)
             }
         }
         .formStyle(.grouped)

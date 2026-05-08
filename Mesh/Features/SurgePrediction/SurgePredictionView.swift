@@ -98,11 +98,10 @@ struct SurgeHeaderView: View {
         HStack {
             VStack(alignment: .leading) {
                 Text("Surge Prediction")
-                    .font(.title)
-                    .fontWeight(.bold)
+                    .font(MeshTheme.Typography.title)
 
                 Text("Real-time call volume analysis and predictions")
-                    .font(.title3)
+                    .font(MeshTheme.Typography.title3)
                     .foregroundColor(.secondary)
             }
             
@@ -186,19 +185,19 @@ struct SurgeOverviewCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: icon)
-                    .font(.title3)
+                    .font(MeshTheme.Typography.title3)
                     .foregroundColor(color)
                 Text(title)
-                    .font(.body)
+                    .font(MeshTheme.Typography.body)
                     .foregroundColor(.secondary)
             }
 
             Text(value)
-                .font(.largeTitle)
-                .fontWeight(.bold)
+                .font(MeshTheme.Typography.metricLarge)
+                .monospacedDigit()
 
             Text(subtitle)
-                .font(.callout)
+                .font(MeshTheme.Typography.callout)
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -215,8 +214,7 @@ struct SurgeTrendChart: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Call Volume Trend")
-                .font(.title2)
-                .fontWeight(.bold)
+                .font(MeshTheme.Typography.title2)
             
             if data.isEmpty {
                 ProgressView("Loading trend data...")
@@ -297,7 +295,7 @@ struct LegendItem: View {
                     .frame(width: 20, height: 3)
             }
             Text(label)
-                .font(.body)
+                .font(MeshTheme.Typography.body)
                 .foregroundColor(.secondary)
         }
     }
@@ -312,8 +310,7 @@ struct DistrictSurgeGrid: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("District Status")
-                .font(.title2)
-                .fontWeight(.bold)
+                .font(MeshTheme.Typography.title2)
             
             LazyVGrid(columns: [
                 GridItem(.flexible()),
@@ -354,20 +351,19 @@ struct DistrictSurgeCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(district.shortName)
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(MeshTheme.Typography.title2)
 
                 Spacer()
 
                 if let alert = alert {
                     Image(systemName: alert.severity.icon)
-                        .font(.title3)
+                        .font(MeshTheme.Typography.title3)
                         .foregroundColor(alert.severity.color)
                 }
             }
 
             Text(district.name)
-                .font(.body)
+                .font(MeshTheme.Typography.body)
                 .foregroundColor(.secondary)
                 .lineLimit(1)
             
@@ -376,11 +372,11 @@ struct DistrictSurgeCard: View {
             HStack {
                 VStack(alignment: .leading) {
                     Text("Active")
-                        .font(.callout)
+                        .font(MeshTheme.Typography.callout)
                         .foregroundColor(.secondary)
                     Text("\(activeIncidentCount)")
-                        .font(.title)
-                        .fontWeight(.bold)
+                        .font(MeshTheme.Typography.metricSmall)
+                        .monospacedDigit()
                 }
 
                 Spacer()
@@ -388,11 +384,11 @@ struct DistrictSurgeCard: View {
                 if let alert = alert {
                     VStack(alignment: .trailing) {
                         Text("Surge")
-                            .font(.callout)
+                            .font(MeshTheme.Typography.callout)
                             .foregroundColor(.secondary)
                         Text("+\(Int(alert.percentageIncrease))%")
-                            .font(.title)
-                            .fontWeight(.bold)
+                            .font(MeshTheme.Typography.metricSmall)
+                            .monospacedDigit()
                             .foregroundColor(alert.severity.color)
                     }
                 }
@@ -428,8 +424,7 @@ struct DistrictDetailView: View {
                 // Header
                 VStack(alignment: .leading, spacing: 4) {
                     Text(district.name)
-                        .font(.title)
-                        .fontWeight(.bold)
+                        .font(MeshTheme.Typography.title)
 
                     if let alert = alert {
                         HStack {
@@ -437,11 +432,11 @@ struct DistrictDetailView: View {
                             Text(alert.severity.label)
                             Text("• \(alert.timeAgo)")
                         }
-                        .font(.title3)
+                        .font(MeshTheme.Typography.title3)
                         .foregroundColor(alert.severity.color)
                     } else {
                         Text("Normal operations")
-                            .font(.title3)
+                            .font(MeshTheme.Typography.title3)
                             .foregroundColor(.green)
                     }
                 }
@@ -462,22 +457,22 @@ struct DistrictDetailView: View {
                     
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Surge Details")
-                            .font(.headline)
+                            .font(MeshTheme.Typography.headline)
                         
                         HStack {
                             Text("Current Volume")
                             Spacer()
                             Text("\(alert.currentCallVolume) calls")
-                                .fontWeight(.semibold)
+                                .font(MeshTheme.Typography.bodySemibold)
                         }
-                        .font(.title3)
+                        .font(MeshTheme.Typography.title3)
 
                         HStack {
                             Text("Expected Volume")
                             Spacer()
                             Text("\(alert.expectedCallVolume) calls")
                         }
-                        .font(.title3)
+                        .font(MeshTheme.Typography.title3)
                         .foregroundColor(.secondary)
 
                         HStack {
@@ -489,24 +484,24 @@ struct DistrictDetailView: View {
                             }
                             .foregroundColor(alert.trend.color)
                         }
-                        .font(.title3)
+                        .font(MeshTheme.Typography.title3)
 
                         HStack {
                             Text("Confidence")
                             Spacer()
                             Text(alert.formattedConfidence)
-                                .fontWeight(.semibold)
+                                .font(MeshTheme.Typography.bodySemibold)
                         }
-                        .font(.title3)
+                        .font(MeshTheme.Typography.title3)
 
                         if let peakTime = alert.predictedPeakTime {
                             HStack {
                                 Text("Predicted Peak")
                                 Spacer()
                                 Text(peakTime.formatted(date: .omitted, time: .shortened))
-                                    .fontWeight(.semibold)
+                                    .font(MeshTheme.Typography.bodySemibold)
                             }
-                            .font(.title3)
+                            .font(MeshTheme.Typography.title3)
                         }
                     }
                     .padding()
@@ -517,14 +512,14 @@ struct DistrictDetailView: View {
                     if !alert.contributingFactors.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Contributing Factors")
-                                .font(.headline)
+                                .font(MeshTheme.Typography.headline)
                             
                             ForEach(alert.contributingFactors, id: \.self) { factor in
                                 HStack {
                                     Image(systemName: "info.circle")
                                         .foregroundColor(.secondary)
                                     Text(factor)
-                                        .font(.subheadline)
+                                        .font(MeshTheme.Typography.body)
                                 }
                             }
                         }
@@ -544,11 +539,10 @@ struct StatBox: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.body)
+                .font(MeshTheme.Typography.body)
                 .foregroundColor(.secondary)
             Text(value)
-                .font(.title2)
-                .fontWeight(.bold)
+                .font(MeshTheme.Typography.title2)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()

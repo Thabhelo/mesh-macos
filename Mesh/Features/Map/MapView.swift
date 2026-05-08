@@ -136,7 +136,7 @@ struct MapControlPanel: View {
                 }
             } label: {
                 Image(systemName: "slider.horizontal.3")
-                    .font(.title3)
+                    .font(MeshTheme.Typography.title3)
                     .padding(8)
                     .background(Color(nsColor: .windowBackgroundColor))
                     .cornerRadius(8)
@@ -149,7 +149,7 @@ struct MapControlPanel: View {
                     // District overlay toggle
                     Toggle(isOn: $showDistrictOverlay) {
                         Label("District Overlay", systemImage: "square.dashed")
-                            .font(.body)
+                            .font(MeshTheme.Typography.body)
                     }
                     .toggleStyle(.switch)
                     .controlSize(.small)
@@ -157,7 +157,7 @@ struct MapControlPanel: View {
                     Divider()
 
                     Text("Map Style")
-                        .font(.body)
+                        .font(MeshTheme.Typography.body)
                         .foregroundColor(.secondary)
                     
                     Picker("Style", selection: $mapStyleOption) {
@@ -174,7 +174,7 @@ struct MapControlPanel: View {
                         onCenterRegion()
                     } label: {
                         Label("Center on \(LocationService.activeRegionName)", systemImage: "location.fill")
-                            .font(.body)
+                            .font(MeshTheme.Typography.body)
                     }
                     .buttonStyle(.plain)
                 }
@@ -194,8 +194,7 @@ struct MapLegend: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Legend")
-                .font(.body)
-                .fontWeight(.semibold)
+                .font(MeshTheme.Typography.bodySemibold)
                 .foregroundColor(.secondary)
 
             ForEach(appState.availableAgencyTypes) { type in
@@ -204,7 +203,7 @@ struct MapLegend: View {
                         .fill(type.color)
                         .frame(width: 12, height: 12)
                     Text(type.rawValue)
-                        .font(.callout)
+                        .font(MeshTheme.Typography.callout)
                 }
             }
         }
@@ -224,14 +223,14 @@ struct MapSidebar: View {
             // Header
             HStack {
                 Text("Incidents")
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(MeshTheme.Typography.title2)
 
                 Spacer()
 
                 Text("\(appState.filteredIncidents.count)")
-                    .font(.title3)
+                    .font(MeshTheme.Typography.title3)
                     .foregroundColor(.secondary)
+                    .monospacedDigit()
             }
             .padding()
             .background(Color(nsColor: .windowBackgroundColor))
@@ -287,12 +286,11 @@ struct MapIncidentRow: View {
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(incident.type)
-                    .font(.body)
-                    .fontWeight(.medium)
+                    .font(MeshTheme.Typography.bodySemibold)
                     .lineLimit(1)
 
                 Text(incident.address)
-                    .font(.callout)
+                    .font(MeshTheme.Typography.callout)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
             }
@@ -300,7 +298,7 @@ struct MapIncidentRow: View {
             Spacer()
 
             Text(incident.timeAgo)
-                .font(.callout)
+                .font(MeshTheme.Typography.callout)
                 .foregroundColor(.secondary)
         }
         .padding(8)
@@ -316,12 +314,11 @@ struct MapIncidentDetail: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: incident.agencyType.icon)
-                    .font(.title3)
+                    .font(MeshTheme.Typography.title3)
                     .foregroundColor(incident.agencyType.color)
 
                 Text(incident.type)
-                    .font(.title3)
-                    .fontWeight(.semibold)
+                    .font(MeshTheme.Typography.title3)
 
                 Spacer()
 
@@ -329,11 +326,11 @@ struct MapIncidentDetail: View {
             }
 
             Text(incident.address)
-                .font(.body)
+                .font(MeshTheme.Typography.body)
                 .foregroundColor(.secondary)
 
             Text(incident.description)
-                .font(.body)
+                .font(MeshTheme.Typography.body)
                 .foregroundColor(.secondary)
                 .lineLimit(2)
 
@@ -343,7 +340,7 @@ struct MapIncidentDetail: View {
                 Spacer()
 
                 Text("\(incident.respondingUnits.count) units responding")
-                    .font(.body)
+                    .font(MeshTheme.Typography.body)
                     .foregroundColor(.secondary)
             }
         }
