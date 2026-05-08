@@ -63,9 +63,9 @@ struct MenuBarHeader: View {
                     
                     HStack(spacing: 5) {
                         Circle()
-                            .fill(appState.isConnected ? Color.green : Color.red)
+                            .fill(appState.dataConnectionState.color)
                             .frame(width: 7, height: 7)
-                        Text(appState.isConnected ? "Connected" : "Disconnected")
+                        Text(appState.dataConnectionState.label)
                             .font(MeshTheme.Typography.caption2Font)
                             .foregroundColor(MeshTheme.Colors.mutedForeground)
                     }

@@ -17,7 +17,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
     
     func applicationWillTerminate(_ notification: Notification) {
-        // Clean up WebSocket connections
+        // Clean up polling and any legacy WebSocket connections
+        Task { @MainActor in
+            AppState.shared.stopIncidentPolling()
+        }
         WebSocketService.shared.disconnect()
     }
     
@@ -44,6 +47,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     private func initializeServices() async {
         // Load initial data
         await AppState.shared.loadInitialData()
+        await AppState.shared.startIncidentPolling()
     }
     
     // MARK: - UNUserNotificationCenterDelegate

@@ -215,16 +215,40 @@ struct DetailView: View {
 
 struct ConnectionStatusView: View {
     @EnvironmentObject var appState: AppState
+
+    private var detailText: String? {
+        if let error = appState.incidentRefreshError,
+           appState.dataConnectionState == .error || appState.dataConnectionState == .offline {
+            return error
+        }
+
+        guard let lastIncidentRefreshAt = appState.lastIncidentRefreshAt else {
+            return nil
+        }
+
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return "Updated \(formatter.localizedString(for: lastIncidentRefreshAt, relativeTo: Date()))"
+    }
     
     var body: some View {
         HStack(spacing: 8) {
             Circle()
-                .fill(appState.isConnected ? Color.green : Color.red)
+                .fill(appState.dataConnectionState.color)
                 .frame(width: 8, height: 8)
             
-            Text(appState.isConnected ? "Connected" : "Disconnected")
-                .font(.system(size: 12, weight: .medium, design: .rounded))
-                .foregroundColor(MeshTheme.Colors.foregroundSecondary)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(appState.dataConnectionState.label)
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(MeshTheme.Colors.foregroundSecondary)
+
+                if let detailText {
+                    Text(detailText)
+                        .font(.system(size: 10, weight: .regular, design: .rounded))
+                        .foregroundColor(MeshTheme.Colors.mutedForeground)
+                        .lineLimit(1)
+                }
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)

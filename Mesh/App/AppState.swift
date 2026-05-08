@@ -43,6 +43,33 @@ enum SystemStatus: String {
     }
 }
 
+enum DataConnectionState: Equatable {
+    case loading
+    case live
+    case stale
+    case offline
+    case error
+
+    var label: String {
+        switch self {
+        case .loading: return "Loading"
+        case .live: return "Live"
+        case .stale: return "Stale"
+        case .offline: return "Offline"
+        case .error: return "Error"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .loading: return .orange
+        case .live: return .green
+        case .stale: return .yellow
+        case .offline, .error: return .red
+        }
+    }
+}
+
 @MainActor
 class AppState: ObservableObject {
     static let shared = AppState()
@@ -52,6 +79,9 @@ class AppState: ObservableObject {
     @Published var selectedTab: AppTab = .dashboard
     @Published var selectedIncidentId: String?
     @Published var isConnected: Bool = false
+    @Published var dataConnectionState: DataConnectionState = .loading
+    @Published var lastIncidentRefreshAt: Date?
+    @Published var incidentRefreshError: String?
     @Published var systemStatus: SystemStatus = .normal
     @Published var showWelcome: Bool = true
     
@@ -99,6 +129,8 @@ class AppState: ObservableObject {
     // MARK: - Private
     
     private var cancellables = Set<AnyCancellable>()
+    private var incidentPollingTask: Task<Void, Never>?
+    private var isIncidentRefreshInFlight = false
     
     private init() {
         // Live update subscriptions will be enabled when the real DataSF polling stream lands.
@@ -110,30 +142,59 @@ class AppState: ObservableObject {
         do {
             let loadedAgencies = try await APIClient.shared.fetchAgencies()
             let loadedDistricts = try await APIClient.shared.fetchDistricts()
-            let loadedIncidents = try await APIClient.shared.fetchIncidents()
             let loadedSurgeAlerts = try await APIClient.shared.fetchSurgeAlerts()
             let loadedHazardScore = try await APIClient.shared.fetchHazardScore()
 
-            DispatchQueue.main.async { [weak self] in
-                self?.applyInitialData(
-                    agencies: loadedAgencies,
-                    districts: loadedDistricts,
-                    incidents: loadedIncidents,
-                    surgeAlerts: loadedSurgeAlerts,
-                    hazardScore: loadedHazardScore
-                )
-                self?.isConnected = true
-            }
+            applyStaticData(
+                agencies: loadedAgencies,
+                districts: loadedDistricts,
+                surgeAlerts: loadedSurgeAlerts,
+                hazardScore: loadedHazardScore
+            )
+            await refreshData()
         } catch {
-            DispatchQueue.main.async { [weak self] in
-                self?.isConnected = false
-            }
+            markIncidentRefreshFailed(error)
             print("Failed to load initial data: \(error)")
         }
     }
     
     func refreshData() async {
-        await loadInitialData()
+        guard !isIncidentRefreshInFlight else { return }
+
+        isIncidentRefreshInFlight = true
+        if lastIncidentRefreshAt == nil {
+            dataConnectionState = .loading
+        }
+        defer { isIncidentRefreshInFlight = false }
+
+        do {
+            let result = try await IncidentPollingService.shared.poll()
+            applyIncidentPollingResult(result)
+        } catch {
+            markIncidentRefreshFailed(error)
+            print("Failed to refresh incidents: \(error)")
+        }
+    }
+
+    func startIncidentPolling() {
+        guard incidentPollingTask == nil else { return }
+
+        incidentPollingTask = Task { [weak self] in
+            while !Task.isCancelled {
+                do {
+                    try await Task.sleep(nanoseconds: UInt64(IncidentPollingService.defaultPollingInterval * 1_000_000_000))
+                } catch {
+                    break
+                }
+
+                await self?.refreshData()
+            }
+        }
+    }
+
+    func stopIncidentPolling() {
+        incidentPollingTask?.cancel()
+        incidentPollingTask = nil
     }
     
     func selectIncident(_ incident: Incident) {
@@ -150,20 +211,59 @@ class AppState: ObservableObject {
     
     // MARK: - Private Methods
 
-    private func applyInitialData(
+    private func applyStaticData(
         agencies loadedAgencies: [Agency],
         districts loadedDistricts: [District],
-        incidents loadedIncidents: [Incident],
         surgeAlerts loadedSurgeAlerts: [SurgeAlert],
         hazardScore loadedHazardScore: HazardScore
     ) {
         agencies = loadedAgencies
         districts = loadedDistricts
-        incidents = loadedIncidents
-        selectedDistricts = Set(loadedDistricts.map { $0.id }).union(loadedIncidents.map { $0.districtId })
+        selectedDistricts = Set(loadedDistricts.map { $0.id })
         surgeAlerts = loadedSurgeAlerts
         hazardScore = loadedHazardScore
         updateSystemStatus()
+    }
+
+    private func applyIncidentPollingResult(_ result: IncidentPollingResult) {
+        let shouldNotify = lastIncidentRefreshAt != nil
+
+        incidents = result.incidents
+        includeLiveIncidentDistricts(result.incidents)
+        lastIncidentRefreshAt = result.refreshedAt
+        incidentRefreshError = nil
+        dataConnectionState = freshnessState(for: result)
+        isConnected = dataConnectionState == .live || dataConnectionState == .stale
+
+        if shouldNotify {
+            notifyForCriticalNewIncidents(in: result.updates)
+        }
+        updateSystemStatus()
+    }
+
+    private func notifyForCriticalNewIncidents(in updates: [IncidentUpdate]) {
+        guard notificationsEnabled else { return }
+
+        for update in updates where update.type == .new {
+            guard let incident = update.incident, incident.severity == .critical else {
+                continue
+            }
+            NotificationService.shared.sendIncidentNotification(incident)
+        }
+    }
+
+    private func freshnessState(for result: IncidentPollingResult) -> DataConnectionState {
+        let sourceFreshnessDate = result.sourceDataAsOf ?? result.sourceDataLoadedAt ?? result.refreshedAt
+        if result.refreshedAt.timeIntervalSince(sourceFreshnessDate) > IncidentPollingService.staleAfter {
+            return .stale
+        }
+        return .live
+    }
+
+    private func markIncidentRefreshFailed(_ error: Error) {
+        incidentRefreshError = error.localizedDescription
+        dataConnectionState = lastIncidentRefreshAt == nil ? .offline : .error
+        isConnected = false
     }
     
     private func setupSubscriptions() {

@@ -116,7 +116,8 @@ actor APIClient {
         agencyType: AgencyType? = nil,
         districtId: String? = nil
     ) async throws -> [Incident] {
-        let incidents = try await fetchDataSFIncidents()
+        let result = try await fetchDataSFIncidentSnapshot()
+        let incidents = result.incidents
         return incidents.filter { incident in
             let matchesStatus = status == nil || incident.status == status
             let matchesAgency = agencyType == nil || incident.agencyType == agencyType
@@ -188,7 +189,7 @@ actor APIClient {
 
     // MARK: - DataSF Incidents
 
-    private func fetchDataSFIncidents(limit: Int = 500) async throws -> [Incident] {
+    func fetchDataSFIncidentSnapshot(limit: Int = 500) async throws -> DataSFIncidentFetchResult {
         var components = URLComponents(url: dataSFIncidentsURL, resolvingAgainstBaseURL: false)
         components?.queryItems = [
             URLQueryItem(name: "$limit", value: String(limit)),
@@ -214,7 +215,12 @@ actor APIClient {
             switch httpResponse.statusCode {
             case 200...299:
                 let calls = try decoder.decode([DataSFDispatchedCall].self, from: data)
-                return calls.compactMap(normalizeDataSFCall)
+                return DataSFIncidentFetchResult(
+                    incidents: calls.compactMap(normalizeDataSFCall),
+                    sourceDataAsOf: newestDate(from: calls.map(\.dataAsOf)),
+                    sourceDataLoadedAt: newestDate(from: calls.map(\.dataLoadedAt)),
+                    fetchedAt: Date()
+                )
             case 401:
                 throw APIError.unauthorized
             case 404:
@@ -401,6 +407,10 @@ actor APIClient {
 
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         return formatter.date(from: value)
+    }
+
+    private func newestDate(from values: [String?]) -> Date? {
+        values.compactMap(parseDataSFDate).max()
     }
 }
 
