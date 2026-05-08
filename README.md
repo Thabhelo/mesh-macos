@@ -125,6 +125,8 @@ mesh-macos/
 
 Production incidents are loaded from the San Francisco DataSF dispatched-calls dataset `gnap-fj3t` in `Core/Networking/APIClient.swift`.
 
+The field-level contract, source inventory, privacy assumptions, and known data gaps are documented in `docs/san-francisco-data-contract.md`.
+
 `Core/Services/IncidentPollingService.swift` owns the polling snapshot:
 
 - Fetches the latest DataSF incidents on launch and every 10 minutes.
