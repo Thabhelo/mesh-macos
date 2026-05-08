@@ -55,7 +55,7 @@ enum DataConnectionState: Equatable {
         switch self {
         case .loading: return "Loading"
         case .live: return "Live"
-        case .replay: return "Replay"
+        case .replay: return "Training"
         case .stale: return "Stale"
         case .offline: return "Offline"
         case .error: return "Error"

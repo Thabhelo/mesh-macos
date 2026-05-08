@@ -1,24 +1,24 @@
 import Foundation
 
 enum DataMode: String, CaseIterable, Identifiable {
-    case live = "Live DataSF"
-    case replay = "Replay Training"
+    case live = "Live Monitoring"
+    case replay = "Training Drill"
 
     var id: String { rawValue }
 
     var label: String {
         switch self {
         case .live: return "Live"
-        case .replay: return "Replay Training"
+        case .replay: return "Training Drill"
         }
     }
 
     var detail: String {
         switch self {
         case .live:
-            return "San Francisco DataSF rolling incident snapshot"
+            return "Live San Francisco incident monitoring"
         case .replay:
-            return "Replay drill: SF surge triage scenario, not live production data"
+            return "Practice scenario for surge triage, not live incident monitoring"
         }
     }
 }
@@ -378,8 +378,8 @@ enum ReplayScenarioService {
             notes: [
                 .init(
                     id: "\(id)-note",
-                    content: "Replay training event sourced from an SF operational drill sequence.",
-                    author: "Mesh Replay",
+                    content: "Training drill event for operator practice.",
+                    author: "Mesh Training",
                     timestamp: updatedAt
                 )
             ]

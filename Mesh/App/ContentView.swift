@@ -80,12 +80,12 @@ struct MainAppView: View {
                         appState.enterLiveMode()
                     }
                 } label: {
-                    Text(appState.dataMode == .live ? "Start Replay" : "Return Live")
+                    Text(appState.dataMode == .live ? "Start Drill" : "Return Live")
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
                         .foregroundColor(appState.dataMode == .live ? MeshTheme.Colors.primary : .blue)
                 }
                 .buttonStyle(.plain)
-                .help(appState.dataMode == .live ? "Start San Francisco replay training mode" : "Return to live DataSF mode")
+                .help(appState.dataMode == .live ? "Start a San Francisco training drill" : "Return to live monitoring")
                 
                 Button {
                     Task {
@@ -141,7 +141,7 @@ struct AppSidebar: View {
             Section {
                 DataModeControl()
             } header: {
-                Text("DATA MODE")
+                Text("MONITORING MODE")
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundColor(MeshTheme.Colors.mutedForeground)
                     .tracking(0.5)
@@ -200,7 +200,7 @@ struct DataModeControl: View {
                     appState.enterLiveMode()
                 }
             } label: {
-                Text(appState.dataMode == .live ? "Start SF Replay Drill" : "Return to Live Data")
+                Text(appState.dataMode == .live ? "Start Training Drill" : "Return to Live Monitoring")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)
@@ -340,7 +340,7 @@ struct ConnectionStatusView: View {
 
     private var detailText: String? {
         if appState.dataMode == .replay {
-            return "Training replay, not live data"
+            return "Training drill, not live monitoring"
         }
 
         if let error = appState.incidentRefreshError,

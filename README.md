@@ -131,8 +131,6 @@ The field-level contract, source inventory, privacy assumptions, and known data 
 
 The San Francisco replay/training walkthrough script and screenshot checklist are documented in `docs/san-francisco-operational-walkthrough.md`.
 
-Build, test, CI, and troubleshooting instructions are documented in `docs/build-test-readiness.md`.
-
 `Core/Services/IncidentPollingService.swift` owns the polling snapshot:
 
 - Fetches the latest DataSF incidents on launch and every 10 minutes.

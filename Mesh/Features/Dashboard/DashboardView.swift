@@ -88,7 +88,7 @@ struct DashboardHeaderView: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack {
-                Text(appState.dataMode == .replay ? "Replay Training Incidents" : "Real-Time Incidents")
+                Text(appState.dataMode == .replay ? "Training Drill Incidents" : "Real-Time Incidents")
                     .font(.title)
                     .fontWeight(.bold)
                 
@@ -141,7 +141,7 @@ struct WalkthroughDecisionCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Label("SF Operational Walkthrough", systemImage: "play.rectangle.fill")
+                Label("San Francisco Response Drill", systemImage: "play.rectangle.fill")
                     .font(.headline)
                     .foregroundColor(.blue)
 

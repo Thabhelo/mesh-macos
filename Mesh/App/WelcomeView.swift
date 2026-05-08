@@ -250,7 +250,7 @@ struct HeroSection: View {
     }
     
     private var descriptionText: some View {
-        Text("Mesh unifies fragmented emergency response across fire, police, EMS, and emergency management with AI-powered operational intelligence that saves lives.")
+        Text("Mesh unifies fragmented emergency response across fire, police, EMS, and emergency management with real-time operational intelligence that saves lives.")
             .font(.system(size: 18, weight: .regular, design: .rounded))
             .foregroundColor(MeshTheme.Colors.foregroundSecondary)
             .lineSpacing(8)

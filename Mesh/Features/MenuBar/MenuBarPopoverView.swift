@@ -65,7 +65,7 @@ struct MenuBarHeader: View {
                         Circle()
                             .fill(appState.dataConnectionState.color)
                             .frame(width: 7, height: 7)
-                        Text(appState.dataMode == .replay ? "Replay Training" : appState.dataConnectionState.label)
+                        Text(appState.dataMode == .replay ? "Training Drill" : appState.dataConnectionState.label)
                             .font(MeshTheme.Typography.caption2Font)
                             .foregroundColor(MeshTheme.Colors.mutedForeground)
                     }
@@ -167,7 +167,7 @@ struct MenuBarRecentIncidents: View {
     var body: some View {
         VStack(alignment: .leading, spacing: MeshTheme.Spacing.sm) {
             HStack {
-                Text(appState.dataMode == .replay ? "Replay Incidents" : "Recent Incidents")
+                Text(appState.dataMode == .replay ? "Drill Incidents" : "Recent Incidents")
                     .font(MeshTheme.Typography.captionFont)
                     .foregroundColor(MeshTheme.Colors.mutedForeground)
                 
