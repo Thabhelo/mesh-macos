@@ -39,7 +39,8 @@ Native macOS application for the Mesh Public Safety Platform - providing live pu
 ## Requirements
 
 - macOS 14.0 (Sonoma) or later
-- Xcode 15.0 or later (for development)
+- Xcode 15.4 or later (for development and CI parity)
+- Swift 5.9 or later
 
 ## Development Setup
 
@@ -130,6 +131,8 @@ The field-level contract, source inventory, privacy assumptions, and known data 
 
 The San Francisco replay/training walkthrough script and screenshot checklist are documented in `docs/san-francisco-operational-walkthrough.md`.
 
+Build, test, CI, and troubleshooting instructions are documented in `docs/build-test-readiness.md`.
+
 `Core/Services/IncidentPollingService.swift` owns the polling snapshot:
 
 - Fetches the latest DataSF incidents on launch and every 10 minutes.
@@ -209,6 +212,12 @@ Build the app with:
 
 ```bash
 xcodebuild -project Mesh.xcodeproj -scheme Mesh -destination 'platform=macOS' build
+```
+
+Run the CI formatting lint locally with:
+
+```bash
+swiftformat Mesh Tests Package.swift --lint --rules duplicateImports,semicolons --swiftversion 5.9
 ```
 
 Manual verification:

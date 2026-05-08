@@ -37,22 +37,31 @@ actor APIClient {
     private let session: URLSession
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
+    private let now: () -> Date
     
-    private init() {
-        // TODO: Configure with actual API base URL
-        self.baseURL = URL(string: "https://api.mesh-platform.com/v1")!
-        self.dataSFIncidentsURL = URL(string: "https://data.sfgov.org/resource/gnap-fj3t.json")!
-        
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 30
-        config.timeoutIntervalForResource = 60
-        self.session = URLSession(configuration: config)
-        
+    init(
+        baseURL: URL = URL(string: "https://api.mesh-platform.com/v1")!,
+        dataSFIncidentsURL: URL = URL(string: "https://data.sfgov.org/resource/gnap-fj3t.json")!,
+        session: URLSession = APIClient.defaultSession(),
+        now: @escaping () -> Date = Date.init
+    ) {
+        self.baseURL = baseURL
+        self.dataSFIncidentsURL = dataSFIncidentsURL
+        self.session = session
+        self.now = now
+
         self.decoder = JSONDecoder()
         self.decoder.dateDecodingStrategy = .iso8601
         
         self.encoder = JSONEncoder()
         self.encoder.dateEncodingStrategy = .iso8601
+    }
+
+    private static func defaultSession() -> URLSession {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 30
+        config.timeoutIntervalForResource = 60
+        return URLSession(configuration: config)
     }
     
     // MARK: - Generic Request
@@ -204,7 +213,7 @@ actor APIClient {
                     incidents: calls.compactMap(normalizeDataSFCall),
                     sourceDataAsOf: newestDate(from: calls.map(\.dataAsOf)),
                     sourceDataLoadedAt: newestDate(from: calls.map(\.dataLoadedAt)),
-                    fetchedAt: Date()
+                    fetchedAt: now()
                 )
             case 401:
                 throw APIError.unauthorized

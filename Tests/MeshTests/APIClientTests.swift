@@ -1,0 +1,216 @@
+import XCTest
+@testable import Mesh
+
+final class APIClientTests: XCTestCase {
+    private let fetchedAt = Date(timeIntervalSince1970: 1_715_810_400)
+
+    override func tearDown() {
+        MockURLProtocol.reset()
+        super.tearDown()
+    }
+
+    func testFetchDataSFIncidentSnapshotBuildsQueryAndNormalizesIncident() async throws {
+        let client = makeClient(statusCode: 200, body: dataSFResponse([
+            dataSFCall(
+                id: "240000001",
+                priority: "A",
+                agency: "Police",
+                type: "TRAF COLLISION",
+                policeDistrict: "SOUTHERN",
+                closeDatetime: nil
+            )
+        ]))
+
+        let result = try await client.fetchDataSFIncidentSnapshot(limit: 25)
+        let request = try XCTUnwrap(MockURLProtocol.requests.first)
+        let url = try XCTUnwrap(request.url)
+        let components = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false))
+        let queryItems = Dictionary(uniqueKeysWithValues: (components.queryItems ?? []).map { ($0.name, $0.value) })
+
+        XCTAssertEqual(url.scheme, "https")
+        XCTAssertEqual(url.host, "example.test")
+        XCTAssertEqual(queryItems["$limit"], "25")
+        XCTAssertEqual(queryItems["$order"], "call_last_updated_at DESC")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Accept"), "application/json")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "User-Agent"), "Mesh macOS (San Francisco public-safety monitor)")
+
+        XCTAssertEqual(result.fetchedAt, fetchedAt)
+        XCTAssertEqual(result.incidents.count, 1)
+        let incident = try XCTUnwrap(result.incidents.first)
+        XCTAssertEqual(incident.id, "datasf:gnap-fj3t:240000001")
+        XCTAssertEqual(incident.type, "Traffic Collision")
+        XCTAssertEqual(incident.agencyName, "San Francisco Police Department")
+        XCTAssertEqual(incident.agencyType, .police)
+        XCTAssertEqual(incident.districtId, "southern")
+        XCTAssertEqual(incident.districtName, "Southern")
+        XCTAssertEqual(incident.status, .responding)
+        XCTAssertEqual(incident.severity, .critical)
+        XCTAssertEqual(incident.location.latitude, 37.7898, accuracy: 0.0001)
+        XCTAssertEqual(incident.location.longitude, -122.3915, accuracy: 0.0001)
+        XCTAssertEqual(result.sourceDataAsOf, dataSFDate("2024-05-15T12:03:00.000"))
+        XCTAssertEqual(result.sourceDataLoadedAt, dataSFDate("2024-05-15T12:04:00.000"))
+    }
+
+    func testFetchIncidentsAppliesStatusAgencyAndDistrictFilters() async throws {
+        let client = makeClient(statusCode: 200, body: dataSFResponse([
+            dataSFCall(id: "a", priority: "A", agency: "Police", type: "TRAF COLLISION", policeDistrict: "SOUTHERN", closeDatetime: nil),
+            dataSFCall(id: "b", priority: "C", agency: "MTA", type: "TRANSIT DELAY", policeDistrict: "CENTRAL", closeDatetime: nil),
+            dataSFCall(id: "c", priority: "B", agency: "Police", type: "ASSAULT", policeDistrict: "SOUTHERN", closeDatetime: "2024-05-15T12:20:00.000")
+        ]))
+
+        let incidents = try await client.fetchIncidents(
+            status: .responding,
+            agencyType: .police,
+            districtId: "southern"
+        )
+
+        XCTAssertEqual(incidents.map(\.id), ["datasf:gnap-fj3t:a"])
+    }
+
+    func testFetchDataSFIncidentSnapshotMapsHTTPAndDecodingErrors() async throws {
+        let serverClient = makeClient(statusCode: 503, body: #"{"error":"down"}"#)
+
+        do {
+            _ = try await serverClient.fetchDataSFIncidentSnapshot()
+            XCTFail("Expected server error")
+        } catch APIError.serverError(let statusCode, let message) {
+            XCTAssertEqual(statusCode, 503)
+            XCTAssertEqual(message, #"{"error":"down"}"#)
+        }
+
+        MockURLProtocol.reset()
+        let decodingClient = makeClient(statusCode: 200, body: #"{"not":"an array"}"#)
+
+        do {
+            _ = try await decodingClient.fetchDataSFIncidentSnapshot()
+            XCTFail("Expected decoding error")
+        } catch APIError.decodingError {
+            // Expected.
+        }
+    }
+
+    func testFetchDataSFIncidentSnapshotDropsRowsMissingRequiredFields() async throws {
+        let client = makeClient(statusCode: 200, body: dataSFResponse([
+            dataSFCall(id: "", priority: "A", agency: "Police", type: "TRAF COLLISION", policeDistrict: "SOUTHERN", closeDatetime: nil),
+            dataSFCall(id: "missing-point", priority: "A", agency: "Police", type: "TRAF COLLISION", policeDistrict: "SOUTHERN", closeDatetime: nil, includePoint: false),
+            dataSFCall(id: "valid", priority: "A", agency: "Police", type: "TRAF COLLISION", policeDistrict: "SOUTHERN", closeDatetime: nil)
+        ]))
+
+        let result = try await client.fetchDataSFIncidentSnapshot()
+
+        XCTAssertEqual(result.incidents.map(\.id), ["datasf:gnap-fj3t:valid"])
+    }
+
+    private func makeClient(statusCode: Int, body: String) -> APIClient {
+        MockURLProtocol.enqueue(statusCode: statusCode, body: body)
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [MockURLProtocol.self]
+        let session = URLSession(configuration: configuration)
+        return APIClient(
+            dataSFIncidentsURL: URL(string: "https://example.test/resource/gnap-fj3t.json")!,
+            session: session,
+            now: { self.fetchedAt }
+        )
+    }
+
+    private func dataSFResponse(_ calls: [String]) -> String {
+        "[\(calls.joined(separator: ","))]"
+    }
+
+    private func dataSFCall(
+        id: String,
+        priority: String,
+        agency: String,
+        type: String,
+        policeDistrict: String,
+        closeDatetime: String?,
+        includePoint: Bool = true
+    ) -> String {
+        let closeValue = closeDatetime.map { #""\#($0)""# } ?? "null"
+        let pointValue = includePoint
+            ? #"{"type":"Point","coordinates":[-122.3915,37.7898]}"#
+            : "null"
+
+        return """
+        {
+          "id": "\(id)",
+          "cad_number": "CAD-\(id)",
+          "received_datetime": "2024-05-15T12:00:00.000",
+          "entry_datetime": "2024-05-15T12:01:00.000",
+          "dispatch_datetime": "2024-05-15T12:02:00.000",
+          "enroute_datetime": null,
+          "onscene_datetime": null,
+          "close_datetime": \(closeValue),
+          "call_type_original_desc": "\(type)",
+          "call_type_final_desc": "\(type)",
+          "priority_original": "\(priority)",
+          "priority_final": "\(priority)",
+          "agency": "\(agency)",
+          "disposition": "REP",
+          "sensitive_call": false,
+          "intersection_name": "I-80 W at 5th St",
+          "intersection_point": \(pointValue),
+          "supervisor_district": "6",
+          "analysis_neighborhood": "South of Market",
+          "police_district": "\(policeDistrict)",
+          "call_last_updated_at": "2024-05-15T12:03:00.000",
+          "data_as_of": "2024-05-15T12:03:00.000",
+          "data_loaded_at": "2024-05-15T12:04:00.000"
+        }
+        """
+    }
+
+    private func dataSFDate(_ value: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+        return formatter.date(from: value)
+    }
+}
+
+private final class MockURLProtocol: URLProtocol {
+    struct Response {
+        let statusCode: Int
+        let body: Data
+    }
+
+    private static var responses: [Response] = []
+    private(set) static var requests: [URLRequest] = []
+
+    static func enqueue(statusCode: Int, body: String) {
+        responses.append(Response(statusCode: statusCode, body: Data(body.utf8)))
+    }
+
+    static func reset() {
+        responses = []
+        requests = []
+    }
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        Self.requests.append(request)
+        let response = Self.responses.isEmpty
+            ? Response(statusCode: 500, body: Data())
+            : Self.responses.removeFirst()
+        let httpResponse = HTTPURLResponse(
+            url: request.url!,
+            statusCode: response.statusCode,
+            httpVersion: nil,
+            headerFields: ["Content-Type": "application/json"]
+        )!
+
+        client?.urlProtocol(self, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didLoad: response.body)
+        client?.urlProtocolDidFinishLoading(self)
+    }
+
+    override func stopLoading() {}
+}

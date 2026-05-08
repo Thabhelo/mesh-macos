@@ -24,7 +24,7 @@ actor IncidentPollingService {
     private let apiClient: APIClient
     private var snapshotById: [String: Incident] = [:]
 
-    private init(apiClient: APIClient = .shared) {
+    init(apiClient: APIClient = .shared) {
         self.apiClient = apiClient
     }
 
