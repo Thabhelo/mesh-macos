@@ -150,6 +150,7 @@ class AppState: ObservableObject {
     private var replayPlaybackTask: Task<Void, Never>?
     private var replayScenarioAnchorDate = Date()
     private var isIncidentRefreshInFlight = false
+    private var hasSeededSelectedDistricts = false
 
     var replayFrames: [ReplayScenarioFrame] {
         ReplayScenarioService.frames(anchorDate: replayScenarioAnchorDate)
@@ -291,6 +292,7 @@ class AppState: ObservableObject {
         agencies = loadedAgencies
         districts = loadedDistricts
         selectedDistricts = Set(loadedDistricts.map { $0.id })
+        hasSeededSelectedDistricts = !selectedDistricts.isEmpty
         updateDerivedIntelligence()
         updateSystemStatus()
     }
@@ -489,8 +491,14 @@ class AppState: ObservableObject {
     private func rebuildOperationalMetadata(from incidents: [Incident]) {
         agencies = deriveAgencies(from: incidents)
         districts = deriveDistricts(from: incidents)
-        guard !selectedDistricts.isEmpty else { return }
-        selectedDistricts.formUnion(incidents.map { $0.districtId })
+        let liveDistrictIds = Set(incidents.map { $0.districtId })
+
+        if hasSeededSelectedDistricts {
+            selectedDistricts.formUnion(liveDistrictIds)
+        } else {
+            selectedDistricts = liveDistrictIds
+            hasSeededSelectedDistricts = !liveDistrictIds.isEmpty
+        }
     }
 
     private func deriveAgencies(from incidents: [Incident]) -> [Agency] {
