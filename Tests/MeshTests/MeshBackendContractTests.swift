@@ -59,7 +59,10 @@ final class MeshBackendContractTests: XCTestCase {
     }
 
     func testOpenAPIContractDocumentsRequiredEndpointsAndMetadata() throws {
-        let contractURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        let contractURL = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
             .appendingPathComponent("Backend/openapi/mesh-api-v1.yaml")
         let contract = try String(contentsOf: contractURL, encoding: .utf8)
 
