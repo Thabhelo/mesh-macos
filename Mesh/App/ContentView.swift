@@ -346,22 +346,13 @@ struct ConnectionStatusView: View {
     @EnvironmentObject var appState: AppState
 
     private var detailText: String? {
-        if appState.dataMode == .replay {
-            return "Training drill, not live monitoring"
-        }
-
-        if let error = appState.incidentRefreshError,
-           appState.dataConnectionState == .error || appState.dataConnectionState == .offline {
-            return appState.incidentRefreshRecoverySuggestion ?? error
-        }
-
-        guard let lastIncidentRefreshAt = appState.lastIncidentRefreshAt else {
-            return nil
-        }
-
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .abbreviated
-        return "Updated \(formatter.localizedString(for: lastIncidentRefreshAt, relativeTo: Date()))"
+        ConnectionStatusDetailFormatter.detailText(
+            dataMode: appState.dataMode,
+            connectionState: appState.dataConnectionState,
+            error: appState.incidentRefreshError,
+            recoverySuggestion: appState.incidentRefreshRecoverySuggestion,
+            lastIncidentRefreshAt: appState.lastIncidentRefreshAt
+        )
     }
     
     var body: some View {
@@ -395,6 +386,36 @@ struct ConnectionStatusView: View {
                 .stroke(MeshTheme.Colors.border, lineWidth: 1)
         )
         .help(detailText ?? "\(appState.liveDataSource.regionName) live monitoring via \(appState.liveDataSource.name)")
+    }
+}
+
+enum ConnectionStatusDetailFormatter {
+    static func detailText(
+        dataMode: DataMode,
+        connectionState: DataConnectionState,
+        error: String?,
+        recoverySuggestion: String?,
+        lastIncidentRefreshAt: Date?,
+        relativeTo referenceDate: Date = Date()
+    ) -> String? {
+        if dataMode == .replay {
+            return "Training drill, not live monitoring"
+        }
+
+        if let error, connectionState == .error || connectionState == .offline {
+            guard let recoverySuggestion, !recoverySuggestion.isEmpty else {
+                return error
+            }
+            return "\(error) \(recoverySuggestion)"
+        }
+
+        guard let lastIncidentRefreshAt else {
+            return nil
+        }
+
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return "Updated \(formatter.localizedString(for: lastIncidentRefreshAt, relativeTo: referenceDate))"
     }
 }
 

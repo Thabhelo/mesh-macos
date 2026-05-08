@@ -489,8 +489,8 @@ class AppState: ObservableObject {
     }
 
     private func rebuildOperationalMetadata(from incidents: [Incident]) {
-        agencies = deriveAgencies(from: incidents)
-        districts = deriveDistricts(from: incidents)
+        agencies = OperationalMetadataBuilder.deriveAgencies(from: incidents)
+        districts = OperationalMetadataBuilder.deriveDistricts(from: incidents)
         let liveDistrictIds = Set(incidents.map { $0.districtId })
 
         if hasSeededSelectedDistricts {
@@ -500,13 +500,16 @@ class AppState: ObservableObject {
             hasSeededSelectedDistricts = !liveDistrictIds.isEmpty
         }
     }
+}
 
-    private func deriveAgencies(from incidents: [Incident]) -> [Agency] {
+enum OperationalMetadataBuilder {
+    static func deriveAgencies(from incidents: [Incident]) -> [Agency] {
         Dictionary(grouping: incidents, by: \.agencyId)
             .values
             .compactMap { agencyIncidents in
                 guard let first = agencyIncidents.first else { return nil }
                 let activeCount = agencyIncidents.filter { $0.status.isOperationallyActive }.count
+                let totalCount = agencyIncidents.count
                 return Agency(
                     id: first.agencyId,
                     name: first.agencyName,
@@ -516,14 +519,14 @@ class AppState: ObservableObject {
                     contactEmail: nil,
                     headquarters: nil,
                     activeUnits: activeCount,
-                    totalUnits: activeCount,
+                    totalUnits: totalCount,
                     isConnected: true
                 )
             }
             .sorted { $0.name < $1.name }
     }
 
-    private func deriveDistricts(from incidents: [Incident]) -> [District] {
+    static func deriveDistricts(from incidents: [Incident]) -> [District] {
         Dictionary(grouping: incidents, by: \.districtId)
             .values
             .compactMap { districtIncidents in
@@ -572,7 +575,7 @@ class AppState: ObservableObject {
             .sorted { $0.name < $1.name }
     }
 
-    private func shortName(for agencyName: String) -> String {
+    private static func shortName(for agencyName: String) -> String {
         let words = agencyName
             .split(separator: " ")
             .filter { word in
@@ -581,7 +584,9 @@ class AppState: ObservableObject {
         let acronym = words.compactMap(\.first).map(String.init).joined()
         return acronym.isEmpty ? agencyName : acronym
     }
+}
 
+private extension AppState {
     private func dataSourceErrorMessage(for error: Error) -> String {
         guard let apiError = error as? APIError else {
             return "Unable to refresh \(liveDataSource.name): \(error.localizedDescription)"
