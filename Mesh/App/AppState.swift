@@ -85,6 +85,9 @@ class AppState: ObservableObject {
     @Published var dataConnectionState: DataConnectionState = .loading
     @Published var lastIncidentRefreshAt: Date?
     @Published var incidentRefreshError: String?
+    @Published var incidentRefreshRecoverySuggestion: String?
+    @Published var sourceDataAsOf: Date?
+    @Published var sourceDataLoadedAt: Date?
     @Published var systemStatus: SystemStatus = .normal
     @Published var showWelcome: Bool = true
     @Published var dataMode: DataMode = .live
@@ -107,6 +110,8 @@ class AppState: ObservableObject {
     // Settings
     @Published var notificationsEnabled: Bool = true
     @Published var criticalAlertsOnly: Bool = false
+
+    let liveDataSource = APIClient.productionDataSource
     
     // MARK: - Computed Properties
     
@@ -164,19 +169,8 @@ class AppState: ObservableObject {
     // MARK: - Public Methods
     
     func loadInitialData() async {
-        do {
-            let loadedAgencies = try await APIClient.shared.fetchAgencies()
-            let loadedDistricts = try await APIClient.shared.fetchDistricts()
-
-            applyStaticData(
-                agencies: loadedAgencies,
-                districts: loadedDistricts
-            )
-            await refreshData()
-        } catch {
-            markIncidentRefreshFailed(error)
-            print("Failed to load initial data: \(error)")
-        }
+        applyStaticData(agencies: [], districts: [])
+        await refreshData()
     }
     
     func refreshData() async {
@@ -305,9 +299,12 @@ class AppState: ObservableObject {
         let shouldNotify = lastIncidentRefreshAt != nil
 
         incidents = result.incidents
-        includeLiveIncidentDistricts(result.incidents)
+        rebuildOperationalMetadata(from: result.incidents)
         lastIncidentRefreshAt = result.refreshedAt
+        sourceDataAsOf = result.sourceDataAsOf
+        sourceDataLoadedAt = result.sourceDataLoadedAt
         incidentRefreshError = nil
+        incidentRefreshRecoverySuggestion = nil
         dataConnectionState = dataMode == .replay ? .replay : freshnessState(for: result)
         isConnected = dataMode == .live && (dataConnectionState == .live || dataConnectionState == .stale)
         updateDerivedIntelligence(referenceDate: result.refreshedAt)
@@ -327,6 +324,7 @@ class AppState: ObservableObject {
         applyIncidentPollingResult(frames[clampedIndex].incidentResult)
         dataConnectionState = .replay
         incidentRefreshError = nil
+        incidentRefreshRecoverySuggestion = nil
         isConnected = false
         selectedIncidentId = incidents.first?.id
 
@@ -385,7 +383,8 @@ class AppState: ObservableObject {
     }
 
     private func markIncidentRefreshFailed(_ error: Error) {
-        incidentRefreshError = error.localizedDescription
+        incidentRefreshError = dataSourceErrorMessage(for: error)
+        incidentRefreshRecoverySuggestion = recoverySuggestion(for: error)
         dataConnectionState = lastIncidentRefreshAt == nil ? .offline : .error
         isConnected = false
     }
@@ -439,7 +438,6 @@ class AppState: ObservableObject {
         case .new:
             if let incident = update.incident {
                 incidents.insert(incident, at: 0)
-                includeLiveIncidentDistricts([incident])
                 if incident.severity == .critical && notificationsEnabled {
                     NotificationService.shared.sendIncidentNotification(incident)
                 }
@@ -448,7 +446,6 @@ class AppState: ObservableObject {
             if let incident = update.incident,
                let index = incidents.firstIndex(where: { $0.id == incident.id }) {
                 incidents[index] = incident
-                includeLiveIncidentDistricts([incident])
             }
         case .closed:
             if let incidentId = update.incidentId,
@@ -456,6 +453,7 @@ class AppState: ObservableObject {
                 incidents[index].status = .closed
             }
         }
+        rebuildOperationalMetadata(from: incidents)
         updateDerivedIntelligence()
         updateSystemStatus()
     }
@@ -488,8 +486,136 @@ class AppState: ObservableObject {
         }
     }
 
-    private func includeLiveIncidentDistricts(_ incidents: [Incident]) {
+    private func rebuildOperationalMetadata(from incidents: [Incident]) {
+        agencies = deriveAgencies(from: incidents)
+        districts = deriveDistricts(from: incidents)
         guard !selectedDistricts.isEmpty else { return }
         selectedDistricts.formUnion(incidents.map { $0.districtId })
+    }
+
+    private func deriveAgencies(from incidents: [Incident]) -> [Agency] {
+        Dictionary(grouping: incidents, by: \.agencyId)
+            .values
+            .compactMap { agencyIncidents in
+                guard let first = agencyIncidents.first else { return nil }
+                let activeCount = agencyIncidents.filter { $0.status.isOperationallyActive }.count
+                return Agency(
+                    id: first.agencyId,
+                    name: first.agencyName,
+                    type: first.agencyType,
+                    shortName: shortName(for: first.agencyName),
+                    contactPhone: nil,
+                    contactEmail: nil,
+                    headquarters: nil,
+                    activeUnits: activeCount,
+                    totalUnits: activeCount,
+                    isConnected: true
+                )
+            }
+            .sorted { $0.name < $1.name }
+    }
+
+    private func deriveDistricts(from incidents: [Incident]) -> [District] {
+        Dictionary(grouping: incidents, by: \.districtId)
+            .values
+            .compactMap { districtIncidents in
+                guard let first = districtIncidents.first else { return nil }
+                let latitudes = districtIncidents.map(\.location.latitude)
+                let longitudes = districtIncidents.map(\.location.longitude)
+                guard
+                    let minLatitude = latitudes.min(),
+                    let maxLatitude = latitudes.max(),
+                    let minLongitude = longitudes.min(),
+                    let maxLongitude = longitudes.max()
+                else {
+                    return nil
+                }
+
+                let centerLatitude = latitudes.reduce(0, +) / Double(latitudes.count)
+                let centerLongitude = longitudes.reduce(0, +) / Double(longitudes.count)
+                let padding = 0.005
+                let boundaryMinLatitude = minLatitude - padding
+                let boundaryMaxLatitude = maxLatitude + padding
+                let boundaryMinLongitude = minLongitude - padding
+                let boundaryMaxLongitude = maxLongitude + padding
+                let latitudeMiles = max(0.1, (boundaryMaxLatitude - boundaryMinLatitude) * 69)
+                let longitudeMiles = max(
+                    0.1,
+                    (boundaryMaxLongitude - boundaryMinLongitude) * cos(centerLatitude * .pi / 180) * 69
+                )
+
+                return District(
+                    id: first.districtId,
+                    name: first.districtName,
+                    shortName: first.districtName.replacingOccurrences(of: " District", with: ""),
+                    population: 0,
+                    areaSquareMiles: latitudeMiles * longitudeMiles,
+                    center: .init(latitude: centerLatitude, longitude: centerLongitude),
+                    boundaries: [
+                        .init(latitude: boundaryMinLatitude, longitude: boundaryMinLongitude),
+                        .init(latitude: boundaryMinLatitude, longitude: boundaryMaxLongitude),
+                        .init(latitude: boundaryMaxLatitude, longitude: boundaryMaxLongitude),
+                        .init(latitude: boundaryMaxLatitude, longitude: boundaryMinLongitude)
+                    ],
+                    activeIncidents: districtIncidents.filter { $0.status.isOperationallyActive }.count,
+                    averageResponseTime: 0
+                )
+            }
+            .sorted { $0.name < $1.name }
+    }
+
+    private func shortName(for agencyName: String) -> String {
+        let words = agencyName
+            .split(separator: " ")
+            .filter { word in
+                !["and", "of", "the"].contains(word.lowercased())
+            }
+        let acronym = words.compactMap(\.first).map(String.init).joined()
+        return acronym.isEmpty ? agencyName : acronym
+    }
+
+    private func dataSourceErrorMessage(for error: Error) -> String {
+        guard let apiError = error as? APIError else {
+            return "Unable to refresh \(liveDataSource.name): \(error.localizedDescription)"
+        }
+
+        switch apiError {
+        case .invalidURL:
+            return "The configured \(liveDataSource.name) endpoint is invalid."
+        case .invalidResponse:
+            return "\(liveDataSource.name) returned an invalid response."
+        case .networkError(let underlyingError):
+            return "Unable to reach \(liveDataSource.name): \(underlyingError.localizedDescription)"
+        case .decodingError:
+            return "\(liveDataSource.name) changed its response shape and could not be decoded."
+        case .serverError(let statusCode, _):
+            if statusCode == 429 {
+                return "\(liveDataSource.name) rate-limited the request."
+            }
+            return "\(liveDataSource.name) returned HTTP \(statusCode)."
+        case .unauthorized:
+            return "\(liveDataSource.name) rejected the request."
+        case .notFound:
+            return "The \(liveDataSource.datasetIdentifier) dataset could not be found."
+        }
+    }
+
+    private func recoverySuggestion(for error: Error) -> String {
+        guard let apiError = error as? APIError else {
+            return "Check your network connection, then retry the refresh."
+        }
+
+        switch apiError {
+        case .networkError:
+            return "Check your network connection, then retry the refresh."
+        case .serverError(let statusCode, _) where statusCode == 429:
+            return "Wait a minute before retrying; DataSF is throttling requests."
+        case .serverError:
+            return "Retry shortly; if this persists, check DataSF service health."
+        case .decodingError:
+            return "DataSF may have changed fields. Update the decoder before relying on live monitoring."
+        case .invalidURL, .invalidResponse, .unauthorized, .notFound:
+            return "Verify the production data source configuration."
+        }
     }
 }

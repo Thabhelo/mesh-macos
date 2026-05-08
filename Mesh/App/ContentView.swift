@@ -191,6 +191,13 @@ struct DataModeControl: View {
                     .font(.system(size: 11, weight: .regular, design: .rounded))
                     .foregroundColor(MeshTheme.Colors.mutedForeground)
                     .fixedSize(horizontal: false, vertical: true)
+
+                if appState.dataMode == .live {
+                    Text("\(appState.liveDataSource.regionName) • \(appState.liveDataSource.name)")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(MeshTheme.Colors.foregroundSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
 
             Button {
@@ -345,7 +352,7 @@ struct ConnectionStatusView: View {
 
         if let error = appState.incidentRefreshError,
            appState.dataConnectionState == .error || appState.dataConnectionState == .offline {
-            return error
+            return appState.incidentRefreshRecoverySuggestion ?? error
         }
 
         guard let lastIncidentRefreshAt = appState.lastIncidentRefreshAt else {
@@ -387,6 +394,7 @@ struct ConnectionStatusView: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(MeshTheme.Colors.border, lineWidth: 1)
         )
+        .help(detailText ?? "\(appState.liveDataSource.regionName) live monitoring via \(appState.liveDataSource.name)")
     }
 }
 
@@ -417,6 +425,28 @@ struct GeneralSettingsView: View {
     
     var body: some View {
         Form {
+            Section {
+                LabeledContent("Region", value: appState.liveDataSource.regionName)
+                    .font(.system(size: 14, design: .rounded))
+
+                LabeledContent("Source", value: appState.liveDataSource.name)
+                    .font(.system(size: 14, design: .rounded))
+
+                LabeledContent("Dataset", value: appState.liveDataSource.datasetIdentifier)
+                    .font(.system(size: 14, design: .rounded))
+
+                LabeledContent("Cadence", value: appState.liveDataSource.updateCadence)
+                    .font(.system(size: 14, design: .rounded))
+
+                if let sourceDataAsOf = appState.sourceDataAsOf {
+                    LabeledContent("Source as of", value: sourceDataAsOf.formatted(date: .abbreviated, time: .shortened))
+                        .font(.system(size: 14, design: .rounded))
+                }
+            } header: {
+                Text("Live Data Source")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+            }
+
             Section {
                 Toggle("Show active incidents only", isOn: $appState.showActiveOnly)
                     .font(.system(size: 14, design: .rounded))

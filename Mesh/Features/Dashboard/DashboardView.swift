@@ -27,6 +27,17 @@ struct DashboardView: View {
                 if isLoading {
                     ProgressView("Loading incidents...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if appState.dataMode == .live,
+                          let error = appState.incidentRefreshError,
+                          appState.dataConnectionState == .offline || appState.dataConnectionState == .error {
+                    IncidentRefreshErrorState(
+                        message: error,
+                        recoverySuggestion: appState.incidentRefreshRecoverySuggestion
+                    ) {
+                        Task {
+                            await appState.refreshData()
+                        }
+                    }
                 } else if appState.filteredIncidents.isEmpty {
                     EmptyStateView(
                         icon: "checkmark.circle",
@@ -79,6 +90,41 @@ struct DashboardView: View {
             guard let selectedIncidentId else { return }
             selectedIncident = appState.incidents.first { $0.id == selectedIncidentId }
         }
+    }
+}
+
+struct IncidentRefreshErrorState: View {
+    let message: String
+    let recoverySuggestion: String?
+    let retry: () -> Void
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "wifi.exclamationmark")
+                .font(.system(size: 48))
+                .foregroundColor(.red)
+
+            Text("Live Incident Refresh Failed")
+                .font(.title3)
+                .fontWeight(.semibold)
+
+            Text(message)
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+
+            if let recoverySuggestion {
+                Text(recoverySuggestion)
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            Button("Retry Live Refresh", action: retry)
+                .buttonStyle(.borderedProminent)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
     }
 }
 

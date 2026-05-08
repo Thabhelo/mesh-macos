@@ -29,8 +29,23 @@ enum APIError: Error, LocalizedError {
     }
 }
 
+struct DataSourceInfo: Equatable {
+    let name: String
+    let regionName: String
+    let datasetIdentifier: String
+    let endpointURL: URL
+    let updateCadence: String
+}
+
 actor APIClient {
     static let shared = APIClient()
+    static let productionDataSource = DataSourceInfo(
+        name: "DataSF Dispatched Calls",
+        regionName: LocationService.activeRegionName,
+        datasetIdentifier: "gnap-fj3t",
+        endpointURL: URL(string: "https://data.sfgov.org/resource/gnap-fj3t.json")!,
+        updateCadence: "Rolling 48-hour feed"
+    )
     
     private let baseURL: URL
     private let dataSFIncidentsURL: URL
@@ -145,21 +160,15 @@ actor APIClient {
     // MARK: - Agencies
     
     func fetchAgencies() async throws -> [Agency] {
-        // For now, return sample data
-        try await Task.sleep(nanoseconds: 300_000_000)
-        return Agency.samples
-        
-        // return try await request(endpoint: "agencies")
+        // Agency metadata is derived from the live incident feed until the backend owns this endpoint.
+        return []
     }
     
     // MARK: - Districts
     
     func fetchDistricts() async throws -> [District] {
-        // For now, return sample data
-        try await Task.sleep(nanoseconds: 300_000_000)
-        return District.samples
-        
-        // return try await request(endpoint: "districts")
+        // District metadata is derived from the live incident feed until the backend owns this endpoint.
+        return []
     }
     
     // MARK: - Surge Alerts
@@ -316,6 +325,15 @@ actor APIClient {
         if normalized.contains("mta") || normalized.contains("transportation") {
             return .transit
         }
+        if normalized.contains("fire") {
+            return .fire
+        }
+        if normalized.contains("ems") || normalized.contains("medical") || normalized.contains("ambulance") {
+            return .ems
+        }
+        if normalized.contains("911") || normalized.contains("emergency management") {
+            return .emergency911
+        }
         return .police
     }
 
@@ -324,6 +342,15 @@ actor APIClient {
 
         if normalized.contains("municipal transportation") || normalized == "mta" {
             return "San Francisco Municipal Transportation Agency"
+        }
+        if normalized.contains("fire") {
+            return "San Francisco Fire Department"
+        }
+        if normalized.contains("ems") || normalized.contains("medical") || normalized.contains("ambulance") {
+            return "San Francisco EMS"
+        }
+        if normalized.contains("911") || normalized.contains("emergency management") {
+            return "San Francisco Department of Emergency Management"
         }
         if normalized.contains("sheriff") {
             return "San Francisco Sheriff's Office"

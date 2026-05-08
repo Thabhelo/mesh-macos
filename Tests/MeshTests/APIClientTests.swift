@@ -67,6 +67,33 @@ final class APIClientTests: XCTestCase {
         XCTAssertEqual(incidents.map(\.id), ["datasf:gnap-fj3t:a"])
     }
 
+    func testFetchAgenciesAndDistrictsDoNotReturnSampleFallbacks() async throws {
+        let client = APIClient(dataSFIncidentsURL: URL(string: "https://example.test/resource/gnap-fj3t.json")!)
+
+        let agencies = try await client.fetchAgencies()
+        let districts = try await client.fetchDistricts()
+
+        XCTAssertTrue(agencies.isEmpty)
+        XCTAssertTrue(districts.isEmpty)
+    }
+
+    func testFetchDataSFIncidentSnapshotMapsFireAndTransitAgencies() async throws {
+        let client = makeClient(statusCode: 200, body: dataSFResponse([
+            dataSFCall(id: "fire", priority: "B", agency: "Fire", type: "VEH FIRE", policeDistrict: "MISSION", closeDatetime: nil),
+            dataSFCall(id: "transit", priority: "C", agency: "MTA", type: "TRANSIT DELAY", policeDistrict: "CENTRAL", closeDatetime: nil)
+        ]))
+
+        let incidents = try await client.fetchDataSFIncidentSnapshot().incidents
+        let incidentsById = Dictionary(uniqueKeysWithValues: incidents.map { ($0.id, $0) })
+        let fireIncident = try XCTUnwrap(incidentsById["datasf:gnap-fj3t:fire"])
+        let transitIncident = try XCTUnwrap(incidentsById["datasf:gnap-fj3t:transit"])
+
+        XCTAssertEqual(fireIncident.agencyType, .fire)
+        XCTAssertEqual(fireIncident.agencyName, "San Francisco Fire Department")
+        XCTAssertEqual(transitIncident.agencyType, .transit)
+        XCTAssertEqual(transitIncident.agencyName, "San Francisco Municipal Transportation Agency")
+    }
+
     func testFetchDataSFIncidentSnapshotMapsHTTPAndDecodingErrors() async throws {
         let serverClient = makeClient(statusCode: 503, body: #"{"error":"down"}"#)
 
