@@ -101,7 +101,7 @@ struct IncidentRefreshErrorState: View {
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "wifi.exclamationmark")
-                .font(.system(size: 48))
+                .font(.system(size: 34))
                 .foregroundColor(.red)
 
             Text("Live Incident Refresh Failed")
@@ -585,7 +585,7 @@ struct EmptyStateView: View {
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: icon)
-                .font(.system(size: 48))
+                .font(.system(size: 34))
                 .foregroundColor(.secondary)
             
             Text(title)

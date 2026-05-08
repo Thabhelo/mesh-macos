@@ -92,20 +92,20 @@ struct MeshTheme {
             .custom(name, size: size)
         }
 
-        static let display = plex(PlexSans.bold, size: 54)
-        static let title = plex(PlexSans.bold, size: 34)
-        static let title2 = plex(PlexSans.semibold, size: 26)
-        static let title3 = plex(PlexSans.semibold, size: 21)
-        static let headline = plex(PlexSans.semibold, size: 17)
-        static let body = plex(PlexSans.regular, size: 14)
-        static let bodySemibold = plex(PlexSans.semibold, size: 14)
-        static let callout = plex(PlexSans.medium, size: 13)
-        static let caption = plex(PlexSans.medium, size: 12)
-        static let micro = plex(PlexSans.medium, size: 10)
+        static let display = plex(PlexSans.bold, size: 34)
+        static let title = plex(PlexSans.bold, size: 22)
+        static let title2 = plex(PlexSans.semibold, size: 17)
+        static let title3 = plex(PlexSans.semibold, size: 14)
+        static let headline = plex(PlexSans.semibold, size: 14)
+        static let body = plex(PlexSans.regular, size: 12)
+        static let bodySemibold = plex(PlexSans.semibold, size: 12)
+        static let callout = plex(PlexSans.medium, size: 11)
+        static let caption = plex(PlexSans.medium, size: 10)
+        static let micro = plex(PlexSans.medium, size: 9)
         static let sectionLabel = plex(PlexSans.semibold, size: 10)
-        static let metricLarge = plex(PlexSans.bold, size: 34)
-        static let metricSmall = plex(PlexSans.bold, size: 22)
-        static let metricTiny = plex(PlexSans.semibold, size: 14)
+        static let metricLarge = plex(PlexSans.bold, size: 22)
+        static let metricSmall = plex(PlexSans.bold, size: 16)
+        static let metricTiny = plex(PlexSans.semibold, size: 12)
 
         static let displayFont = display
         static let titleFont = title
@@ -113,7 +113,7 @@ struct MeshTheme {
         static let title3Font = title3
         static let headlineFont = headline
         static let bodyFont = body
-        static let bodyLarge = plex(PlexSans.regular, size: 16)
+        static let bodyLarge = plex(PlexSans.regular, size: 13)
         static let calloutFont = callout
         static let captionFont = caption
         static let caption2Font = micro

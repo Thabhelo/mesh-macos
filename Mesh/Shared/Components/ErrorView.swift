@@ -12,15 +12,14 @@ struct ErrorView: View {
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 48))
+                .font(.system(size: 34))
                 .foregroundColor(.red)
             
             Text("Something went wrong")
-                .font(.title3)
-                .fontWeight(.semibold)
+                .font(MeshTheme.Typography.title3)
             
             Text(error.localizedDescription)
-                .font(.body)
+                .font(MeshTheme.Typography.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
@@ -45,15 +44,14 @@ struct NetworkErrorView: View {
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "wifi.slash")
-                .font(.system(size: 48))
+                .font(.system(size: 34))
                 .foregroundColor(.orange)
             
             Text("Connection Lost")
-                .font(.title3)
-                .fontWeight(.semibold)
+                .font(MeshTheme.Typography.title3)
             
             Text("Unable to connect to Mesh servers. Please check your network connection and try again.")
-                .font(.body)
+                .font(MeshTheme.Typography.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)

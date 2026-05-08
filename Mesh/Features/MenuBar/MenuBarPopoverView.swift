@@ -33,7 +33,7 @@ struct MenuBarPopoverView: View {
             // Actions
             MenuBarActions()
         }
-        .frame(width: 340)
+        .frame(width: 310)
         .background(Color.white)
         .preferredColorScheme(.light)
     }
@@ -52,7 +52,7 @@ struct MenuBarHeader: View {
                         .frame(width: 32, height: 32)
                     
                     Image(systemName: "shield.checkered")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(MeshTheme.Typography.headline)
                         .foregroundColor(.white)
                 }
                 
@@ -77,7 +77,7 @@ struct MenuBarHeader: View {
             // System status indicator
             HStack(spacing: 5) {
                 Image(systemName: appState.systemStatus.icon)
-                    .font(.system(size: 12))
+                    .font(MeshTheme.Typography.caption)
                     .foregroundColor(appState.systemStatus.color)
                 Text(appState.systemStatus.rawValue)
                     .font(MeshTheme.Typography.captionFont)
@@ -136,11 +136,12 @@ struct QuickStatItem: View {
         VStack(spacing: 4) {
             HStack(spacing: 4) {
                 Image(systemName: icon)
-                    .font(.system(size: 12))
+                    .font(MeshTheme.Typography.caption)
                     .foregroundColor(color)
                 Text(value)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(MeshTheme.Typography.metricSmall)
                     .foregroundColor(MeshTheme.Colors.foreground)
+                    .monospacedDigit()
             }
             
             Text(label)
@@ -183,7 +184,7 @@ struct MenuBarRecentIncidents: View {
                     Spacer()
                     VStack(spacing: 6) {
                         Image(systemName: "checkmark.circle")
-                            .font(.system(size: 20))
+                            .font(MeshTheme.Typography.title3)
                             .foregroundColor(.green)
                         Text("No active incidents")
                             .font(MeshTheme.Typography.captionFont)
@@ -215,7 +216,7 @@ struct MenuBarIncidentRow: View {
     var body: some View {
         HStack(spacing: MeshTheme.Spacing.sm) {
             Image(systemName: incident.agencyType.icon)
-                .font(.system(size: 13))
+                .font(MeshTheme.Typography.callout)
                 .foregroundColor(incident.agencyType.color)
                 .frame(width: 22)
             
@@ -259,7 +260,7 @@ struct MenuBarSurgeAlerts: View {
         VStack(alignment: .leading, spacing: MeshTheme.Spacing.sm) {
             HStack(spacing: 6) {
                 Image(systemName: "chart.line.uptrend.xyaxis")
-                    .font(.system(size: 12))
+                    .font(MeshTheme.Typography.caption)
                     .foregroundColor(.orange)
                 
                 Text("Surge Alerts")
@@ -282,10 +283,10 @@ struct MenuBarSurgeAlerts: View {
                     
                     HStack(spacing: 4) {
                         Image(systemName: alert.trend.icon)
-                            .font(.system(size: 10))
+                            .font(MeshTheme.Typography.micro)
                         Text("+\(Int(alert.percentageIncrease))%")
-                            .font(MeshTheme.Typography.captionFont)
-                            .fontWeight(.semibold)
+                            .font(MeshTheme.Typography.caption)
+                            .monospacedDigit()
                     }
                     .foregroundColor(alert.severity.color)
                 }
@@ -315,7 +316,7 @@ struct MenuBarActions: View {
             } label: {
                 HStack {
                     Image(systemName: "macwindow")
-                        .font(.system(size: 13))
+                        .font(MeshTheme.Typography.callout)
                         .foregroundColor(MeshTheme.Colors.foreground)
                     Text("Open Dashboard")
                         .font(MeshTheme.Typography.bodyFont)
@@ -340,7 +341,7 @@ struct MenuBarActions: View {
             } label: {
                 HStack {
                     Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 13))
+                        .font(MeshTheme.Typography.callout)
                         .foregroundColor(MeshTheme.Colors.foreground)
                     Text("Refresh Data")
                         .font(MeshTheme.Typography.bodyFont)
@@ -367,7 +368,7 @@ struct MenuBarActions: View {
             } label: {
                 HStack {
                     Image(systemName: "gear")
-                        .font(.system(size: 13))
+                        .font(MeshTheme.Typography.callout)
                         .foregroundColor(MeshTheme.Colors.foreground)
                     Text("Settings")
                         .font(MeshTheme.Typography.bodyFont)
@@ -390,7 +391,7 @@ struct MenuBarActions: View {
             } label: {
                 HStack {
                     Image(systemName: "power")
-                        .font(.system(size: 13))
+                        .font(MeshTheme.Typography.callout)
                         .foregroundColor(MeshTheme.Colors.danger)
                     Text("Quit Mesh")
                         .font(MeshTheme.Typography.bodyFont)
@@ -419,7 +420,7 @@ struct MenuBarIconView: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: "shield.checkered")
-                .font(.system(size: 14))
+                .font(MeshTheme.Typography.callout)
             
             if appState.systemStatus != .normal {
                 Circle()

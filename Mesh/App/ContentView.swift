@@ -164,7 +164,7 @@ struct AppSidebar: View {
             }
         }
         .listStyle(.sidebar)
-        .frame(minWidth: 260)
+        .frame(minWidth: 224, idealWidth: 232)
         .background(Color.white.opacity(0.6))
     }
 }
@@ -217,7 +217,7 @@ struct OperationalMetricCard: View {
                     .monospacedDigit()
             }
             .padding(.horizontal, 10)
-            .padding(.vertical, 9)
+            .padding(.vertical, 7)
             .background(
                 RoundedRectangle(cornerRadius: 14)
                     .fill(isSelected ? Color.white.opacity(0.92) : Color.white.opacity(0.55))

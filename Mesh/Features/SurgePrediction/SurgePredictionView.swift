@@ -113,7 +113,8 @@ struct SurgeHeaderView: View {
                 }
             }
             .pickerStyle(.segmented)
-            .frame(width: 200)
+            .labelsHidden()
+            .frame(width: 180)
         }
         .padding()
         .background(Color(nsColor: .windowBackgroundColor))

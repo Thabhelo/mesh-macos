@@ -71,6 +71,7 @@ final class MeshBackendContractTests: XCTestCase {
         XCTAssertEqual(incident.type, "Traffic Collision")
         XCTAssertEqual(incident.status, "Responding")
         XCTAssertEqual(incident.severity, 4)
+        XCTAssertEqual(incident.address, "I-80 W at 5th St")
         XCTAssertEqual(incident.sourceDistrictTuple, "southern:Southern")
         XCTAssertEqual(snapshot.sourceDataAsOf, DataSFNormalizer.parseDataSFDate("2024-05-15T12:03:00.000"))
     }
@@ -171,7 +172,7 @@ final class MeshBackendContractTests: XCTestCase {
             "agency": "Police",
             "disposition": "REP",
             "sensitive_call": false,
-            "intersection_name": "I-80 W at 5th St",
+            "intersection_name": "I-80 W AT 5TH ST",
             "intersection_point": {"type":"Point","coordinates":[-122.3915,37.7898]},
             "analysis_neighborhood": "South of Market",
             "police_district": "SOUTHERN",

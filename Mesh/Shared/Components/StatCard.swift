@@ -56,7 +56,7 @@ struct StatCard: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: icon)
-                    .font(.title3)
+                    .font(MeshTheme.Typography.title3)
                     .foregroundColor(iconColor)
                 
                 Spacer()
@@ -64,9 +64,9 @@ struct StatCard: View {
                 if let trend = trend {
                     HStack(spacing: 4) {
                         Image(systemName: trend.icon)
-                            .font(.caption)
+                            .font(MeshTheme.Typography.caption)
                         Text(trend.value)
-                            .font(.caption)
+                            .font(MeshTheme.Typography.caption)
                     }
                     .foregroundColor(trend.color)
                 }
@@ -74,16 +74,16 @@ struct StatCard: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(value)
-                    .font(.title)
-                    .fontWeight(.bold)
+                    .font(MeshTheme.Typography.metricSmall)
+                    .monospacedDigit()
                 
                 Text(title)
-                    .font(.subheadline)
+                    .font(MeshTheme.Typography.body)
                     .foregroundColor(.secondary)
                 
                 if let subtitle = subtitle {
                     Text(subtitle)
-                        .font(.caption)
+                        .font(MeshTheme.Typography.caption)
                         .foregroundColor(.secondary)
                 }
             }
@@ -102,12 +102,12 @@ struct MiniStatCard: View {
     var body: some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.headline)
-                .fontWeight(.bold)
+                .font(MeshTheme.Typography.headline)
+                .monospacedDigit()
                 .foregroundColor(color)
             
             Text(title)
-                .font(.caption2)
+                .font(MeshTheme.Typography.micro)
                 .foregroundColor(.secondary)
         }
         .padding(.horizontal, 12)

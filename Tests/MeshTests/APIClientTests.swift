@@ -47,6 +47,7 @@ final class APIClientTests: XCTestCase {
         XCTAssertEqual(incident.severity, .critical)
         XCTAssertEqual(incident.location.latitude, 37.7898, accuracy: 0.0001)
         XCTAssertEqual(incident.location.longitude, -122.3915, accuracy: 0.0001)
+        XCTAssertEqual(incident.address, "I-80 W at 5th St")
         XCTAssertEqual(result.sourceDataAsOf, dataSFDate("2024-05-15T12:03:00.000"))
         XCTAssertEqual(result.sourceDataLoadedAt, dataSFDate("2024-05-15T12:04:00.000"))
     }
@@ -292,7 +293,7 @@ final class APIClientTests: XCTestCase {
           "agency": "\(agency)",
           "disposition": "REP",
           "sensitive_call": false,
-          "intersection_name": "I-80 W at 5th St",
+          "intersection_name": "I-80 W AT 5TH ST",
           "intersection_point": \(pointValue),
           "supervisor_district": "6",
           "analysis_neighborhood": "South of Market",

@@ -42,7 +42,7 @@ struct WelcomeNavBar: View {
     @EnvironmentObject var appState: AppState
     @State private var isHoveringEnter = false
     
-    private let navHeight: CGFloat = 64
+    private let navHeight: CGFloat = 56
     
     var body: some View {
         HStack(spacing: 0) {
@@ -54,12 +54,12 @@ struct WelcomeNavBar: View {
                         .frame(width: 38, height: 38)
                     
                     Image(systemName: "shield.checkered")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(MeshTheme.Typography.headline)
                         .foregroundColor(.white)
                 }
                 
                 Text("Mesh")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .font(MeshTheme.Typography.title2)
                     .foregroundColor(MeshTheme.Colors.foreground)
             }
             
@@ -73,13 +73,13 @@ struct WelcomeNavBar: View {
             } label: {
                 HStack(spacing: 8) {
                     Text("Enter Dashboard")
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .font(MeshTheme.Typography.callout)
                     Image(systemName: "arrow.right")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(MeshTheme.Typography.callout)
                 }
                 .foregroundColor(.white)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 9)
                 .background(
                     MeshTheme.Colors.primaryGradient
                 )
@@ -99,7 +99,7 @@ struct WelcomeNavBar: View {
                 }
             }
         }
-        .padding(.horizontal, 48)
+        .padding(.horizontal, 36)
         .frame(height: navHeight)
         .background(
             ZStack {
@@ -220,7 +220,7 @@ struct HeroSection: View {
                 )
             
             Text("Now Monitoring Public Safety in San Francisco")
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .font(MeshTheme.Typography.caption)
                 .foregroundColor(MeshTheme.Colors.primary)
         }
         .padding(.horizontal, 16)
@@ -239,19 +239,19 @@ struct HeroSection: View {
     private var titleSection: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Real-Time Public Safety")
-                .font(.system(size: 56, weight: .bold, design: .rounded))
+                .font(MeshTheme.Typography.display)
                 .foregroundColor(MeshTheme.Colors.foreground)
                 .lineSpacing(4)
             
             Text("Interoperability")
-                .font(.system(size: 56, weight: .bold, design: .rounded))
+                .font(MeshTheme.Typography.display)
                 .foregroundStyle(MeshTheme.Colors.primaryGradient)
         }
     }
     
     private var descriptionText: some View {
         Text("Mesh unifies fragmented emergency response across fire, police, EMS, and emergency management with real-time operational intelligence that saves lives.")
-            .font(.system(size: 18, weight: .regular, design: .rounded))
+            .font(MeshTheme.Typography.bodyLarge)
             .foregroundColor(MeshTheme.Colors.foregroundSecondary)
             .lineSpacing(8)
             .frame(maxWidth: 480, alignment: .leading)
@@ -267,9 +267,9 @@ struct HeroSection: View {
             } label: {
                 HStack(spacing: 10) {
                     Text("Enter Dashboard")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(MeshTheme.Typography.headline)
                     Image(systemName: "arrow.right")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(MeshTheme.Typography.callout)
                 }
                 .foregroundColor(.white)
                 .padding(.horizontal, 28)
@@ -298,7 +298,7 @@ struct HeroSection: View {
                 }
             } label: {
                 Text("Learn More")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(MeshTheme.Typography.headline)
                     .foregroundColor(MeshTheme.Colors.foreground)
                     .padding(.horizontal, 28)
                     .padding(.vertical, 16)
@@ -477,14 +477,14 @@ struct WelcomeFooter: View {
         HStack(spacing: 0) {
             // Copyright
             Text("© 2025 Mesh Platform")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(MeshTheme.Typography.caption)
                 .foregroundColor(MeshTheme.Colors.mutedForeground)
             
             Text(" • ")
                 .foregroundColor(MeshTheme.Colors.mutedForeground)
             
             Text("San Francisco, California")
-                .font(.system(size: 13, weight: .regular, design: .rounded))
+                .font(MeshTheme.Typography.caption)
                 .foregroundColor(MeshTheme.Colors.mutedForeground)
             
             Spacer()
@@ -527,7 +527,7 @@ struct FooterLink: View {
             }
         } label: {
             Text(text)
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(MeshTheme.Typography.caption)
                 .foregroundColor(isHovered ? MeshTheme.Colors.primary : MeshTheme.Colors.foregroundSecondary)
                 .underline(isHovered)
         }

@@ -358,6 +358,7 @@ actor APIClient {
         let type = normalizeCallType(rawType)
         let agencyName = normalizeAgencyName(call.agency)
         let districtName = call.policeDistrict ?? call.analysisNeighborhood ?? LocationService.activeRegionName
+        let address = normalizedDisplayAddress(call.intersectionName ?? call.analysisNeighborhood ?? LocationService.activeRegionName)
         let priority = call.priorityFinal ?? call.priorityOriginal
         let status = normalizeStatus(for: call)
 
@@ -373,7 +374,7 @@ actor APIClient {
             status: status,
             severity: normalizeSeverity(priority),
             location: Incident.Location(latitude: coordinate.latitude, longitude: coordinate.longitude),
-            address: call.intersectionName ?? call.analysisNeighborhood ?? LocationService.activeRegionName,
+            address: address,
             reportedAt: reportedAt,
             updatedAt: updatedAt,
             respondingUnits: [],
@@ -514,6 +515,39 @@ actor APIClient {
                 return word.prefix(1).uppercased() + word.dropFirst()
             }
             .joined(separator: " ")
+    }
+
+    private func normalizedDisplayAddress(_ value: String) -> String {
+        value
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .split(separator: " ")
+            .map(normalizedAddressToken)
+            .joined(separator: " ")
+    }
+
+    private func normalizedAddressToken(_ token: Substring) -> String {
+        let rawToken = String(token)
+        let leading = rawToken.prefix { !$0.isLetter && !$0.isNumber }
+        let trailing = rawToken.reversed().prefix { !$0.isLetter && !$0.isNumber }.reversed()
+        let core = rawToken.dropFirst(leading.count).dropLast(trailing.count)
+
+        guard !core.isEmpty else { return rawToken }
+
+        let lowercased = core.lowercased()
+        let normalizedCore: String
+        if ["n", "s", "e", "w", "ne", "nw", "se", "sw"].contains(lowercased) {
+            normalizedCore = lowercased.uppercased()
+        } else if lowercased.hasPrefix("i-") || lowercased.hasPrefix("us-") || lowercased.hasPrefix("ca-") {
+            normalizedCore = lowercased.uppercased()
+        } else if ["at", "and", "of"].contains(lowercased) {
+            normalizedCore = lowercased
+        } else if lowercased.allSatisfy({ $0.isNumber || $0.isLetter }), lowercased.contains(where: \.isNumber) {
+            normalizedCore = lowercased
+        } else {
+            normalizedCore = lowercased.prefix(1).uppercased() + lowercased.dropFirst()
+        }
+
+        return "\(String(leading))\(normalizedCore)\(String(trailing))"
     }
 
     private func normalizedIdentifier(_ value: String) -> String {
