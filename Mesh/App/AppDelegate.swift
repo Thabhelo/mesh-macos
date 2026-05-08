@@ -18,9 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     
     func applicationWillTerminate(_ notification: Notification) {
         // Clean up polling and any legacy WebSocket connections
-        Task { @MainActor in
-            AppState.shared.stopIncidentPolling()
-        }
+        stopIncidentPollingSynchronously()
         WebSocketService.shared.disconnect()
     }
     
@@ -49,6 +47,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         await AppState.shared.loadInitialData()
         await AppState.shared.startIncidentPolling()
     }
+
+    private func stopIncidentPollingSynchronously() {
+        let stopPolling = {
+            MainActor.assumeIsolated {
+                AppState.shared.stopIncidentPolling()
+            }
+        }
+
+        if Thread.isMainThread {
+            stopPolling()
+        } else {
+            DispatchQueue.main.sync(execute: stopPolling)
+        }
+    }
     
     // MARK: - UNUserNotificationCenterDelegate
     
@@ -66,14 +78,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         let userInfo = response.notification.request.content.userInfo
         
         if let incidentId = userInfo["incidentId"] as? String {
-            // Navigate to the incident
+            // Schedule UI navigation, then finish the notification delegate callback synchronously.
             Task { @MainActor in
                 AppState.shared.selectedIncidentId = incidentId
                 AppState.shared.selectedTab = .dashboard
             }
         }
-        
+
         completionHandler()
     }
 }
-
