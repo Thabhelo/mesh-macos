@@ -111,6 +111,23 @@ final class APIClientTests: XCTestCase {
         XCTAssertEqual(MockURLProtocol.requests.map { $0.url?.host }, ["api.example.test", "data.example.test"])
     }
 
+    func testFetchIncidentSnapshotUsesDataSFWhenBackendURLIsNotConfigured() async throws {
+        let client = makeClient(
+            statusCode: 200,
+            body: dataSFResponse([
+                dataSFCall(id: "direct", priority: "A", agency: "Police", type: "TRAF COLLISION", policeDistrict: "SOUTHERN", closeDatetime: nil)
+            ]),
+            baseURL: nil
+        )
+
+        let snapshot = try await client.fetchIncidentSnapshotWithSource(limit: 25)
+
+        XCTAssertEqual(snapshot.dataSource, .dataSFDevelopmentFallback)
+        XCTAssertEqual(snapshot.fallbackReason, "Mesh backend URL is not configured.")
+        XCTAssertEqual(snapshot.fetchResult.incidents.map(\.id), ["datasf:gnap-fj3t:direct"])
+        XCTAssertEqual(MockURLProtocol.requests.map { $0.url?.path }, ["/resource/gnap-fj3t.json"])
+    }
+
     func testFetchAgenciesAndDistrictsDoNotReturnSampleFallbacks() async throws {
         let client = APIClient(dataSFIncidentsURL: URL(string: "https://example.test/resource/gnap-fj3t.json")!)
 
@@ -172,12 +189,17 @@ final class APIClientTests: XCTestCase {
         XCTAssertEqual(result.incidents.map(\.id), ["datasf:gnap-fj3t:valid"])
     }
 
-    private func makeClient(statusCode: Int, body: String) -> APIClient {
+    private func makeClient(
+        statusCode: Int,
+        body: String,
+        baseURL: URL? = URL(string: "https://example.test/v1")!
+    ) -> APIClient {
         MockURLProtocol.enqueue(statusCode: statusCode, body: body)
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [MockURLProtocol.self]
         let session = URLSession(configuration: configuration)
         return APIClient(
+            baseURL: baseURL,
             dataSFIncidentsURL: URL(string: "https://example.test/resource/gnap-fj3t.json")!,
             session: session,
             now: { self.fetchedAt }

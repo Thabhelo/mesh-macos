@@ -33,7 +33,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             DispatchQueue.main.async {
                 AppState.shared.notificationsEnabled = granted
-                if !granted, let error {
+                if !granted, let error, error.localizedDescription != "Notifications are not allowed for this application" {
                     #if DEBUG
                     print("Notifications disabled: \(error.localizedDescription)")
                     #endif

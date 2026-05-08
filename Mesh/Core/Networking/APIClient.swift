@@ -58,7 +58,7 @@ actor APIClient {
         updateCadence: "Rolling 48-hour feed"
     )
     
-    private let baseURL: URL
+    private let baseURL: URL?
     private let dataSFIncidentsURL: URL
     private let session: URLSession
     private let decoder: JSONDecoder
@@ -67,7 +67,7 @@ actor APIClient {
     private let allowsDevelopmentDataSFFallback: Bool
     
     init(
-        baseURL: URL = URL(string: "https://api.mesh-platform.com/v1")!,
+        baseURL: URL? = APIClient.defaultBackendBaseURL(),
         dataSFIncidentsURL: URL = URL(string: "https://data.sfgov.org/resource/gnap-fj3t.json")!,
         session: URLSession = APIClient.defaultSession(),
         now: @escaping () -> Date = Date.init,
@@ -86,6 +86,13 @@ actor APIClient {
         self.encoder.dateEncodingStrategy = .iso8601
     }
 
+    private static func defaultBackendBaseURL() -> URL? {
+        guard let value = ProcessInfo.processInfo.environment["MESH_BACKEND_BASE_URL"], !value.isEmpty else {
+            return nil
+        }
+        return URL(string: value)
+    }
+
     private static func defaultSession() -> URLSession {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
@@ -101,6 +108,10 @@ actor APIClient {
         body: Encodable? = nil,
         queryItems: [URLQueryItem]? = nil
     ) async throws -> T {
+        guard let baseURL else {
+            throw APIError.invalidURL
+        }
+
         var urlComponents = URLComponents(url: baseURL.appendingPathComponent(endpoint), resolvingAgainstBaseURL: true)
         urlComponents?.queryItems = queryItems
         
@@ -211,6 +222,14 @@ actor APIClient {
     }
 
     func fetchIncidentSnapshotWithSource(limit: Int = 500) async throws -> IncidentSnapshotResult {
+        guard baseURL != nil else {
+            return IncidentSnapshotResult(
+                fetchResult: try await fetchDataSFIncidentSnapshot(limit: limit),
+                dataSource: .dataSFDevelopmentFallback,
+                fallbackReason: "Mesh backend URL is not configured."
+            )
+        }
+
         do {
             return IncidentSnapshotResult(
                 fetchResult: try await fetchBackendIncidentSnapshot(limit: limit),

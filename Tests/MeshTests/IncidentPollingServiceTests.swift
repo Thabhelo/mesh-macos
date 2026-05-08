@@ -68,6 +68,7 @@ final class IncidentPollingServiceTests: XCTestCase {
         configuration.protocolClasses = [PollingMockURLProtocol.self]
         let session = URLSession(configuration: configuration)
         return APIClient(
+            baseURL: URL(string: "https://example.test/v1")!,
             dataSFIncidentsURL: URL(string: "https://example.test/resource/gnap-fj3t.json")!,
             session: session,
             now: { PollingMockURLProtocol.fetchDates.removeFirst() }
