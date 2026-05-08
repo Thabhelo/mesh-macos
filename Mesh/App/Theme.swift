@@ -81,7 +81,7 @@ struct MeshTheme {
                 "IBMPlexSans-SemiBold",
                 "IBMPlexSans-Bold"
             ].forEach { fileName in
-                guard let url = Bundle.module.url(forResource: fileName, withExtension: "ttf", subdirectory: "Fonts") else {
+                guard let url = Bundle.main.url(forResource: fileName, withExtension: "ttf", subdirectory: "Fonts") else {
                     return
                 }
                 CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
