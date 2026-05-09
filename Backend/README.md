@@ -99,10 +99,42 @@ swift test
 
 ## Deployment Notes
 
-The service is a Swift executable with no third-party dependencies. A production deployment should:
+The server uses **SwiftNIO** and runs on **Linux** (e.g. Ubuntu on a VPS) and **macOS**. You do **not** need your own hardware—only a cloud VM or container host.
+
+### Quick path: Docker (CLI-friendly)
+
+From the repository root:
+
+```bash
+docker build -t mesh-backend .
+docker run --rm -p 8080:8080 \
+  -e PORT=8080 \
+  -e MESH_BACKEND_SNAPSHOT_PATH=/data/incidents.json \
+  -v mesh-snapshot:/data \
+  mesh-backend
+curl -s http://127.0.0.1:8080/v1/health
+```
+
+Put **Caddy**, **nginx**, or a platform load balancer in front for **HTTPS** and point **`api.meshofdata.org`** at it.
+
+### Bare binary on Linux (Swift installed on the VPS)
+
+```bash
+git clone <repo> && cd mesh-macos
+swift build -c release --product MeshBackend
+sudo mkdir -p /var/lib/mesh-backend
+export PORT=8080
+export MESH_BACKEND_SNAPSHOT_PATH=/var/lib/mesh-backend/incidents.json
+./.build/release/MeshBackend
+```
+
+Use **systemd** (or Docker restart policy) so the process survives reboots.
+
+### Production checklist
 
 - Set `PORT` from the platform runtime.
-- Set `MESH_BACKEND_SNAPSHOT_PATH` to durable storage.
+- Set `MESH_BACKEND_SNAPSHOT_PATH` to durable storage (volume or disk path).
 - Keep the process alive so the built-in 10-minute ingestion cadence continues to run.
-- Add TLS, request authentication, structured log shipping, and process supervision at the hosting layer.
+- Terminate **TLS** at the reverse proxy or platform edge; MeshBackend speaks plain HTTP on `PORT`.
+- Add structured log shipping and alerts when you outgrow stdout-only ops.
 - Put the service behind `https://api.meshofdata.org/v1` before removing local-development overrides.

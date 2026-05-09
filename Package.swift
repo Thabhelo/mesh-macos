@@ -9,9 +9,12 @@ let package = Package(
     products: [
         .executable(name: "Mesh", targets: ["Mesh"]),
         .executable(name: "MeshBackend", targets: ["MeshBackend"]),
-        .library(name: "MeshBackendCore", targets: ["MeshBackendCore"])
+        .library(name: "MeshBackendCore", targets: ["MeshBackendCore"]),
+        .library(name: "MeshBackendLib", targets: ["MeshBackendLib"])
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.62.0")
+    ],
     targets: [
         .executableTarget(
             name: "Mesh",
@@ -30,9 +33,19 @@ let package = Package(
             dependencies: [],
             path: "Backend/Sources/MeshBackendCore"
         ),
+        .target(
+            name: "MeshBackendLib",
+            dependencies: [
+                "MeshBackendCore",
+                .product(name: "NIOCore", package: "swift-nio"),
+                .product(name: "NIOPosix", package: "swift-nio"),
+                .product(name: "NIOHTTP1", package: "swift-nio")
+            ],
+            path: "Backend/Sources/MeshBackendLib"
+        ),
         .executableTarget(
             name: "MeshBackend",
-            dependencies: ["MeshBackendCore"],
+            dependencies: ["MeshBackendLib"],
             path: "Backend/Sources/MeshBackend"
         ),
         .testTarget(

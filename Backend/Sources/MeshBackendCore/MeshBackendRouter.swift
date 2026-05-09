@@ -1,6 +1,6 @@
 import Foundation
 
-public struct HTTPResponse: Equatable {
+public struct HTTPResponse: Equatable, Sendable {
     public let statusCode: Int
     public let headers: [String: String]
     public let body: Data
@@ -92,12 +92,12 @@ public actor MeshBackendStore {
     }
 }
 
-public struct MeshBackendRouter {
+public struct MeshBackendRouter: Sendable {
     private let store: MeshBackendStore
-    private let now: () -> Date
+    private let now: @Sendable () -> Date
     private let encoder: JSONEncoder
 
-    public init(store: MeshBackendStore, now: @escaping () -> Date = Date.init) {
+    public init(store: MeshBackendStore, now: @escaping @Sendable () -> Date = { Date() }) {
         self.store = store
         self.now = now
         self.encoder = JSONEncoder()

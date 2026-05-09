@@ -1,0 +1,9 @@
+.git
+.github
+.build
+**/DerivedData
+Mesh.xcodeproj
+*.xcworkspace
+.cursor
+**/.DS_Store
+.mesh-backend
