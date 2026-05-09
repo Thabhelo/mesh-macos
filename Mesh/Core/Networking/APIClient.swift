@@ -1,4 +1,5 @@
 import Foundation
+import MeshBackendCore
 
 enum APIError: Error, LocalizedError {
     case invalidURL
@@ -199,20 +200,42 @@ actor APIClient {
     // MARK: - Surge Alerts
     
     func fetchSurgeAlerts() async throws -> [SurgeAlert] {
-        // Surge alerts are derived in AppState from the live incident snapshot until the backend owns this endpoint.
-        return []
+        guard baseURL != nil else {
+            return []
+        }
+        let envelope: MeshBackendEnvelope<[SurgeAlertWire]> = try await request(
+            endpoint: "surge-alerts",
+            queryItems: [URLQueryItem(name: "regionId", value: "san-francisco")]
+        )
+        return envelope.data.map(SurgeAlert.init(wire:))
     }
-    
+
     func fetchSurgeTrendData(districtId: String, hours: Int = 24) async throws -> [SurgeTrendDataPoint] {
-        // Surge trend charts are derived from the current live incident snapshot in the UI.
-        return []
+        guard baseURL != nil else {
+            return []
+        }
+        let envelope: MeshBackendEnvelope<[SurgeTrendPointWire]> = try await request(
+            endpoint: "surge-trends",
+            queryItems: [
+                URLQueryItem(name: "regionId", value: "san-francisco"),
+                URLQueryItem(name: "districtId", value: districtId),
+                URLQueryItem(name: "hours", value: String(hours))
+            ]
+        )
+        return envelope.data.map(SurgeTrendDataPoint.init(wire:))
     }
-    
+
     // MARK: - Hazard Score
-    
+
     func fetchHazardScore() async throws -> HazardScore {
-        // Hazard scoring is derived in AppState from incidents and surge signals until the backend owns this endpoint.
-        return OperationalIntelligenceService.deriveHazardScore(incidents: [], districts: [], surgeAlerts: [])
+        guard baseURL != nil else {
+            return OperationalIntelligenceService.deriveHazardScore(incidents: [], districts: [], surgeAlerts: [])
+        }
+        let envelope: MeshBackendEnvelope<HazardScoreWire> = try await request(
+            endpoint: "hazard-score",
+            queryItems: [URLQueryItem(name: "regionId", value: "san-francisco")]
+        )
+        return HazardScore(wire: envelope.data)
     }
 
     // MARK: - DataSF Incidents

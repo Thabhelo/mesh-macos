@@ -1,4 +1,5 @@
 import Foundation
+import MeshBackendCore
 import SwiftUI
 
 struct HazardScore: Identifiable, Codable, Equatable {
@@ -122,6 +123,44 @@ struct HazardScore: Identifiable, Codable, Equatable {
 // MARK: - Sample Data
 
 extension HazardScore {
+    init(wire: HazardScoreWire) {
+        self.init(
+            id: wire.id,
+            overallScore: wire.overallScore,
+            lastUpdated: wire.lastUpdated,
+            components: HazardComponents(
+                weather: Self.mapComponent(wire.components.weather),
+                traffic: Self.mapComponent(wire.components.traffic),
+                incidentActivity: Self.mapComponent(wire.components.incidentActivity),
+                infrastructureOutages: Self.mapComponent(wire.components.infrastructureOutages),
+                specialEvents: Self.mapComponent(wire.components.specialEvents)
+            ),
+            historicalComparison: HistoricalComparison(
+                yesterdayScore: wire.historicalComparison.yesterdayScore,
+                lastWeekAverage: wire.historicalComparison.lastWeekAverage,
+                lastMonthAverage: wire.historicalComparison.lastMonthAverage
+            ),
+            districtScores: wire.districtScores.map {
+                DistrictHazardScore(
+                    id: $0.id,
+                    districtId: $0.districtId,
+                    districtName: $0.districtName,
+                    score: $0.score,
+                    primaryRisk: $0.primaryRisk
+                )
+            }
+        )
+    }
+
+    private static func mapComponent(_ wire: HazardScoreWire.ComponentScoreWire) -> ComponentScore {
+        ComponentScore(
+            score: wire.score,
+            weight: wire.weight,
+            trend: ComponentScore.Trend(rawValue: wire.trend.rawValue) ?? .stable,
+            details: wire.details
+        )
+    }
+
     static let sample = HazardScore(
         id: "HS-001",
         overallScore: 58,

@@ -183,7 +183,7 @@ Additional cities should be added as separate provider/data-access efforts once 
 The Mesh API endpoint is configured in `Core/Networking/APIClient.swift` and should point at the backend endpoints defined in `Backend/openapi/mesh-api-v1.yaml`:
 
 ```swift
-self.baseURL = URL(string: "https://api.mesh-platform.com/v1")!
+self.baseURL = URL(string: "https://api.meshofdata.org/v1")!
 ```
 
 ### Local Backend
@@ -205,7 +205,7 @@ The backend DataSF source endpoint is retained in `Core/Networking/APIClient.swi
 The legacy WebSocket endpoint is configured in `Core/Networking/WebSocketService.swift`, but it is not part of the production incident pipeline:
 
 ```swift
-private let baseURL = URL(string: "wss://api.mesh-platform.com/ws")!
+private let baseURL = URL(string: "wss://api.meshofdata.org/ws")!
 ```
 
 ## Testing

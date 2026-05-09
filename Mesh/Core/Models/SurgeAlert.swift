@@ -1,4 +1,5 @@
 import Foundation
+import MeshBackendCore
 import SwiftUI
 
 enum SurgeSeverity: Int, Codable, Comparable {
@@ -147,6 +148,31 @@ extension SurgeAlert {
             contributingFactors: ["Park event traffic", "Clustered medical calls"]
         )
     ]
+}
+
+extension SurgeAlert {
+    init(wire: SurgeAlertWire) {
+        self.init(
+            id: wire.id,
+            districtId: wire.districtId,
+            districtName: wire.districtName,
+            severity: SurgeSeverity(rawValue: wire.severity.rawValue) ?? .normal,
+            currentCallVolume: wire.currentCallVolume,
+            expectedCallVolume: wire.expectedCallVolume,
+            percentageIncrease: wire.percentageIncrease,
+            trend: SurgeAlert.SurgeTrend(rawValue: wire.trend.rawValue) ?? .stable,
+            triggeredAt: wire.triggeredAt,
+            predictedPeakTime: wire.predictedPeakTime,
+            confidenceScore: wire.confidenceScore,
+            contributingFactors: wire.contributingFactors
+        )
+    }
+}
+
+extension SurgeTrendDataPoint {
+    init(wire: SurgeTrendPointWire) {
+        self.init(id: wire.id, timestamp: wire.timestamp, callVolume: wire.callVolume, expectedVolume: wire.expectedVolume)
+    }
 }
 
 extension SurgeTrendDataPoint {

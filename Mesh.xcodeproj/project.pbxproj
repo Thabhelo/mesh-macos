@@ -250,6 +250,7 @@
 			);
 			name = Mesh;
 			packageProductDependencies = (
+				A3F81BE229144DD887652301 /* MeshBackendCore */,
 			);
 			productName = Mesh;
 			productReference = 9471E63709F31F61974AC64C /* Mesh.app */;
@@ -283,11 +284,29 @@
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
+			packageReferences = (
+				B7E92FC031524F88B9AA4402 /* XCLocalSwiftPackageReference */,
+			);
 			targets = (
 				2607BAF3CAE3973FA5F0947A /* Mesh */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		B7E92FC031524F88B9AA4402 /* XCLocalSwiftPackageReference */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A3F81BE229144DD887652301 /* MeshBackendCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B7E92FC031524F88B9AA4402 /* XCLocalSwiftPackageReference */;
+			productName = MeshBackendCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin PBXResourcesBuildPhase section */
 		0F52A20AC105E46EE3A53AD4 /* Resources */ = {

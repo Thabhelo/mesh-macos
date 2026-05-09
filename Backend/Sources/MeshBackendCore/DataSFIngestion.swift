@@ -96,8 +96,20 @@ public struct DataSFPoint: Decodable, Equatable {
 public enum DataSFNormalizer {
     public static func snapshot(from data: Data, fetchedAt: Date) throws -> DataSFIncidentSnapshot {
         let calls = try JSONDecoder().decode([DataSFDispatchedCall].self, from: data)
+        let normalized = calls.compactMap(normalize)
+        var bestById: [String: IncidentPayload] = [:]
+        for incident in normalized {
+            if let existing = bestById[incident.id] {
+                if incident.updatedAt >= existing.updatedAt {
+                    bestById[incident.id] = incident
+                }
+            } else {
+                bestById[incident.id] = incident
+            }
+        }
+        let incidents = bestById.values.sorted { $0.updatedAt > $1.updatedAt }
         return DataSFIncidentSnapshot(
-            incidents: calls.compactMap(normalize),
+            incidents: incidents,
             sourceDataAsOf: newestDate(from: calls.map(\.dataAsOf)),
             sourceDataLoadedAt: newestDate(from: calls.map(\.dataLoadedAt)),
             fetchedAt: fetchedAt

@@ -4,7 +4,7 @@ info:
   version: v1
   summary: Stable backend contract for San Francisco public-safety data.
 servers:
-  - url: https://api.mesh-platform.com/v1
+  - url: https://api.meshofdata.org/v1
     description: Production
   - url: http://localhost:8080/v1
     description: Local development

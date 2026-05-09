@@ -105,4 +105,4 @@ The service is a Swift executable with no third-party dependencies. A production
 - Set `MESH_BACKEND_SNAPSHOT_PATH` to durable storage.
 - Keep the process alive so the built-in 10-minute ingestion cadence continues to run.
 - Add TLS, request authentication, structured log shipping, and process supervision at the hosting layer.
-- Put the service behind `https://api.mesh-platform.com/v1` before removing local-development overrides.
+- Put the service behind `https://api.meshofdata.org/v1` before removing local-development overrides.

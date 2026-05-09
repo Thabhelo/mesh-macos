@@ -188,7 +188,19 @@ class AppState: ObservableObject {
 
         do {
             let result = try await IncidentPollingService.shared.poll()
-            applyIncidentPollingResult(result)
+            if result.dataSource == .meshBackend {
+                do {
+                    async let surgeTask = APIClient.shared.fetchSurgeAlerts()
+                    async let hazardTask = APIClient.shared.fetchHazardScore()
+                    let surge = try await surgeTask
+                    let hazard = try await hazardTask
+                    applyIncidentPollingResult(result, backendSurgeAlerts: surge, backendHazardScore: hazard)
+                } catch {
+                    applyIncidentPollingResult(result)
+                }
+            } else {
+                applyIncidentPollingResult(result)
+            }
         } catch {
             markIncidentRefreshFailed(error)
             print("Failed to refresh incidents: \(error)")
@@ -299,7 +311,11 @@ class AppState: ObservableObject {
         updateSystemStatus()
     }
 
-    private func applyIncidentPollingResult(_ result: IncidentPollingResult) {
+    private func applyIncidentPollingResult(
+        _ result: IncidentPollingResult,
+        backendSurgeAlerts: [SurgeAlert]? = nil,
+        backendHazardScore: HazardScore? = nil
+    ) {
         let shouldNotify = lastIncidentRefreshAt != nil
 
         incidents = result.incidents
@@ -313,7 +329,12 @@ class AppState: ObservableObject {
         incidentRefreshRecoverySuggestion = nil
         dataConnectionState = dataMode == .replay ? .replay : freshnessState(for: result)
         isConnected = dataMode == .live && (dataConnectionState == .live || dataConnectionState == .stale)
-        updateDerivedIntelligence(referenceDate: result.refreshedAt)
+        if let backendSurgeAlerts, let backendHazardScore {
+            surgeAlerts = backendSurgeAlerts
+            hazardScore = backendHazardScore
+        } else {
+            updateDerivedIntelligence(referenceDate: result.refreshedAt)
+        }
 
         if shouldNotify && dataMode == .live {
             notifyForCriticalNewIncidents(in: result.updates)

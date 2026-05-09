@@ -156,6 +156,92 @@ final class MeshBackendContractTests: XCTestCase {
         XCTAssertTrue(contract.contains("gnap-fj3t"))
     }
 
+    func testDataSFNormalizerDeduplicatesBySourceIdKeepingLatestUpdate() throws {
+        let fetchedAt = Date(timeIntervalSince1970: 1_715_810_400)
+        let olderUpdated = "2024-05-15T12:02:00.000"
+        let newerUpdated = "2024-05-15T12:05:00.000"
+        let json = """
+        [
+          {
+            "id": "240000001",
+            "received_datetime": "2024-05-15T12:00:00.000",
+            "entry_datetime": "2024-05-15T12:01:00.000",
+            "dispatch_datetime": "2024-05-15T12:02:00.000",
+            "close_datetime": null,
+            "call_type_original_desc": "TRAF COLLISION",
+            "call_type_final_desc": "TRAF COLLISION",
+            "priority_original": "A",
+            "priority_final": "A",
+            "agency": "Police",
+            "disposition": "REP",
+            "sensitive_call": false,
+            "intersection_name": "I-80 W AT 5TH ST",
+            "intersection_point": {"type":"Point","coordinates":[-122.3915,37.7898]},
+            "analysis_neighborhood": "South of Market",
+            "police_district": "SOUTHERN",
+            "call_last_updated_at": "\(olderUpdated)",
+            "data_as_of": "\(olderUpdated)",
+            "data_loaded_at": "\(olderUpdated)"
+          },
+          {
+            "id": "240000001",
+            "received_datetime": "2024-05-15T12:00:00.000",
+            "entry_datetime": "2024-05-15T12:01:00.000",
+            "dispatch_datetime": "2024-05-15T12:02:00.000",
+            "close_datetime": null,
+            "call_type_original_desc": "TRAF COLLISION",
+            "call_type_final_desc": "TRAF COLLISION",
+            "priority_original": "A",
+            "priority_final": "A",
+            "agency": "Police",
+            "disposition": "REP",
+            "sensitive_call": false,
+            "intersection_name": "I-80 W AT 5TH ST",
+            "intersection_point": {"type":"Point","coordinates":[-122.3915,37.7898]},
+            "analysis_neighborhood": "South of Market",
+            "police_district": "SOUTHERN",
+            "call_last_updated_at": "\(newerUpdated)",
+            "data_as_of": "\(newerUpdated)",
+            "data_loaded_at": "\(newerUpdated)"
+          }
+        ]
+        """
+
+        let snapshot = try DataSFNormalizer.snapshot(from: Data(json.utf8), fetchedAt: fetchedAt)
+
+        XCTAssertEqual(snapshot.incidents.count, 1)
+        XCTAssertEqual(snapshot.incidents.first?.updatedAt, DataSFNormalizer.parseDataSFDate(newerUpdated))
+    }
+
+    func testBackendRouterServesDerivedSurgeTrendAndHazardEnvelopes() async throws {
+        let fetchedAt = Date(timeIntervalSince1970: 1_715_810_400)
+        let snapshot = try DataSFNormalizer.snapshot(from: Data(dataSFResponse().utf8), fetchedAt: fetchedAt)
+        let router = MeshBackendRouter(store: MeshBackendStore(snapshot: snapshot), now: { fetchedAt })
+
+        let surgeResponse = await router.route(method: "GET", path: "/v1/surge-alerts")
+        let hazardResponse = await router.route(method: "GET", path: "/v1/hazard-score")
+        let trendResponse = await router.route(
+            method: "GET",
+            path: "/v1/surge-trends",
+            queryItems: [URLQueryItem(name: "districtId", value: "southern")]
+        )
+
+        XCTAssertEqual(surgeResponse.statusCode, 200)
+        XCTAssertEqual(hazardResponse.statusCode, 200)
+        XCTAssertEqual(trendResponse.statusCode, 200)
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        let surgeEnvelope = try decoder.decode(APIEnvelope<[SurgeAlertWire]>.self, from: surgeResponse.body)
+        let hazardEnvelope = try decoder.decode(APIEnvelope<HazardScoreWire>.self, from: hazardResponse.body)
+        let trendEnvelope = try decoder.decode(APIEnvelope<[SurgeTrendPointWire]>.self, from: trendResponse.body)
+
+        XCTAssertEqual(surgeEnvelope.data.count, 0)
+        XCTAssertEqual(hazardEnvelope.data.id, "sf-hazard-live")
+        XCTAssertFalse(trendEnvelope.data.isEmpty)
+    }
+
     private func dataSFResponse() -> String {
         """
         [

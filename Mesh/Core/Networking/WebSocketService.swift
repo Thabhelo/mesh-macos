@@ -70,7 +70,7 @@ class WebSocketService: NSObject {
     private let maxReconnectAttempts = 5
     private let reconnectDelay: TimeInterval = 5.0
     
-    private let baseURL = URL(string: "wss://api.mesh-platform.com/ws")!
+    private let baseURL = URL(string: "wss://api.meshofdata.org/ws")!
     private let decoder = JSONDecoder()
     
     private override init() {

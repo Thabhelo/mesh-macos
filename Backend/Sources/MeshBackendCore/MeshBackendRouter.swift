@@ -123,8 +123,12 @@ public struct MeshBackendRouter {
             return await freshness()
         case "/v1/health":
             return await health()
-        case "/v1/surge-alerts", "/v1/surge-trends", "/v1/hazard-score":
-            return await emptyArrayEnvelope()
+        case "/v1/surge-alerts":
+            return await surgeAlerts()
+        case "/v1/surge-trends":
+            return await surgeTrends(queryItems: queryItems)
+        case "/v1/hazard-score":
+            return await hazardScore()
         default:
             return error(.notFound, message: "Unknown endpoint \(path)", statusCode: 404)
         }
@@ -216,11 +220,43 @@ public struct MeshBackendRouter {
         return encodeEnvelope(data: health, freshness: freshness)
     }
 
-    private func emptyArrayEnvelope() async -> HTTPResponse {
+    private func surgeAlerts() async -> HTTPResponse {
         guard let snapshot = await store.currentSnapshot() else {
             return error(.sourceUnavailable, message: "No successful DataSF ingest is available yet.", statusCode: 503)
         }
-        return encodeEnvelope(data: [String](), snapshot: snapshot)
+        let alerts = MeshDerivedSignals.deriveSurgeAlerts(incidents: snapshot.incidents, now: now())
+        return encodeEnvelope(data: alerts, snapshot: snapshot)
+    }
+
+    private func surgeTrends(queryItems: [URLQueryItem]) async -> HTTPResponse {
+        guard let snapshot = await store.currentSnapshot() else {
+            return error(.sourceUnavailable, message: "No successful DataSF ingest is available yet.", statusCode: 503)
+        }
+        let filters = Dictionary(uniqueKeysWithValues: queryItems.compactMap { item in
+            item.value.map { (item.name, $0) }
+        })
+        let districtId = filters["districtId"]
+        let hours = filters["hours"].flatMap(Int.init) ?? 24
+        let series = MeshDerivedSignals.deriveSurgeTrendSeries(
+            incidents: snapshot.incidents,
+            districtId: districtId,
+            hours: max(1, hours),
+            now: now()
+        )
+        return encodeEnvelope(data: series, snapshot: snapshot)
+    }
+
+    private func hazardScore() async -> HTTPResponse {
+        guard let snapshot = await store.currentSnapshot() else {
+            return error(.sourceUnavailable, message: "No successful DataSF ingest is available yet.", statusCode: 503)
+        }
+        let alerts = MeshDerivedSignals.deriveSurgeAlerts(incidents: snapshot.incidents, now: now())
+        let hazard = MeshDerivedSignals.deriveHazardScore(
+            incidents: snapshot.incidents,
+            surgeAlerts: alerts,
+            now: now()
+        )
+        return encodeEnvelope(data: hazard, snapshot: snapshot)
     }
 
     private func encodeEnvelope<Payload: Codable & Equatable>(data: Payload, snapshot: DataSFIncidentSnapshot) -> HTTPResponse {
