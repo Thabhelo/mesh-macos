@@ -25,6 +25,9 @@ jobs:
           xcodebuild -version
           swift --version
 
+      - name: Resolve Xcode Swift packages
+        run: xcodebuild -resolvePackageDependencies -project Mesh.xcodeproj -scheme Mesh
+
       - name: Run SwiftPM tests
         run: swift test
 
