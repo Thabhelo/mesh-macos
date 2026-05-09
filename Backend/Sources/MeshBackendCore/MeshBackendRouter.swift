@@ -20,8 +20,9 @@ public actor MeshBackendStore {
 
     public init(snapshot: DataSFIncidentSnapshot? = nil, persistenceURL: URL? = nil) {
         self.persistenceURL = persistenceURL
-        self.snapshot = snapshot ?? Self.loadSnapshot(from: persistenceURL)
-        self.lastSuccessfulIngestAt = self.snapshot?.fetchedAt
+        let snap = snapshot ?? Self.loadSnapshot(from: persistenceURL)
+        self.snapshot = snap
+        self.lastSuccessfulIngestAt = snap?.fetchedAt
     }
 
     public func ingest(_ snapshot: DataSFIncidentSnapshot) {
