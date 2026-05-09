@@ -1,5 +1,5 @@
 import XCTest
-@testable import Mesh
+@testable import MeshAppSPM
 
 final class AppStatePresentationTests: XCTestCase {
     func testConnectionStatusDetailIncludesErrorBeforeRecoverySuggestion() {

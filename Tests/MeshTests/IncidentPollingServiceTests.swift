@@ -1,5 +1,5 @@
 import XCTest
-@testable import Mesh
+@testable import MeshAppSPM
 
 final class IncidentPollingServiceTests: XCTestCase {
     private let firstFetchAt = Date(timeIntervalSince1970: 1_715_810_400)

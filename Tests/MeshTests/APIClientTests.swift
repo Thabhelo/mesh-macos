@@ -1,5 +1,5 @@
 import XCTest
-@testable import Mesh
+@testable import MeshAppSPM
 
 final class APIClientTests: XCTestCase {
     private let fetchedAt = Date(timeIntervalSince1970: 1_715_810_400)

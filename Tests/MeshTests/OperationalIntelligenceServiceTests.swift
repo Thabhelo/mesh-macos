@@ -1,5 +1,5 @@
 import XCTest
-@testable import Mesh
+@testable import MeshAppSPM
 
 final class OperationalIntelligenceServiceTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_715_810_400) // 2024-05-15 20:00:00 UTC

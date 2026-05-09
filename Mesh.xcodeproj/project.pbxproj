@@ -10,28 +10,34 @@
 		00F784D4FAB47DF4332C6425 /* District.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9F1D69A6CC1347B73AA4E3 /* District.swift */; };
 		02C74DB491B18E00DD4417CA /* HazardAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C0D625F56008185F35F9155 /* HazardAnalysisView.swift */; };
 		114253E7D8291D44CC8E69B1 /* WebSocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BC2CFD9D24B335F36F7D3D /* WebSocketService.swift */; };
+		1B2867E94C3B1217B46C51D6 /* IncidentPollingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AECA23CE0A13ED04F31C244 /* IncidentPollingService.swift */; };
 		1E49705DC15BC2EC8D83EABA /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17C024783735BBB11B639303 /* LocationService.swift */; };
-		1A2B3C4D5E6F708192A3B4C5 /* IncidentPollingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1A2B3C4D5E6F708192A3B4 /* IncidentPollingService.swift */; };
-		1F2E3D4C5B6A798887766554 /* OperationalIntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E1D2C3B4A59687766554433 /* OperationalIntelligenceService.swift */; };
-		2A3B4C5D6E7F8091A2B3C4D5 /* ReplayScenarioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4B5C6D7E8F9012A3B4C5D6 /* ReplayScenarioService.swift */; };
 		200DB4B542BA3E13A03CE27C /* Incident.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00CC6801B4D2EACB05BA7BC5 /* Incident.swift */; };
+		284D004187AC3E0B2725EC7D /* ReplayScenarioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB190ACE71EBED433749E7D9 /* ReplayScenarioService.swift */; };
 		2DB3EA524F368FEA2D3EDF08 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85FA63A04EE5EE7B5057C07 /* AppDelegate.swift */; };
 		30F416229C949ECDB6A12101 /* StatCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B55AAC18C7B344F3514AEB3 /* StatCard.swift */; };
 		4AE320FEE51B285E199CAAAC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18201F221565A6BFA4DE3149 /* Assets.xcassets */; };
 		4AF5463DB163DB6D020E2565 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB1F10CA634F93A0EF047761 /* ErrorView.swift */; };
 		4D49D53F173B9ADD55A5DE43 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D429481634A9311DA3993B8F /* NotificationService.swift */; };
+		53352E55B87ACC08742C3CF7 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0E13CCB3590EAEE468A9BE96 /* IBMPlexSans-Regular.ttf */; };
 		65FF9C2651BD5C75C4A6DA7C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1AF85BD430C01FA991B56D /* ContentView.swift */; };
 		73D084B38C4A606F208F3C7F /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23D73FD5B7C7F5DB0499F468 /* AppState.swift */; };
 		77D33BEB1FE321E37D4B8E1C /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0814E488C92791A098FD5BCF /* Theme.swift */; };
 		7E5D6FD7CC1752D042A3E435 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE4617A7382D718FAB71347 /* WelcomeView.swift */; };
 		81E95CADB3E10D0ACF625550 /* MenuBarPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606928D25D0B200D7FCAE0D8 /* MenuBarPopoverView.swift */; };
+		83BE17A072E3FCACD9AD3818 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 36114AD7A5091F7643D0D010 /* IBMPlexSans-Medium.ttf */; };
+		89D04EA6D8463A5D46AA3052 /* MeshBackendCore in Frameworks */ = {isa = PBXBuildFile; productRef = D822EBA7F1C80634C3DBAB38 /* MeshBackendCore */; };
 		8AE3184570E90A326679C78A /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9362CCF37CC8DB1994F1D0E /* LoadingView.swift */; };
 		928EEFE17FBA3D01F284BE32 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26C1CC96097B4112BA567A20 /* APIClient.swift */; };
 		9F822FBB3DFC1CC0C9EB5D0A /* SurgePredictionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B17E06A8D9974764F471AC /* SurgePredictionView.swift */; };
 		A25532A266736EE4B0CA2B78 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6297E7472DE6F533FB37F08 /* MapView.swift */; };
 		B8F6BFB2CF4D9FD339B452D2 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E402D24CD12A272D00A3A810 /* DashboardView.swift */; };
+		BA12079E34ED6D8754C8D162 /* IBMPlexSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 881D4AAD5E2979274DE3767B /* IBMPlexSans-SemiBold.ttf */; };
 		CAE81A222A5A5218EF341F3A /* Agency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B96EB3BC89B660A8FC89A85 /* Agency.swift */; };
+		D5451DA8367DBDFF67D3992E /* IBMPlexSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EB292CE5CE3275866ED6DFEC /* IBMPlexSans-Bold.ttf */; };
 		DB984963BA40FF8E98E2C4A8 /* HazardScore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BB99137264552AABEDAE1D /* HazardScore.swift */; };
+		DD6ED37B099E73663918E0AB /* OperationalIntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C313EA457FC7B4699363205 /* OperationalIntelligenceService.swift */; };
+		E095CC694EE920C4E15FFC53 /* IBM-Plex-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 866DA32CFC747EE479E54BC9 /* IBM-Plex-LICENSE.txt */; };
 		E35FD9F0E04FF02EABE734BA /* MeshApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0E8AAA1DB929015EBDBBB0 /* MeshApp.swift */; };
 		FB5DBF085045836BC01BABEB /* SurgeAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE809E4F224245F1A45B40C /* SurgeAlert.swift */; };
 /* End PBXBuildFile section */
@@ -41,24 +47,28 @@
 		0814E488C92791A098FD5BCF /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		0A1AF85BD430C01FA991B56D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		0B55AAC18C7B344F3514AEB3 /* StatCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatCard.swift; sourceTree = "<group>"; };
-		0F1A2B3C4D5E6F708192A3B4 /* IncidentPollingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncidentPollingService.swift; sourceTree = "<group>"; };
-		0E1D2C3B4A59687766554433 /* OperationalIntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationalIntelligenceService.swift; sourceTree = "<group>"; };
-		3A4B5C6D7E8F9012A3B4C5D6 /* ReplayScenarioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayScenarioService.swift; sourceTree = "<group>"; };
+		0E13CCB3590EAEE468A9BE96 /* IBMPlexSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexSans-Regular.ttf"; sourceTree = "<group>"; };
 		17C024783735BBB11B639303 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		18201F221565A6BFA4DE3149 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1E9F1D69A6CC1347B73AA4E3 /* District.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = District.swift; sourceTree = "<group>"; };
 		23D73FD5B7C7F5DB0499F468 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		26C1CC96097B4112BA567A20 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		34B17E06A8D9974764F471AC /* SurgePredictionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurgePredictionView.swift; sourceTree = "<group>"; };
+		36114AD7A5091F7643D0D010 /* IBMPlexSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexSans-Medium.ttf"; sourceTree = "<group>"; };
 		37BC2CFD9D24B335F36F7D3D /* WebSocketService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketService.swift; sourceTree = "<group>"; };
+		4C313EA457FC7B4699363205 /* OperationalIntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationalIntelligenceService.swift; sourceTree = "<group>"; };
 		5B96EB3BC89B660A8FC89A85 /* Agency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Agency.swift; sourceTree = "<group>"; };
 		606928D25D0B200D7FCAE0D8 /* MenuBarPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPopoverView.swift; sourceTree = "<group>"; };
 		612A91321FEC5B5FBA71ADDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7A0E8AAA1DB929015EBDBBB0 /* MeshApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshApp.swift; sourceTree = "<group>"; };
+		866DA32CFC747EE479E54BC9 /* IBM-Plex-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "IBM-Plex-LICENSE.txt"; sourceTree = "<group>"; };
+		881D4AAD5E2979274DE3767B /* IBMPlexSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexSans-SemiBold.ttf"; sourceTree = "<group>"; };
 		9471E63709F31F61974AC64C /* Mesh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mesh.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A130C0C8FD644E2B371ABC3 /* Mesh.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Mesh.entitlements; sourceTree = "<group>"; };
+		9AECA23CE0A13ED04F31C244 /* IncidentPollingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncidentPollingService.swift; sourceTree = "<group>"; };
 		9C0D625F56008185F35F9155 /* HazardAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazardAnalysisView.swift; sourceTree = "<group>"; };
 		9FE809E4F224245F1A45B40C /* SurgeAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurgeAlert.swift; sourceTree = "<group>"; };
+		A163A2A47CC27311990B689F /* mesh-macos */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "mesh-macos"; path = .; sourceTree = SOURCE_ROOT; };
 		B6297E7472DE6F533FB37F08 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		BCE4617A7382D718FAB71347 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		C6BB99137264552AABEDAE1D /* HazardScore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazardScore.swift; sourceTree = "<group>"; };
@@ -66,8 +76,21 @@
 		D85FA63A04EE5EE7B5057C07 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E402D24CD12A272D00A3A810 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		E9362CCF37CC8DB1994F1D0E /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		EB190ACE71EBED433749E7D9 /* ReplayScenarioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayScenarioService.swift; sourceTree = "<group>"; };
 		EB1F10CA634F93A0EF047761 /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
+		EB292CE5CE3275866ED6DFEC /* IBMPlexSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexSans-Bold.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		12144E13A7AC06E7AB04FF9F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				89D04EA6D8463A5D46AA3052 /* MeshBackendCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		19CA3F32124FE997D286A301 /* Shared */ = {
@@ -76,6 +99,14 @@
 				47A6849A0E3F787B495E027D /* Components */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		289EBDB66A040C034BB62199 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				A163A2A47CC27311990B689F /* mesh-macos */,
+			);
+			name = Packages;
 			sourceTree = "<group>";
 		};
 		33C8C549366C1A48A346E34E /* Mesh */ = {
@@ -108,6 +139,7 @@
 			isa = PBXGroup;
 			children = (
 				18201F221565A6BFA4DE3149 /* Assets.xcassets */,
+				F29B2FB17AE36EE139C0A1B6 /* Fonts */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -174,11 +206,11 @@
 		A1BCDC4CA8C2F7E32A17B3DE /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				0F1A2B3C4D5E6F708192A3B4 /* IncidentPollingService.swift */,
+				9AECA23CE0A13ED04F31C244 /* IncidentPollingService.swift */,
 				17C024783735BBB11B639303 /* LocationService.swift */,
 				D429481634A9311DA3993B8F /* NotificationService.swift */,
-				0E1D2C3B4A59687766554433 /* OperationalIntelligenceService.swift */,
-				3A4B5C6D7E8F9012A3B4C5D6 /* ReplayScenarioService.swift */,
+				4C313EA457FC7B4699363205 /* OperationalIntelligenceService.swift */,
+				EB190ACE71EBED433749E7D9 /* ReplayScenarioService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -220,8 +252,21 @@
 			isa = PBXGroup;
 			children = (
 				33C8C549366C1A48A346E34E /* Mesh */,
+				289EBDB66A040C034BB62199 /* Packages */,
 				8B628407C52EAC9C14383E3E /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		F29B2FB17AE36EE139C0A1B6 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				866DA32CFC747EE479E54BC9 /* IBM-Plex-LICENSE.txt */,
+				EB292CE5CE3275866ED6DFEC /* IBMPlexSans-Bold.ttf */,
+				36114AD7A5091F7643D0D010 /* IBMPlexSans-Medium.ttf */,
+				0E13CCB3590EAEE468A9BE96 /* IBMPlexSans-Regular.ttf */,
+				881D4AAD5E2979274DE3767B /* IBMPlexSans-SemiBold.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		F9FDE23F996488D5B6707F67 /* Core */ = {
@@ -243,6 +288,7 @@
 			buildPhases = (
 				488AB397F7C8CDFA7C025FFD /* Sources */,
 				0F52A20AC105E46EE3A53AD4 /* Resources */,
+				12144E13A7AC06E7AB04FF9F /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -250,7 +296,7 @@
 			);
 			name = Mesh;
 			packageProductDependencies = (
-				A3F81BE229144DD887652301 /* MeshBackendCore */,
+				D822EBA7F1C80634C3DBAB38 /* MeshBackendCore */,
 			);
 			productName = Mesh;
 			productReference = 9471E63709F31F61974AC64C /* Mesh.app */;
@@ -281,32 +327,17 @@
 			);
 			mainGroup = ED686B075E08EEF838E83557;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				6DA7EEC67698FCF9445E5106 /* XCLocalSwiftPackageReference "." */,
+			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
-			packageReferences = (
-				B7E92FC031524F88B9AA4402 /* XCLocalSwiftPackageReference */,
-			);
 			targets = (
 				2607BAF3CAE3973FA5F0947A /* Mesh */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		B7E92FC031524F88B9AA4402 /* XCLocalSwiftPackageReference */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = .;
-		};
-/* End XCLocalSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		A3F81BE229144DD887652301 /* MeshBackendCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B7E92FC031524F88B9AA4402 /* XCLocalSwiftPackageReference */;
-			productName = MeshBackendCore;
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin PBXResourcesBuildPhase section */
 		0F52A20AC105E46EE3A53AD4 /* Resources */ = {
@@ -314,6 +345,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				4AE320FEE51B285E199CAAAC /* Assets.xcassets in Resources */,
+				E095CC694EE920C4E15FFC53 /* IBM-Plex-LICENSE.txt in Resources */,
+				D5451DA8367DBDFF67D3992E /* IBMPlexSans-Bold.ttf in Resources */,
+				83BE17A072E3FCACD9AD3818 /* IBMPlexSans-Medium.ttf in Resources */,
+				53352E55B87ACC08742C3CF7 /* IBMPlexSans-Regular.ttf in Resources */,
+				BA12079E34ED6D8754C8D162 /* IBMPlexSans-SemiBold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -335,15 +371,15 @@
 				02C74DB491B18E00DD4417CA /* HazardAnalysisView.swift in Sources */,
 				DB984963BA40FF8E98E2C4A8 /* HazardScore.swift in Sources */,
 				200DB4B542BA3E13A03CE27C /* Incident.swift in Sources */,
-				1A2B3C4D5E6F708192A3B4C5 /* IncidentPollingService.swift in Sources */,
+				1B2867E94C3B1217B46C51D6 /* IncidentPollingService.swift in Sources */,
 				8AE3184570E90A326679C78A /* LoadingView.swift in Sources */,
 				1E49705DC15BC2EC8D83EABA /* LocationService.swift in Sources */,
 				A25532A266736EE4B0CA2B78 /* MapView.swift in Sources */,
 				81E95CADB3E10D0ACF625550 /* MenuBarPopoverView.swift in Sources */,
 				E35FD9F0E04FF02EABE734BA /* MeshApp.swift in Sources */,
 				4D49D53F173B9ADD55A5DE43 /* NotificationService.swift in Sources */,
-				1F2E3D4C5B6A798887766554 /* OperationalIntelligenceService.swift in Sources */,
-				2A3B4C5D6E7F8091A2B3C4D5 /* ReplayScenarioService.swift in Sources */,
+				DD6ED37B099E73663918E0AB /* OperationalIntelligenceService.swift in Sources */,
+				284D004187AC3E0B2725EC7D /* ReplayScenarioService.swift in Sources */,
 				30F416229C949ECDB6A12101 /* StatCard.swift in Sources */,
 				FB5DBF085045836BC01BABEB /* SurgeAlert.swift in Sources */,
 				9F822FBB3DFC1CC0C9EB5D0A /* SurgePredictionView.swift in Sources */,
@@ -541,6 +577,20 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		6DA7EEC67698FCF9445E5106 /* XCLocalSwiftPackageReference "." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D822EBA7F1C80634C3DBAB38 /* MeshBackendCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MeshBackendCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8CBAFBEA29B26ABDFE91E07C /* Project object */;
 }

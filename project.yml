@@ -1,4 +1,7 @@
 name: Mesh
+packages:
+  MeshPackages:
+    path: .
 options:
   bundleIdPrefix: com.mesh
   deploymentTarget:
@@ -24,6 +27,10 @@ targets:
   Mesh:
     type: application
     platform: macOS
+    dependencies:
+      - package: MeshPackages
+        products:
+          - MeshBackendCore
     sources:
       - path: Mesh
         excludes:
