@@ -18,11 +18,24 @@ public actor MeshBackendStore {
     private var lastError: APIErrorPayload?
     private let persistenceURL: URL?
 
-    public init(snapshot: DataSFIncidentSnapshot? = nil, persistenceURL: URL? = nil) {
+    /// Disk-backed store; call ``loadPersistedSnapshotIfNeeded()`` before serving if you need restored state.
+    public init(persistenceURL: URL? = nil) {
         self.persistenceURL = persistenceURL
-        let snap = snapshot ?? Self.loadSnapshot(from: persistenceURL)
-        self.snapshot = snap
-        self.lastSuccessfulIngestAt = snap?.fetchedAt
+    }
+
+    /// In-memory snapshot for tests or callers that already have data (does not read disk).
+    public init(snapshot: DataSFIncidentSnapshot, persistenceURL: URL? = nil) {
+        self.persistenceURL = persistenceURL
+        self.snapshot = snapshot
+        self.lastSuccessfulIngestAt = snapshot.fetchedAt
+    }
+
+    /// Loads persisted snapshot from disk when ``snapshot`` is still unset (Swift 6–friendly bootstrap).
+    public func loadPersistedSnapshotIfNeeded() {
+        guard snapshot == nil else { return }
+        let snap = Self.loadSnapshot(from: persistenceURL)
+        snapshot = snap
+        lastSuccessfulIngestAt = snap?.fetchedAt
     }
 
     public func ingest(_ snapshot: DataSFIncidentSnapshot) {

@@ -4,11 +4,34 @@ import FoundationNetworking
 #endif
 import MeshBackendCore
 
+extension URLSession {
+    fileprivate func meshData(for request: URLRequest) async throws -> (Data, URLResponse) {
+        #if canImport(Darwin)
+        try await data(for: request)
+        #else
+        try await withCheckedThrowingContinuation { continuation in
+            dataTask(with: request) { data, response, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                guard let data, let response else {
+                    continuation.resume(throwing: URLError(.badServerResponse))
+                    return
+                }
+                continuation.resume(returning: (data, response))
+            }.resume()
+        }
+        #endif
+    }
+}
+
 public enum MeshBackendRunner {
     public static func run() async throws {
         let port = UInt16(ProcessInfo.processInfo.environment["PORT"] ?? "8080") ?? 8080
         let persistenceURL = URL(fileURLWithPath: ProcessInfo.processInfo.environment["MESH_BACKEND_SNAPSHOT_PATH"] ?? ".mesh-backend/incidents.json")
         let store = MeshBackendStore(persistenceURL: persistenceURL)
+        await store.loadPersistedSnapshotIfNeeded()
         let router = MeshBackendRouter(store: store)
         let ingester = DataSFIngester(store: store)
 
@@ -63,7 +86,7 @@ public struct DataSFIngester {
         request.setValue("Mesh Backend (San Francisco public-safety monitor)", forHTTPHeaderField: "User-Agent")
 
         do {
-            let (data, response) = try await session.data(for: request)
+            let (data, response) = try await session.meshData(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw URLError(.badServerResponse)
             }

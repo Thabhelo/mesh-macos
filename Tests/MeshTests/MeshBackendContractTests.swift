@@ -131,6 +131,7 @@ final class MeshBackendContractTests: XCTestCase {
         await writingStore.ingest(snapshot)
 
         let reloadedStore = MeshBackendStore(persistenceURL: persistenceURL)
+        await reloadedStore.loadPersistedSnapshotIfNeeded()
         let reloadedSnapshot = await reloadedStore.currentSnapshot()
 
         XCTAssertEqual(reloadedSnapshot?.incidents.map(\.id), ["datasf:gnap-fj3t:240000001"])
