@@ -42,7 +42,7 @@ extension Agency {
             type: .fire,
             shortName: "SFFD",
             contactPhone: "(415) 558-3200",
-            contactEmail: "FireAdministration@sfgov.org",
+            contactEmail: nil,
             headquarters: "698 2nd St, San Francisco, CA 94107",
             activeUnits: 12,
             totalUnits: 18,
@@ -66,7 +66,7 @@ extension Agency {
             type: .ems,
             shortName: "SF EMS",
             contactPhone: "(415) 558-3200",
-            contactEmail: "FireAdministration@sfgov.org",
+            contactEmail: nil,
             headquarters: "698 2nd St, San Francisco, CA 94107",
             activeUnits: 8,
             totalUnits: 12,
@@ -98,4 +98,3 @@ extension Agency {
         )
     ]
 }
-
