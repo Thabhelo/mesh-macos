@@ -272,6 +272,5 @@ Proprietary - Mesh Platform 2025
 
 ## Contact
 
-- Email: thabheloduve@gmail.com
+- Email: thabhelo@deepubuntu.com
 - Location: San Francisco, California
-
